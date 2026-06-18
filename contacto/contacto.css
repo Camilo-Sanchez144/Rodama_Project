@@ -1,0 +1,120 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Playfair Display", serif;
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.hero-section {
+  background: #c8a19c;
+  padding: 80px 20px;
+}
+
+.hero-section h1 {
+  margin-bottom: 15px;
+}
+
+.team-card {
+  transition: transform 0.3s ease;
+  border: none;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+}
+
+.team-card img {
+  height: 320px;
+  object-fit: cover;
+}
+
+.social-link:hover {
+  color: #212529;
+  transform: translateY(-2px);
+}
+
+footer {
+  background-color: #fff;
+}
+
+footer small {
+  font-size: 0.85rem;
+}
+.navbar-brand {
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  color: #555;
+  transition: 0.3s;
+}
+
+.nav-link:hover {
+  color: #0d6efd;
+}
+
+.btn {
+  border-radius: 8px;
+}
+
+main h1 {
+  font-weight: 600;
+}
+
+body{
+    background-color: #f3ece3;
+}
+
+.card{
+    border-radius: 15px;
+}
+
+h2{
+    color: #473A1F;
+}
+
+.form-label{
+    color: #473A1F;
+    font-weight: 600;
+}
+
+.form-control{
+    border-radius: 10px;
+}
+
+.btn-contacto{
+    background-color: #C8A19C;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 10px;
+    border: none;
+}
+
+.btn-contacto:hover{
+    background-color: #91766E;
+    color: white;
+}
+
+h2{
+    color: #473A1F;
+    font-weight: 700;
+}
+
+.lead{
+    color: #91766E;
+    max-width: 700px;
+    margin: 0 auto;
+}
