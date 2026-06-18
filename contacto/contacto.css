@@ -1,120 +1,240 @@
+/* =========================
+   VARIABLES
+========================= */
+:root {
+    --beige: #F3ECE3;
+    --rosa: #C8A19C;
+    --taupe: #91766E;
+    --verde: #7A8564;
+    --marron: #473A1F;
+    --negro: #222222;
+}
+
+/* =========================
+   RESET
+========================= */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: "Playfair Display", serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-
+/* =========================
+   BODY & TIPOGRAFÍA
+========================= */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+    font-family: 'Playfair Display', serif;
+    background-color: var(--beige);
+    color: var(--negro);
 }
 
-.hero-section {
-  background: #c8a19c;
-  padding: 80px 20px;
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+    background-color: rgba(255,255,255,0.95) !important;
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid #e5ddd5;
 }
 
-.hero-section h1 {
-  margin-bottom: 15px;
-}
-
-.team-card {
-  transition: transform 0.3s ease;
-  border: none;
-}
-
-.team-card:hover {
-  transform: translateY(-8px);
-}
-
-.team-card img {
-  height: 320px;
-  object-fit: cover;
-}
-
-.social-link:hover {
-  color: #212529;
-  transform: translateY(-2px);
-}
-
-footer {
-  background-color: #fff;
-}
-
-footer small {
-  font-size: 0.85rem;
-}
 .navbar-brand {
-  font-size: 1.4rem;
-  letter-spacing: 1px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--marron) !important;
+    letter-spacing: 1px;
 }
 
 .nav-link {
-  color: #555;
-  transition: 0.3s;
+    color: var(--taupe) !important;
+    position: relative;
 }
 
-.nav-link:hover {
-  color: #0d6efd;
+/* línea animada */
+.nav-link::after {
+    content: "";
+    width: 0;
+    height: 2px;
+    background: var(--rosa);
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    transition: 0.3s;
 }
 
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* =========================
+   BOTONES
+========================= */
 .btn {
-  border-radius: 8px;
+    border-radius: 8px;
 }
 
-main h1 {
-  font-weight: 600;
+.btn-primary {
+    background-color: var(--rosa);
+    border: none;
 }
 
-body{
-    background-color: #f3ece3;
+.btn-primary:hover {
+    background-color: var(--marron);
 }
 
-.card{
-    border-radius: 15px;
+.btn-outline-primary {
+    border-color: var(--rosa);
+    color: var(--rosa);
 }
 
-h2{
-    color: #473A1F;
+.btn-outline-primary:hover {
+    background-color: var(--rosa);
+    color: white;
 }
 
-.form-label{
-    color: #473A1F;
+/* =========================
+   HERO
+========================= */
+.hero-contacto {
+    position: relative;
+    height: 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    background: url("https://i.pinimg.com/1200x/a7/61/d7/a761d75f9489ceb2a49231c2e96d640a.jpg") center/cover no-repeat;
+
+    filter: grayscale(80%) brightness(0.9);
+}
+
+.hero-contacto .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        rgba(71, 58, 31, 0.35),
+        rgba(200, 161, 156, 0.4)
+    );
+}
+
+.contenido-hero {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    padding: 0 20px;
+    color: white;
+}
+
+.contenido-hero h2 {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.contenido-hero p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: white;
+}
+
+/* =========================
+   TEXTO GENERAL
+========================= */
+h2 {
+    color: var(--marron);
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.lead {
+    color: var(--taupe);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* =========================
+   SECCIÓN INFO
+========================= */
+.info-contacto {
+    padding: 80px 20px 30px;
+    text-align: center;
+}
+
+.info-contacto p {
+    color: var(--taupe);
+}
+
+/* =========================
+   CARD / FORMULARIO
+========================= */
+.card {
+    border-radius: 14px;
+    background-color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    padding: 30px;
+}
+
+/* LABEL */
+.form-label {
+    color: var(--marron);
     font-weight: 600;
 }
 
-.form-control{
+/* INPUT */
+.form-control {
     border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    transition: 0.3s;
 }
 
-.btn-contacto{
-    background-color: #C8A19C;
+.form-control:focus {
+    border-color: var(--rosa);
+    box-shadow: 0 0 0 0.15rem rgba(200, 161, 156, 0.25);
+}
+
+/* BOTÓN CONTACTO */
+.btn-contacto {
+    background-color: var(--rosa);
     color: white;
     padding: 10px 30px;
     border-radius: 10px;
     border: none;
+    transition: 0.3s;
 }
 
-.btn-contacto:hover{
-    background-color: #91766E;
-    color: white;
+.btn-contacto:hover {
+    background-color: var(--marron);
+    transform: translateY(-2px);
 }
 
-h2{
-    color: #473A1F;
-    font-weight: 700;
+/* =========================
+   INPUT NUMBER FIX
+========================= */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-.lead{
-    color: #91766E;
-    max-width: 700px;
-    margin: 0 auto;
+/* =========================
+   FOOTER
+========================= */
+footer {
+    background-color: white;
+}
+
+footer small {
+    font-size: 0.85rem;
+    color: var(--taupe);
+}
+
+.social-link {
+    color: var(--taupe);
+    transition: 0.3s;
+}
+
+.social-link:hover {
+    color: var(--rosa);
+    transform: translateY(-3px);
 }
