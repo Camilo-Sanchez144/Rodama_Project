@@ -1,222 +1,280 @@
+/* =========================
+   BASE
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
 }
 
 /* =========================
-   RESPONSIVE NAVBAR
+   NAVBAR
 ========================= */
-
-/* Tablets */
-@media (max-width: 992px) {
-
-    .logo {
-        font-size: 3rem;
-    }
-
-    .logo-img {
-        height: 70px;
-    }
-
-    .nav-link {
-        font-size: 0.75rem;
-    }
-
-    .search-input.active {
-        width: 140px;
-    }
-
-    .custom-navbar .container {
-        padding: 0 15px;
-    }
-}
-
-/* Móviles */
-@media (max-width: 768px) {
-
-    .custom-navbar .container {
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-
-    /* logo más pequeño */
-    .logo {
-        font-size: 2rem;
-    }
-
-    .logo-img {
-        height: 55px;
-    }
-
-    /* links en vertical si usas collapse */
-    .navbar-collapse {
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    .nav-link {
-        display: block;
-        padding: 8px 0;
-        font-size: 0.85rem;
-    }
-
-    /* search input más compacto */
-    .search-input.active {
-        width: 120px;
-    }
-
-    /* iconos separados mejor */
-    a i {
-        font-size: 18px;
-    }
-}
-
-/* Móviles pequeños */
-@media (max-width: 480px) {
-
-    .logo {
-        font-size: 1.5rem;
-    }
-
-    .logo-img {
-        height: 45px;
-    }
-
-    .search-input.active {
-        width: 100px;
-    }
-
-    .nav-link {
-        font-size: 0.8rem;
-    }
-
-    .custom-navbar {
-        padding: 5px 0;
-    }
-}
-
-/* NAVBAR BASE */
 .custom-navbar {
-    background-color: #000000;
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid #000000;
-    transition: all 0.3s ease;
+    background-color: #000;
+    border-bottom: 1px solid #222;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     z-index: 1000;
-
+    transition: all 0.3s ease;
 }
 
-/* LOGO */
-.logo {
-    font-family: "Times New Roman", serif;
-    font-size: 5rem;
-    letter-spacing: 2px;
-    color: #000 !important;
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
 }
 
-/* LINKS */
-.nav-link {
-    color: #ffffff !important;
+/* =========================
+   LOGO
+========================= */
+.logo-img {
+    height: 50px;
+    width: auto;
+}
+
+/* =========================
+   LINKS DESKTOP
+========================= */
+.nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
     font-size: 0.8rem;
     letter-spacing: 1px;
+    text-transform: uppercase;
     position: relative;
+    padding-bottom: 4px;
+    transition: color 0.2s;
 }
 
-/* EFECTO LÍNEA */
-.nav-link::after {
+.nav-links a::after {
     content: "";
     width: 0;
     height: 2px;
     background: #d6a77a;
     position: absolute;
     left: 0;
-    bottom: -4px;
-    transition: 0.3s;
+    bottom: -2px;
+    transition: width 0.3s;
 }
 
-.nav-link:hover::after {
+.nav-links a:hover::after {
     width: 100%;
 }
 
-/* ICONOS */
-a i {
-    color: #ffffff;
-    transition: 0.2s;
-}
-
-a i:hover {
-    color: #555;
-}
-
-/* NAVBAR SCROLL */
-.custom-navbar.scrolled {
-    background-color: #111;
-    padding: 10px 0;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.custom-navbar.scrolled .nav-link,
-.custom-navbar.scrolled i,
-.custom-navbar.scrolled .logo {
-    color: #fff !important;
-}
-
-/* CONTENIDO (para que no se tape) */
-.content {
-    padding-top: 100px;
-    height: 2000px;
-}
-
-.container {
-    margin: 10px;
-    max-width: 1200px;
-    width: 100%;
-    padding-left: 0;
-    padding-right: 10px;
-}
-
-
-.custom-navbar .container {
+/* =========================
+   ICONOS
+========================= */
+.nav-icons {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 18px;
 }
 
-/* INPUT OCULTO */
+.nav-icons a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-icons a:hover {
+    color: #aaa;
+}
+
+/* =========================
+   SEARCH INPUT
+========================= */
 .search-input {
     width: 0;
     opacity: 0;
     border: none;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #fff;
     outline: none;
-    transition: all 0.3s ease;
     background: transparent;
+    color: #fff;
+    font-size: 14px;
+    padding: 2px 5px;
+    transition: all 0.3s ease;
 }
 
-/* CUANDO SE ACTIVA */
 .search-input.active {
     width: 180px;
     opacity: 1;
-    padding: 2px 5px;
 }
 
-/* COLOR EN SCROLL */
-.custom-navbar.scrolled .search-input {
-    border-bottom: 1px solid #fff;
+.search-input::placeholder {
+    color: #aaa;
+}
+
+/* =========================
+   HAMBURGER
+========================= */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animación a X */
+.hamburger.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =========================
+   MENÚ MÓVIL
+========================= */
+.mobile-menu {
+    display: none;
+    background: #111;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, padding 0.3s ease;
+}
+
+.mobile-menu.open {
+    max-height: 400px;
+    padding: 12px 24px 20px;
+}
+
+.mobile-menu ul {
+    list-style: none;
+}
+
+.mobile-menu ul li a {
+    display: block;
     color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-bottom: 0.5px solid #333;
+    transition: color 0.2s;
 }
 
-.nav-left {
-    margin-right: auto;   
-    padding-left: 10px;   
+.mobile-menu ul li:last-child a {
+    border-bottom: none;
 }
 
-.logo-img {
-    height: 100px;
-    width: auto;
-    margin-top: 10px;
+.mobile-menu ul li a:hover {
+    color: #d6a77a;
 }
 
-.logo-text {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 2px;
+/* =========================
+   SCROLL STATE
+========================= */
+.custom-navbar.scrolled {
+    background-color: #111;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+/* Tablets */
+@media (max-width: 992px) {
+    .nav-links {
+        gap: 18px;
+    }
+
+    .nav-links a {
+        font-size: 0.75rem;
+    }
+
+    .logo-img {
+        height: 42px;
+    }
+
+    .search-input.active {
+        width: 140px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .logo-img {
+        height: 36px;
+    }
+
+    .search-input.active {
+        width: 120px;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 8px 14px;
+    }
+
+    .logo-img {
+        height: 30px;
+    }
+
+    .search-input.active {
+        width: 90px;
+    }
+
+    .nav-icons {
+        gap: 12px;
+    }
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+.content {
+    padding-top: 100px;
+    height: 2000px;
+    padding-left: 24px;
 }
