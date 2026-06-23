@@ -2,9 +2,101 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* =========================
+   RESPONSIVE NAVBAR
+========================= */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+    .logo {
+        font-size: 3rem;
+    }
+
+    .logo-img {
+        height: 70px;
+    }
+
+    .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .search-input.active {
+        width: 140px;
+    }
+
+    .custom-navbar .container {
+        padding: 0 15px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 768px) {
+
+    .custom-navbar .container {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    /* logo más pequeño */
+    .logo {
+        font-size: 2rem;
+    }
+
+    .logo-img {
+        height: 55px;
+    }
+
+    /* links en vertical si usas collapse */
+    .navbar-collapse {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 8px 0;
+        font-size: 0.85rem;
+    }
+
+    /* search input más compacto */
+    .search-input.active {
+        width: 120px;
+    }
+
+    /* iconos separados mejor */
+    a i {
+        font-size: 18px;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .logo-img {
+        height: 45px;
+    }
+
+    .search-input.active {
+        width: 100px;
+    }
+
+    .nav-link {
+        font-size: 0.8rem;
+    }
+
+    .custom-navbar {
+        padding: 5px 0;
+    }
+}
+
 /* NAVBAR BASE */
 .custom-navbar {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: #000000;
     backdrop-filter: blur(6px);
     border-bottom: 1px solid #000000;
     transition: all 0.3s ease;
@@ -22,7 +114,7 @@ body {
 
 /* LINKS */
 .nav-link {
-    color: #000 !important;
+    color: #ffffff !important;
     font-size: 0.8rem;
     letter-spacing: 1px;
     position: relative;
@@ -46,7 +138,7 @@ body {
 
 /* ICONOS */
 a i {
-    color: #000;
+    color: #ffffff;
     transition: 0.2s;
 }
 
@@ -115,4 +207,16 @@ a i:hover {
 .nav-left {
     margin-right: auto;   
     padding-left: 10px;   
+}
+
+.logo-img {
+    height: 100px;
+    width: auto;
+    margin-top: 10px;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 2px;
 }
