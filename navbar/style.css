@@ -1,0 +1,118 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* NAVBAR BASE */
+.custom-navbar {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid #000000;
+    transition: all 0.3s ease;
+    z-index: 1000;
+
+}
+
+/* LOGO */
+.logo {
+    font-family: "Times New Roman", serif;
+    font-size: 5rem;
+    letter-spacing: 2px;
+    color: #000 !important;
+}
+
+/* LINKS */
+.nav-link {
+    color: #000 !important;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+/* EFECTO LÍNEA */
+.nav-link::after {
+    content: "";
+    width: 0;
+    height: 2px;
+    background: #d6a77a;
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    transition: 0.3s;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* ICONOS */
+a i {
+    color: #000;
+    transition: 0.2s;
+}
+
+a i:hover {
+    color: #555;
+}
+
+/* NAVBAR SCROLL */
+.custom-navbar.scrolled {
+    background-color: #111;
+    padding: 10px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.custom-navbar.scrolled .nav-link,
+.custom-navbar.scrolled i,
+.custom-navbar.scrolled .logo {
+    color: #fff !important;
+}
+
+/* CONTENIDO (para que no se tape) */
+.content {
+    padding-top: 100px;
+    height: 2000px;
+}
+
+.container {
+    margin: 10px;
+    max-width: 1200px;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+
+.custom-navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* INPUT OCULTO */
+.search-input {
+    width: 0;
+    opacity: 0;
+    border: none;
+    border-bottom: 1px solid #000;
+    outline: none;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+/* CUANDO SE ACTIVA */
+.search-input.active {
+    width: 180px;
+    opacity: 1;
+    padding: 2px 5px;
+}
+
+/* COLOR EN SCROLL */
+.custom-navbar.scrolled .search-input {
+    border-bottom: 1px solid #fff;
+    color: #fff;
+}
+
+.nav-left {
+    margin-right: auto;   
+    padding-left: 10px;   
+}
