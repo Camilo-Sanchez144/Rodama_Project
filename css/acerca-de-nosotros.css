@@ -1,0 +1,236 @@
+/*  VARIABLES */
+:root {
+    --beige: #F3ECE3;
+    --rosa: #C8A19C;
+    --taupe: #91766E;
+    --verde: #7A8564;
+    --marron: #473A1F;
+    --negro: #222222;
+}
+
+/*  BASE */
+body {
+    background-color: var(--beige);
+    color: var(--negro);
+    font-family: 'Playfair Display', serif;
+}
+
+/* NAVBAR (ELEGANTE + DETALLE MODERNO) */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid #e5ddd5;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.6rem;
+    color: var(--marron) !important;
+    letter-spacing: 1px;
+}
+
+.nav-link {
+    color: var(--taupe) !important;
+    position: relative;
+}
+
+/* línea animada sutil */
+.nav-link::after {
+    content: "";
+    width: 0;
+    height: 2px;
+    background: var(--rosa);
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    transition: 0.3s;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* BOTONES */
+.btn-primary {
+    background-color: var(--rosa);
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--marron);
+}
+
+.btn-outline-primary {
+    border-color: var(--rosa);
+    color: var(--rosa);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--rosa);
+    color: white;
+}
+
+.hero-section {
+    position: relative;
+
+    background: linear-gradient(
+        rgba(71, 58, 31, 0.35),
+        rgba(71, 58, 31, 0.35)
+    ),
+    url("https://i.pinimg.com/1200x/e5/a4/40/e5a440657ca911045e773cdddb06c5cf.jpg");
+
+    background-size: cover;
+    background-position: center center; 
+    background-repeat: no-repeat;
+
+    padding: 140px 20px;
+    text-align: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.hero-section h1 {
+    font-size: 3.2rem;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.hero-section p {
+    color: var(--beige);
+    font-size: 1.1rem;
+    color: white;
+}
+
+/* 📄 SECCIÓN */
+section h2 {
+    color: var(--marron);
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* línea decorativa elegante */
+section h2::after {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 2px;
+    background: var(--rosa);
+    margin: 10px auto;
+}
+
+section p {
+    color: var(--taupe);
+    max-width: 800px;
+    margin: 20px auto;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+/* 👥 TEAM CARDS (HÍBRIDO PRO) */
+.team-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* efecto hover elegante */
+.team-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* imagen */
+.team-card img {
+    height: 280px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.team-card:hover img {
+    transform: scale(1.04);
+}
+
+/* overlay suave */
+.team-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(71, 58, 31, 0.5),
+        transparent
+    );
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.team-card:hover::before {
+    opacity: 1;
+}
+
+/* contenido */
+.team-card .card-body {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+/* nombre */
+.team-card .card-title {
+    color: var(--marron);
+    font-weight: 600;
+}
+
+/* rol */
+.team-card h6 {
+    color: var(--rosa) !important;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+/* texto */
+.team-card .card-text {
+    color: var(--taupe);
+    font-size: 0.9rem;
+}
+
+/* cambio en hover (sutil, no extremo) */
+.team-card:hover .card-title,
+.team-card:hover h6,
+.team-card:hover .card-text {
+    color: white;
+}
+
+/* 🧾 TITULOS */
+h2 {
+    letter-spacing: 1px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+    background-color: white;
+}
+
+footer small {
+    font-size: 0.85rem;
+    color: var(--taupe) !important;
+}
+
+.social-link {
+    color: var(--taupe) !important;
+    transition: 0.3s;
+}
+
+.social-link:hover {
+    color: var(--rosa) !important;
+    transform: translateY(-3px);
+}
