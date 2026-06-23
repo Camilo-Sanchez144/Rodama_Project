@@ -1,4 +1,3 @@
-/*  VARIABLES */
 :root {
     --beige: #F3ECE3;
     --rosa: #C8A19C;
@@ -8,14 +7,12 @@
     --negro: #222222;
 }
 
-/*  BASE */
 body {
     background-color: var(--beige);
     color: var(--negro);
     font-family: 'Playfair Display', serif;
 }
 
-/* NAVBAR (ELEGANTE + DETALLE MODERNO) */
 .navbar {
     background-color: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(6px);
@@ -34,7 +31,6 @@ body {
     position: relative;
 }
 
-/* línea animada sutil */
 .nav-link::after {
     content: "";
     width: 0;
@@ -50,7 +46,6 @@ body {
     width: 100%;
 }
 
-/* BOTONES */
 .btn-primary {
     background-color: var(--rosa);
     border: none;
@@ -105,14 +100,12 @@ body {
     color: white;
 }
 
-/* 📄 SECCIÓN */
 section h2 {
     color: var(--marron);
     font-size: 2rem;
     text-align: center;
 }
 
-/* línea decorativa elegante */
 section h2::after {
     content: "";
     display: block;
@@ -130,7 +123,6 @@ section p {
     text-align: center;
 }
 
-/* 👥 TEAM CARDS (HÍBRIDO PRO) */
 .team-card {
     border: none;
     border-radius: 10px;
@@ -140,13 +132,11 @@ section p {
     position: relative;
 }
 
-/* efecto hover elegante */
 .team-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* imagen */
 .team-card img {
     height: 280px;
     object-fit: cover;
@@ -157,7 +147,6 @@ section p {
     transform: scale(1.04);
 }
 
-/* overlay suave */
 .team-card::before {
     content: "";
     position: absolute;
@@ -175,47 +164,38 @@ section p {
     opacity: 1;
 }
 
-/* contenido */
 .team-card .card-body {
     position: relative;
     z-index: 2;
     text-align: center;
 }
 
-/* nombre */
 .team-card .card-title {
     color: var(--marron);
     font-weight: 600;
 }
 
-/* rol */
 .team-card h6 {
     color: var(--rosa) !important;
     font-size: 0.85rem;
     letter-spacing: 1px;
 }
 
-/* texto */
 .team-card .card-text {
     color: var(--taupe);
     font-size: 0.9rem;
 }
 
-/* cambio en hover (sutil, no extremo) */
 .team-card:hover .card-title,
 .team-card:hover h6,
 .team-card:hover .card-text {
     color: white;
 }
 
-/* 🧾 TITULOS */
 h2 {
     letter-spacing: 1px;
 }
 
-/* =========================
-   FOOTER
-========================= */
 footer {
     background-color: white;
 }
@@ -233,4 +213,252 @@ footer small {
 .social-link:hover {
     color: var(--rosa) !important;
     transform: translateY(-3px);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.custom-navbar {
+    background-color: #000;
+    border-bottom: 1px solid #222;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+}
+
+.nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.2s;
+}
+
+.nav-links a::after {
+    content: "";
+    width: 0;
+    height: 2px;
+    background: #d6a77a;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    transition: width 0.3s;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+.social-link {
+color: #6c757d;
+transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.social-link:hover {
+color: #212529;
+transform: translateY(-2px);
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.nav-icons a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-icons a:hover {
+    color: #aaa;
+}
+
+.search-input {
+    width: 0;
+    opacity: 0;
+    border: none;
+    border-bottom: 1px solid #fff;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+    padding: 2px 5px;
+    transition: all 0.3s ease;
+}
+
+.search-input.active {
+    width: 180px;
+    opacity: 1;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+.mobile-menu {
+    display: none;
+    background: #111;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease, padding 0.3s ease;
+}
+
+.mobile-menu.open {
+    max-height: 400px;
+    padding: 12px 24px 20px;
+}
+
+.mobile-menu ul {
+    list-style: none;
+}
+
+.mobile-menu ul li a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-bottom: 0.5px solid #333;
+    transition: color 0.2s;
+}
+
+.mobile-menu ul li:last-child a {
+    border-bottom: none;
+}
+
+.mobile-menu ul li a:hover {
+    color: #d6a77a;
+}
+
+.custom-navbar.scrolled {
+    background-color: #111;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 992px) {
+    .nav-links {
+        gap: 18px;
+    }
+
+    .nav-links a {
+        font-size: 0.75rem;
+    }
+
+    .logo-img {
+        height: 42px;
+    }
+
+    .search-input.active {
+        width: 140px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .logo-img {
+        height: 36px;
+    }
+
+    .search-input.active {
+        width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 8px 14px;
+    }
+
+    .logo-img {
+        height: 30px;
+    }
+
+    .search-input.active {
+        width: 90px;
+    }
+
+    .nav-icons {
+        gap: 12px;
+    }
 }
