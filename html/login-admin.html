@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/login-admin.css">
+</head>
+<body>
+    <div class="container-admin">
+
+        <a href="../index.html" class="back-link">
+            <i class="bi bi-arrow-left"></i>
+            Volver a la tienda
+        </a>
+
+        <div class="login-card">
+
+            <div class="logo-container">
+                <div class="logo-circle">
+                    <i class="bi bi-shield"></i>
+                </div>
+            </div>
+
+            <h1 class="title">Rodama Admin</h1>
+            <p class="subtitle">Panel de administración</p>
+
+            <form class="form-group" id="form">
+                <label class="form-label">Usuario</label>
+                <div class="custom-input m">
+                    <span class="input-icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <input type="text" id="user" placeholder="Ingresa tu usuario">
+                </div>
+                <label class="form-label">Contraseña</label>
+                <div class="custom-input">
+                    <span class="input-icon">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input type="password" id="password" placeholder="Ingresa tu contraseña">
+                    <span class="input-icon right">
+                        <i class="bi bi-eye-slash" id="eye"></i>
+                    </span>
+                </div>
+                <button type="submit" class="btn-login">
+                INICIAR SESIÓN
+            </button>
+            </form>
+        </div>
+    </div>
+    <script src="../js/login-admin.js"></script>
+</body>
+</html>
