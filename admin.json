@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Blusa de Seda",
+    "price": 89000,
+    "stock": 24,
+    "category": "Blusas"
+  },
+  {
+    "name": "Pantalón Casual",
+    "price": 120000,
+    "stock": 10,
+    "category": "Pantalones"
+  }
+]
