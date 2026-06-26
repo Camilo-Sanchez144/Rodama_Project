@@ -13,6 +13,11 @@ const sizesMessage = document.getElementById("sizesMessage");
 const imageFilesInput = document.getElementById("imageFiles");
 const imageUrlsInput = document.getElementById("imageUrls");
 const previewContainer = document.getElementById("previewContainer");
+const menuItems = document.querySelectorAll('.menu li');
+const sections = document.querySelectorAll('.section');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const hamburger = document.getElementById('hamburger');
 
 renderProducts(products);
 toggleSizesByCategory();
@@ -20,6 +25,18 @@ toggleSizesByCategory();
 categorySelect.addEventListener("change", toggleSizesByCategory);
 searchInput.addEventListener("input", handleSearch);
 imageFilesInput.addEventListener("change", renderPreview);
+
+(function initSection() {
+    const activeItem = document.querySelector('.menu li.active');
+    if (activeItem) {
+        const target = activeItem.dataset.section;
+        const section = document.getElementById(`section-${target}`);
+        if (section) {
+            section.classList.add('active');
+            requestAnimationFrame(() => section.classList.add('fade-in'));
+        }
+    }
+})();
 
 // =========================
 // CREAR PRODUCTO
@@ -31,9 +48,8 @@ form.addEventListener("submit", async function (e) {
   const category = categorySelect.value;
   const sizes = category === "Accesorios" ? [] : getSelectedSizes();
   const uploadedImages = await getImagesFromFiles(imageFilesInput.files);
-  const urlImages = getImagesFromUrls(imageUrlsInput.value);
 
-  const allImages = [...uploadedImages, ...urlImages];
+  const allImages = [...uploadedImages];
 
   const product = {
     id: Date.now(),
@@ -58,7 +74,7 @@ form.addEventListener("submit", async function (e) {
 
   const modalElement = document.getElementById("productModal");
   const modal = bootstrap.Modal.getInstance(modalElement);
-
+  console.log(products)
   if (modal) {
     modal.hide();
   }
@@ -187,12 +203,6 @@ function getSelectedSizes() {
 // IMÁGENES
 // =========================
 
-function getImagesFromUrls(text) {
-  return text
-    .split("\n")
-    .map(url => url.trim())
-    .filter(url => url !== "");
-}
 
 function getImagesFromFiles(files) {
   return Promise.all(
@@ -225,3 +235,39 @@ function renderPreview() {
     reader.readAsDataURL(file);
   });
 }
+
+function switchSection(target) {
+  menuItems.forEach(i => i.classList.remove('active'));
+  sections.forEach(s => {
+      s.classList.remove('active', 'fade-in');
+      void s.offsetWidth;
+  });
+
+  document.querySelector(`[data-section="${target}"]`).classList.add('active');
+  const next = document.getElementById(`section-${target}`);
+  next.classList.add('active');
+  requestAnimationFrame(() => next.classList.add('fade-in'));
+}
+
+menuItems.forEach(item => {
+  item.addEventListener('click', () => {
+      switchSection(item.dataset.section);
+      if (window.innerWidth < 992) closeSidebar();
+  });
+});
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('visible');
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('visible');
+}
+
+hamburger.addEventListener('click', () => {
+  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+
+overlay.addEventListener('click', closeSidebar);

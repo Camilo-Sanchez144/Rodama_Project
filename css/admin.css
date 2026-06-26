@@ -6,76 +6,158 @@
 
 body{
     background:#F6F0E8;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
     color:#2F2A27;
 }
 
-.sidebar{
-    background:#000000;
+.admin-layout{
+    display:flex;
     min-height:100vh;
-    color:#ffffff;
-    padding:32px 20px;
     position:relative;
+}
+
+/* ── Hamburger ── */
+.hamburger{
+    display:none;
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:300;
+    background:#000;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    width:42px;
+    height:42px;
+    font-size:22px;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:background .2s;
+}
+
+.hamburger:hover{
+    background:#1a1a1a;
+}
+
+/* ── Overlay ── */
+.sidebar-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:150;
+    opacity:0;
+    transition:opacity .25s;
+}
+
+.sidebar-overlay.visible{
+    opacity:1;
+}
+
+/* ── Sidebar ── */
+.sidebar{
+    width:220px;
+    min-width:220px;
+    background:#000;
+    min-height:100vh;
+    color:#fff;
+    padding:32px 20px;
+    display:flex;
+    flex-direction:column;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    z-index:200;
+    transition:transform .3s ease;
 }
 
 .logo{
     margin-bottom:50px;
-    font-family:Georgia, serif;
-    font-size:2rem;
+    font-family:Georgia,serif;
+    font-size:1.8rem;
     font-weight:500;
-    line-height:1.1;
-    color:#ffffff;
+    line-height:1.15;
+    color:#fff;
 }
 
 .menu{
     list-style:none;
     padding:0;
     margin:0;
+    flex:1;
 }
 
 .menu li{
-    padding:15px;
-    margin-bottom:12px;
+    padding:14px 15px;
+    margin-bottom:8px;
     border-radius:10px;
     cursor:pointer;
-    transition:.3s;
     color:#f4f4f4;
     font-size:1rem;
+    transition:background .2s, color .2s, transform .15s;
+    user-select:none;
 }
 
 .menu li:hover{
-    background:#1a1a1a;
+    transform:translateX(3px);
+}
+
+.menu li:active{
+    transform:scale(0.97);
 }
 
 .menu .active{
     background:#D8D0C8;
-    color:#000000;
+    color:#000;
     font-weight:600;
 }
 
 .logout{
-    position:absolute;
-    bottom:30px;
-    left:20px;
-    width:80%;
+    margin-top:auto;
+    width:100%;
     border-radius:10px;
     border:1px solid rgba(255,255,255,0.35);
-    color:#ffffff;
+    color:#fff;
     background:transparent;
     padding:12px;
-    transition:.3s;
+    transition:background .2s;
 }
 
 .logout:hover{
     background:#1a1a1a;
-    color:#ffffff;
+    color:#fff;
     border-color:rgba(255,255,255,0.5);
 }
 
+/* ── Content ── */
 .content{
+    flex:1;
     padding:40px;
+    min-width:0;
 }
 
+/* ── Sections ── */
+.section{
+    display:none;
+    opacity:0;
+}
+
+.section.active{
+    display:block;
+}
+
+.section.fade-in{
+    animation:fadeSection .25s ease forwards;
+}
+
+@keyframes fadeSection{
+    from{opacity:0;transform:translateY(6px)}
+    to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Topbar ── */
 .topbar{
     display:flex;
     justify-content:space-between;
@@ -87,7 +169,7 @@ body{
 .content h2{
     font-size:2rem;
     font-weight:500;
-    color:#000000;
+    color:#000;
     margin:0 0 6px;
 }
 
@@ -97,6 +179,7 @@ body{
     font-size:.96rem;
 }
 
+/* ── Toolbar ── */
 .toolbar{
     margin-bottom:22px;
 }
@@ -123,6 +206,7 @@ body{
     box-shadow:0 0 0 0.2rem rgba(199,169,139,0.18) !important;
 }
 
+/* ── Table ── */
 .product-table-wrapper{
     background:#EFE6DC;
     border:1px solid #D8CABB;
@@ -136,7 +220,7 @@ body{
 
 .product-table thead th{
     background:#E4D6C8 !important;
-    color:#000000;
+    color:#000;
     font-weight:700;
     border-bottom:1px solid #D8CABB;
     padding:16px 14px;
@@ -171,7 +255,7 @@ body{
 
 .product-name-text{
     font-weight:700;
-    color:#000000;
+    color:#000;
     margin-bottom:4px;
 }
 
@@ -223,6 +307,7 @@ body{
     font-size:.9rem;
 }
 
+/* ── Modal ── */
 .modal-content{
     border-radius:18px;
     padding:10px;
@@ -236,9 +321,9 @@ body{
 }
 
 .modal-header h3{
-    font-family:Georgia, serif;
+    font-family:Georgia,serif;
     font-size:1.6rem;
-    color:#000000;
+    color:#000;
     margin:0;
 }
 
@@ -247,7 +332,7 @@ body{
 }
 
 .form-label{
-    color:#000000;
+    color:#000;
     font-weight:600;
     margin-bottom:8px;
 }
@@ -279,7 +364,7 @@ body{
 .textarea-control:focus{
     border-color:#C7A98B;
     box-shadow:0 0 0 0.2rem rgba(199,169,139,0.18) !important;
-    background:#ffffff;
+    background:#fff;
 }
 
 .sizes-box{
@@ -304,7 +389,7 @@ body{
 }
 
 .size-option input{
-    accent-color:#000000;
+    accent-color:#000;
 }
 
 .sizes-message{
@@ -323,7 +408,7 @@ body{
 
 .preview-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
     gap:12px;
 }
 
@@ -344,16 +429,16 @@ body{
 }
 
 .btn-dark{
-    background:#000000;
+    background:#000;
     border:none;
     border-radius:10px;
-    color:#ffffff;
+    color:#fff;
     font-weight:600;
 }
 
 .btn-dark:hover{
     background:#1a1a1a;
-    color:#ffffff;
+    color:#fff;
 }
 
 .btn-outline-light{
@@ -366,8 +451,8 @@ body{
 
 .btn-delete{
     border:none;
-    background:#000000;
-    color:#ffffff;
+    background:#000;
+    color:#fff;
     border-radius:10px;
     padding:8px 14px;
     font-size:.88rem;
@@ -378,46 +463,51 @@ body{
     background:#1a1a1a;
 }
 
-@media (max-width: 992px){
+/* ── Responsive ── */
+@media(max-width:992px){
+    .hamburger{
+        display:flex;
+    }
+
+    .sidebar-overlay{
+        display:block;
+    }
+
     .sidebar{
-        min-height:auto;
-        padding:28px 18px;
+        position:fixed;
+        top:0;
+        left:0;
+        height:100vh;
+        transform:translateX(-100%);
     }
 
-    .logo{
-        margin-bottom:30px;
-        font-size:1.7rem;
-    }
-
-    .logout{
-        position:static;
-        width:100%;
-        margin-top:20px;
+    .sidebar.open{
+        transform:translateX(0);
     }
 
     .content{
-        padding:28px 20px;
-    }
-
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start;
+        padding:70px 20px 28px;
     }
 }
 
-@media (max-width: 768px){
+@media(max-width:768px){
     .content{
-        padding:22px 14px;
+        padding:70px 14px 22px;
     }
 
     .content h2{
         font-size:1.6rem;
     }
 
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
     .product-table thead th,
     .product-table tbody td{
         padding:12px 10px;
-        font-size:0.92rem;
+        font-size:.92rem;
     }
 
     .modal-header h3{
