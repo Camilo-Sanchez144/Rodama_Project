@@ -9,6 +9,7 @@ form.addEventListener('submit', (e)=>{
     e.preventDefault();
     console.log('user: ',user.value);
     console.log('password',password.value);
+    window.location.href = "../html/dashboard-admin.html";
 })
 eyeButton.addEventListener('click',()=>{
     if(eyeHidden){
