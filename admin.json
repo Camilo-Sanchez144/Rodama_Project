@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Blusa Satinada",
+    "price": 89000,
+    "stock": 24,
+    "category": "Blusas",
+    "description": "Blusa elegante en tela satinada con caída suave y acabado sofisticado.",
+    "sizes": ["S", "M", "L"],
+    "image": "https://via.placeholder.com/400x500?text=Blusa",
+    "images": [
+      "https://via.placeholder.com/400x500?text=Blusa+1",
+      "https://via.placeholder.com/400x500?text=Blusa+2"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Bolso Clásico",
+    "price": 120000,
+    "stock": 10,
+    "category": "Accesorios",
+    "description": "Bolso estructurado con diseño minimalista para looks casuales o formales.",
+    "sizes": [],
+    "image": "https://via.placeholder.com/400x500?text=Bolso",
+    "images": [
+      "https://via.placeholder.com/400x500?text=Bolso+1"
+    ]
+  }
+]
