@@ -3,7 +3,6 @@
     padding:0;
     box-sizing:border-box;
 }
-
 body{
     background:#F6F0E8;
     font-family:Arial,Helvetica,sans-serif;
@@ -16,7 +15,6 @@ body{
     position:relative;
 }
 
-/* ── Hamburger ── */
 .hamburger{
     display:none;
     position:fixed;
@@ -40,7 +38,6 @@ body{
     background:#1a1a1a;
 }
 
-/* ── Overlay ── */
 .sidebar-overlay{
     display:none;
     position:fixed;
@@ -55,7 +52,6 @@ body{
     opacity:1;
 }
 
-/* ── Sidebar ── */
 .sidebar{
     width:220px;
     min-width:220px;
@@ -131,14 +127,12 @@ body{
     border-color:rgba(255,255,255,0.5);
 }
 
-/* ── Content ── */
 .content{
     flex:1;
     padding:40px;
     min-width:0;
 }
 
-/* ── Sections ── */
 .section{
     display:none;
     opacity:0;
@@ -157,7 +151,6 @@ body{
     to{opacity:1;transform:translateY(0)}
 }
 
-/* ── Topbar ── */
 .topbar{
     display:flex;
     justify-content:space-between;
@@ -205,17 +198,33 @@ body{
     border-color:#C7A98B;
     box-shadow:0 0 0 0.2rem rgba(199,169,139,0.18) !important;
 }
-
-/* ── Table ── */
 .product-table-wrapper{
-    background:#EFE6DC;
-    border:1px solid #D8CABB;
-    border-radius:18px;
-    overflow:hidden;
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    display:block;
+}
+.product-table-wrapper::-webkit-scrollbar{
+    height:6px;
+}
+
+.product-table-wrapper::-webkit-scrollbar-track{
+    background:#E4D6C8;
+    border-radius:0 0 18px 18px;
+}
+
+.product-table-wrapper::-webkit-scrollbar-thumb{
+    background:#C7A98B;
+    border-radius:999px;
+}
+
+.product-table-wrapper::-webkit-scrollbar-thumb:hover{
+    background:#b39070;
 }
 
 .product-table{
-    margin:0;
+    width:100%;
+    min-width:900px; 
 }
 
 .product-table thead th{
@@ -307,7 +316,6 @@ body{
     font-size:.9rem;
 }
 
-/* ── Modal ── */
 .modal-content{
     border-radius:18px;
     padding:10px;
@@ -463,14 +471,30 @@ body{
     background:#1a1a1a;
 }
 
-/* ── Responsive ── */
 @media(max-width:992px){
+
+    .admin-layout{
+        display:block;
+        min-height:auto;
+    }
+
+    .content{
+        width:100%;
+        min-height:100vh;
+        overflow-y:auto;
+    }
+
     .hamburger{
         display:flex;
     }
 
     .sidebar-overlay{
+        display:none;
+    }
+
+    .sidebar-overlay.visible{
         display:block;
+        opacity:1;
     }
 
     .sidebar{
@@ -479,6 +503,7 @@ body{
         left:0;
         height:100vh;
         transform:translateX(-100%);
+        padding-top:70px; /* ← agrega esto */
     }
 
     .sidebar.open{
@@ -489,33 +514,13 @@ body{
         padding:70px 20px 28px;
     }
 }
-
 @media(max-width:768px){
-    .content{
-        padding:70px 14px 22px;
+    .product-table{
+        min-width:600px;
     }
 
-    .content h2{
-        font-size:1.6rem;
-    }
-
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .product-table thead th,
-    .product-table tbody td{
-        padding:12px 10px;
-        font-size:.92rem;
-    }
-
-    .modal-header h3{
-        font-size:1.3rem;
-    }
-
-    .product-thumb{
-        width:56px;
-        height:70px;
+    .product-table th:nth-child(6),
+    .product-table td:nth-child(6){
+        display:none;
     }
 }
