@@ -1,26 +1,25 @@
 const container = document.getElementById("productContainer");
-const searchInput = document.getElementById("searchInput");
+const searchInput1 = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
 
 const products = JSON.parse(localStorage.getItem("products")) || [];
 
 renderProducts(products);
 
-searchInput.addEventListener("input", filterProducts);
+searchInput1.addEventListener("input", filterProducts);
 categoryFilter.addEventListener("change", filterProducts);
 
 function filterProducts() {
-  const search = searchInput.value.toLowerCase().trim();
+  const search = searchInput1.value.toLowerCase().trim();
   const category = categoryFilter.value;
 
-  const filtered = products.filter(product => {
+  const filtered = products.filter((product) => {
     const matchesSearch =
       (product.name || "").toLowerCase().includes(search) ||
       (product.category || "").toLowerCase().includes(search) ||
       (product.description || "").toLowerCase().includes(search);
 
-    const matchesCategory =
-      category === "all" || product.category === category;
+    const matchesCategory = category === "all" || product.category === category;
 
     return matchesSearch && matchesCategory;
   });
@@ -44,19 +43,25 @@ function renderProducts(productList) {
   container.innerHTML = "";
 
   productList.forEach((product, index) => {
-    const images = Array.isArray(product.images) && product.images.length
-      ? product.images
-      : product.image
-        ? [product.image]
-        : ["https://via.placeholder.com/700x900?text=Rodama"];
+    const images =
+      Array.isArray(product.images) && product.images.length
+        ? product.images
+        : product.image
+          ? [product.image]
+          : ["https://via.placeholder.com/700x900?text=Rodama"];
 
-    const sizes = Array.isArray(product.sizes) ? product.sizes.filter(Boolean) : [];
+    const sizes = Array.isArray(product.sizes)
+      ? product.sizes.filter(Boolean)
+      : [];
     const carouselId = `productCarousel${index}`;
 
-    const indicators = images.length > 1
-      ? `
+    const indicators =
+      images.length > 1
+        ? `
         <div class="carousel-indicators">
-          ${images.map((_, imgIndex) => `
+          ${images
+            .map(
+              (_, imgIndex) => `
             <button
               type="button"
               data-bs-target="#${carouselId}"
@@ -65,13 +70,16 @@ function renderProducts(productList) {
               ${imgIndex === 0 ? 'aria-current="true"' : ""}
               aria-label="Slide ${imgIndex + 1}">
             </button>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </div>
       `
-      : "";
+        : "";
 
-    const controls = images.length > 1
-      ? `
+    const controls =
+      images.length > 1
+        ? `
         <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Anterior</span>
@@ -81,7 +89,7 @@ function renderProducts(productList) {
           <span class="visually-hidden">Siguiente</span>
         </button>
       `
-      : "";
+        : "";
 
     const sizesHTML =
       product.category !== "Accesorios" && sizes.length
@@ -89,7 +97,7 @@ function renderProducts(productList) {
           <div class="meta-block">
             <span class="meta-label">Tallas</span>
             <div class="size-list">
-              ${sizes.map(size => `<span class="size-chip">${size}</span>`).join("")}
+              ${sizes.map((size) => `<span class="size-chip">${size}</span>`).join("")}
             </div>
           </div>
         `
@@ -103,11 +111,15 @@ function renderProducts(productList) {
               ${indicators}
 
               <div class="carousel-inner">
-                ${images.map((img, imgIndex) => `
+                ${images
+                  .map(
+                    (img, imgIndex) => `
                   <div class="carousel-item ${imgIndex === 0 ? "active" : ""}">
                     <img src="${img}" alt="${product.name}">
                   </div>
-                `).join("")}
+                `,
+                  )
+                  .join("")}
               </div>
 
               ${controls}
@@ -122,9 +134,11 @@ function renderProducts(productList) {
 
             <h3 class="product-name">${product.name || "Producto sin nombre"}</h3>
 
-            ${product.description
-              ? `<p class="product-description">${product.description}</p>`
-              : ""}
+            ${
+              product.description
+                ? `<p class="product-description">${product.description}</p>`
+                : ""
+            }
 
             <div class="product-meta">
               ${sizesHTML}
