@@ -36,3 +36,40 @@ document.addEventListener("click", function (e) {
     searchInput.classList.remove("active");
   }
 });
+
+const backBtn = document.getElementById("backToAdmin");
+
+if (backBtn) {
+  const session = JSON.parse(localStorage.getItem("adminSession"));
+
+  if (session) {
+    backBtn.style.display = "block";
+
+    backBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = "../html/dashboard-admin.html";
+    });
+  } else {
+    backBtn.style.display = "none";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const adminBtn = document.getElementById("adminAccess");
+
+  if (!adminBtn) return;
+
+  adminBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    const session = JSON.parse(localStorage.getItem("adminSession"));
+
+    if (session) {
+      // 🔐 YA LOGUEADO
+      window.location.href = "../html/dashboard-admin.html";
+    } else {
+      // 🔓 NO LOGUEADO
+      window.location.href = "../html/login-admin.html";
+    }
+  });
+});

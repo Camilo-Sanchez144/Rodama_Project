@@ -1,8 +1,14 @@
+
+
 // =========================
 // LOCAL STORAGE
 // =========================
 
-let products = JSON.parse(localStorage.getItem("products")) || [];
+function getProducts() {
+  return JSON.parse(localStorage.getItem("products")) || [];
+}
+
+let products = getProducts();
 
 const form = document.getElementById("productForm");
 const table = document.getElementById("productTable");
@@ -27,15 +33,15 @@ searchInput.addEventListener("input", handleSearch);
 imageFilesInput.addEventListener("change", renderPreview);
 
 (function initSection() {
-    const activeItem = document.querySelector('.menu li.active');
-    if (activeItem) {
-        const target = activeItem.dataset.section;
-        const section = document.getElementById(`section-${target}`);
-        if (section) {
-            section.classList.add('active');
-            requestAnimationFrame(() => section.classList.add('fade-in'));
-        }
+  const activeItem = document.querySelector('.menu li.active');
+  if (activeItem) {
+    const target = activeItem.dataset.section;
+    const section = document.getElementById(`section-${target}`);
+    if (section) {
+      section.classList.add('active');
+      requestAnimationFrame(() => section.classList.add('fade-in'));
     }
+  }
 })();
 
 // =========================
@@ -47,9 +53,15 @@ form.addEventListener("submit", async function (e) {
 
   const category = categorySelect.value;
   const sizes = category === "Accesorios" ? [] : getSelectedSizes();
-  const uploadedImages = await getImagesFromFiles(imageFilesInput.files);
 
-  const allImages = [...uploadedImages];
+  let images = [];
+
+  // 👉 SI SUBE IMÁGENES
+  if (imageFilesInput.files.length > 0) {
+    images = await getImagesFromFiles(imageFilesInput.files);
+  } else {
+    images = ["https://via.placeholder.com/400x500?text=Producto"];
+  }
 
   const product = {
     id: Date.now(),
@@ -59,13 +71,14 @@ form.addEventListener("submit", async function (e) {
     category: category,
     description: document.getElementById("description").value.trim(),
     sizes: sizes,
-    image: allImages[0] || "https://via.placeholder.com/400x500?text=Rodama",
-    images: allImages.length ? allImages : ["https://via.placeholder.com/400x500?text=Rodama"]
+    image: images[0],
+    images: images
   };
 
+  products = getProducts();
   products.push(product);
-
   saveProducts();
+
   renderProducts(products);
 
   form.reset();
@@ -74,10 +87,8 @@ form.addEventListener("submit", async function (e) {
 
   const modalElement = document.getElementById("productModal");
   const modal = bootstrap.Modal.getInstance(modalElement);
-  console.log(products)
-  if (modal) {
-    modal.hide();
-  }
+
+  if (modal) modal.hide();
 });
 
 // =========================
@@ -204,15 +215,33 @@ function getSelectedSizes() {
 // =========================
 
 
+function compressImage(file, maxWidth = 500, quality = 0.7) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = e => img.src = e.target.result;
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const scale = maxWidth / img.width;
+
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 function getImagesFromFiles(files) {
   return Promise.all(
-    [...files].map(file => {
-      return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-    })
+    [...files].map(file => compressImage(file))
   );
 }
 
@@ -239,8 +268,8 @@ function renderPreview() {
 function switchSection(target) {
   menuItems.forEach(i => i.classList.remove('active'));
   sections.forEach(s => {
-      s.classList.remove('active', 'fade-in');
-      void s.offsetWidth;
+    s.classList.remove('active', 'fade-in');
+    void s.offsetWidth;
   });
 
   document.querySelector(`[data-section="${target}"]`).classList.add('active');
@@ -251,8 +280,8 @@ function switchSection(target) {
 
 menuItems.forEach(item => {
   item.addEventListener('click', () => {
-      switchSection(item.dataset.section);
-      if (window.innerWidth < 992) closeSidebar();
+    switchSection(item.dataset.section);
+    if (window.innerWidth < 992) closeSidebar();
   });
 });
 
@@ -271,3 +300,25 @@ hamburger.addEventListener('click', () => {
 });
 
 overlay.addEventListener('click', closeSidebar);
+
+// =========================
+// LOGOUT REAL
+// =========================
+function logout() {
+  localStorage.removeItem("adminSession");
+  window.location.href = "login-admin.html";
+}
+
+// =========================
+// VERIFICAR SESIÓN
+// =========================
+
+function checkSession() {
+  const session = JSON.parse(localStorage.getItem("adminSession"));
+
+  if (!session) {
+    window.location.href = "login-admin.html";
+  }
+}
+
+checkSession();

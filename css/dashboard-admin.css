@@ -3,6 +3,33 @@
     padding:0;
     box-sizing:border-box;
 }
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 25px;
+  background: white;
+  border-bottom: 1px solid #e5ddd5;
+}
+
+.back-btn,
+.dashboard-btn {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--taupe);
+  transition: 0.3s;
+}
+
+.back-btn:hover,
+.dashboard-btn:hover {
+  color: var(--marron);
+}
+
+.nav-right {
+  display: flex;
+  gap: 15px;
+}
+
 body{
     background:#F6F0E8;
     font-family:Arial,Helvetica,sans-serif;
