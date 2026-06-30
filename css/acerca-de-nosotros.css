@@ -233,10 +233,6 @@ footer small {
   box-sizing: border-box;
 }
 
-body {
-  font-family: Arial, sans-serif;
-}
-
 .custom-navbar {
   background-color: #000;
   border-bottom: 1px solid #222;

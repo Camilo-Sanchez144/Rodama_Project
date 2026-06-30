@@ -6,7 +6,8 @@
 
 .back-admin {
   position: fixed;
-  top: 90px; /* 🔥 debajo del navbar */
+  top: 90px;
+  /* 🔥 debajo del navbar */
   left: 20px;
   background: #000;
   color: #fff;
@@ -25,7 +26,8 @@
 
 body {
   background: #f6f0e8;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Playfair Display', serif;
+
   color: #1f1f1f;
 }
 
@@ -38,10 +40,12 @@ body {
     max-height 0.35s ease,
     padding 0.3s ease;
 }
+
 .mobile-menu.open {
   max-height: 400px;
   padding: 12px 24px 20px;
 }
+
 .mobile-menu ul {
   list-style: none;
 }
@@ -65,6 +69,7 @@ body {
 .mobile-menu ul li a:hover {
   color: #d6a77a;
 }
+
 .search-input {
   width: 0;
   opacity: 0;
@@ -132,6 +137,7 @@ body {
 .catalog-header {
   padding: 56px 0 24px;
 }
+
 .nav-links a {
   color: #fff;
   text-decoration: none;
@@ -142,9 +148,11 @@ body {
   padding-bottom: 4px;
   transition: color 0.2s;
 }
+
 .nav-links a:hover::after {
   width: 100%;
 }
+
 .nav-icons {
   display: flex;
   align-items: center;
@@ -161,6 +169,7 @@ body {
 .nav-icons a:hover {
   color: #aaa;
 }
+
 .custom-navbar.scrolled {
   background-color: #111;
   padding-top: 4px;
@@ -172,6 +181,7 @@ body {
   height: 50px;
   width: auto;
 }
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
@@ -233,11 +243,13 @@ body {
   z-index: 1000;
   transition: all 0.3s ease;
 }
+
 .nav-links {
   display: flex;
   gap: 28px;
   list-style: none;
 }
+
 .catalog-subtitle {
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -543,5 +555,106 @@ body {
   .product-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* =========================
+   FIX NAVBAR REAL
+========================= */
+
+/* NAV LINKS BASE (te faltaba estructura real) */
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  align-items: center;
+}
+
+/* HAMBURGER (NO LO TENÍAS DEFINIDO) */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: #fff;
+  display: block;
+}
+
+/* =========================
+   RESPONSIVE CORREGIDO
+========================= */
+
+/* TABLET */
+@media (max-width: 992px) {
+
+  .nav-links {
+    gap: 16px;
+  }
+
+  .logo-img {
+    height: 42px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .nav-container {
+    padding: 10px 16px;
+  }
+
+  .logo-img {
+    height: 36px;
+  }
+
+  .nav-icons {
+    gap: 12px;
+  }
+
+  .search-input.active {
+    width: 120px;
+  }
+}
+
+/* MOBILE PEQUEÑO */
+@media (max-width: 480px) {
+
+  .nav-container {
+    padding: 8px 14px;
+  }
+
+  .logo-img {
+    height: 30px;
+  }
+
+  .nav-icons {
+    gap: 10px;
+  }
+
+  .nav-icons a {
+    font-size: 16px;
+  }
+
+  .search-input.active {
+    width: 90px;
   }
 }
