@@ -72,4 +72,35 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "../html/login-admin.html";
     }
   });
+<<<<<<< HEAD
 });
+=======
+});
+
+function getCart() {
+  try {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+  } catch {
+    return [];
+  }
+}
+
+
+function updateCartCount() {
+  const cart = getCart();
+
+  const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const counter = document.getElementById("cartCount");
+
+  if (!counter) return;
+
+  counter.textContent = total;
+  counter.style.display = total > 0 ? "flex" : "none";
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  
+  updateCartCount();
+});
+>>>>>>> danna-lopez

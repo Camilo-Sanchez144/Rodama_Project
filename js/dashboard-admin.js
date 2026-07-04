@@ -64,7 +64,11 @@ form.addEventListener("submit", async function (e) {
   }
 
   const product = {
+<<<<<<< HEAD
     id: Date.now(),
+=======
+    key: Date.now(),
+>>>>>>> danna-lopez
     name: document.getElementById("name").value.trim(),
     price: Number(document.getElementById("price").value),
     stock: Number(document.getElementById("stock").value),

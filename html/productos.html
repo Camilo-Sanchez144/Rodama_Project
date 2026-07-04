@@ -27,14 +27,23 @@
         <li><a href="../html/contacto.html">Contacto</a></li>
       </ul>
 
+
+<section class="container py-5">
+
+  <h2 class="mb-4">
+    Nuestros Productos
+  </h2>
       <div class="nav-icons">
         <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos..." />
         <a href="#" id="searchToggle" title="Buscar"><i class="bi bi-search"></i></a>
         <a href="./login-admin.html" id="adminAccess">
           <i class="bi bi-person-fill"></i>
         </a>
-        <a href="./cart.html" title="Carrito"><i class="bi bi-bag"></i></a>
-
+         <a href="./cart.html" class="cart-icon" title="Carrito">
+          <i class="bi bi-bag"></i>
+          <span id="cartCount" class="cart-count">0</span>
+        </a>
+        
         <button class="hamburger" id="hamburger" aria-label="Abrir menú">
           <span></span>
           <span></span>
