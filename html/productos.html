@@ -12,6 +12,7 @@
 </head>
 
 <body>
+<<<<<<< Updated upstream
 
 <nav class="navbar navbar-dark bg-dark">
   <div class="container">
@@ -28,17 +29,37 @@
     Nuestros Productos
   </h2>
 =======
+=======
+
+  <!-- Navbar -->
+  <nav class="custom-navbar">
+    <div class="nav-container">
+      <img src="../img/RODAMA_LOGO.png" alt="RODAMA" class="logo-img" />
+
+      <ul class="nav-links">
+        <li><a href="../index.html">Tienda</a></li>
+        <li><a href="../html/productos.html">Colecciones</a></li>
+        <li><a href="../html/acerca-de-nosotros.html">Acerca de nosotros</a></li>
+        <li><a href="../html/contacto.html">Contacto</a></li>
+      </ul>
+
+>>>>>>> Stashed changes
       <div class="nav-icons">
         <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos..." />
-        <a href="#" id="searchToggle" title="Buscar"><i class="bi bi-search"></i></a>
+
+        <a href="#" id="searchToggle" title="Buscar">
+          <i class="bi bi-search"></i>
+        </a>
+
         <a href="./login-admin.html" id="adminAccess">
           <i class="bi bi-person-fill"></i>
         </a>
-         <a href="./cart.html" class="cart-icon" title="Carrito">
+
+        <a href="./cart.html" class="cart-icon" title="Carrito">
           <i class="bi bi-bag"></i>
           <span id="cartCount" class="cart-count">0</span>
         </a>
-        
+
         <button class="hamburger" id="hamburger" aria-label="Abrir menú">
           <span></span>
           <span></span>
@@ -48,6 +69,7 @@
     </div>
 >>>>>>> Stashed changes
 
+<<<<<<< Updated upstream
   <div
     class="row g-4"
     id="productContainer">
@@ -56,6 +78,105 @@
 </section>
 
 <script src="js/productos.js"></script>
+=======
+    <div class="mobile-menu" id="mobileMenu">
+      <ul>
+        <li><a href="../index.html">Tienda</a></li>
+        <li><a href="../html/productos.html">Colecciones</a></li>
+        <li><a href="../html/acerca-de-nosotros.html">Acerca de nosotros</a></li>
+        <li><a href="../html/contacto.html">Contacto</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="py-5">
+
+    <div class="container">
+
+      <section class="catalog-header text-center mb-5">
+        <p class="catalog-subtitle">Colección femenina</p>
+
+        <h1 class="catalog-title">
+          Nuestros Productos
+        </h1>
+
+        <p class="catalog-text">
+          Descubre prendas elegantes, versátiles y modernas para elevar tu
+          estilo en cada ocasión.
+        </p>
+      </section>
+
+      <section class="catalog-section">
+
+        <div class="catalog-toolbar">
+
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Buscar por nombre, categoría o descripción">
+          </div>
+
+          <div class="filter-box">
+            <select id="categoryFilter" class="form-select">
+              <option value="all">Todas las categorías</option>
+              <option value="Blusas">Blusas</option>
+              <option value="Camisas">Camisas</option>
+              <option value="Vestidos">Vestidos</option>
+              <option value="Faldas">Faldas</option>
+              <option value="Pantalones">Pantalones</option>
+              <option value="Sets / Conjuntos">Sets / Conjuntos</option>
+              <option value="Accesorios">Accesorios</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="row g-4" id="productContainer"></div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-top py-4">
+    <div class="container text-center">
+
+      <div class="mb-3">
+
+        <a href="https://www.facebook.com/" class="social-link mx-2 fs-5">
+          <i class="bi bi-facebook"></i>
+        </a>
+
+        <a href="https://www.instagram.com/" class="social-link mx-2 fs-5">
+          <i class="bi bi-instagram"></i>
+        </a>
+
+        <a href="https://x.com/" class="social-link mx-2 fs-5">
+          <i class="bi bi-twitter-x"></i>
+        </a>
+
+        <a href="https://www.linkedin.com/" class="social-link mx-2 fs-5">
+          <i class="bi bi-linkedin"></i>
+        </a>
+
+      </div>
+
+      <small class="text-muted">
+        © 2026 RODAMA. Todos los derechos reservados.
+      </small>
+
+    </div>
+  </footer>
+
+  <script src="../js/productos.js"></script>
+  <script src="../js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+>>>>>>> Stashed changes
 
 </body>
 </html>

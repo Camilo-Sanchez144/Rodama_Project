@@ -3,8 +3,25 @@
   transition:.3s;
 }
 
+<<<<<<< Updated upstream
 .card:hover{
   transform:translateY(-5px);
+=======
+.back-admin {
+  position: fixed;
+  top: 90px;
+  /*  debajo del navbar */
+  left: 20px;
+  background: #000;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 999;
+  display: none;
+  transition: 0.3s;
+>>>>>>> Stashed changes
 }
 
 .card img{
@@ -554,7 +571,7 @@ body {
    FIX NAVBAR REAL
 ========================= */
 
-/* NAV LINKS BASE (te faltaba estructura real) */
+/* NAV  */
 .nav-links {
   display: flex;
   gap: 28px;
@@ -679,5 +696,17 @@ body {
       justify-content: center;
       align-items: center;
       padding: 2px;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+}
+
+.social-link {
+  color: #555;
+  transition: 0.3s;
+}
+
+.social-link:hover {
+  color: #0c0c0c; /* rosa, por ejemplo */
 >>>>>>> Stashed changes
 }
