@@ -23,7 +23,14 @@
 .back-admin:hover {
   background: #333;
 }
+footer {
+    background-color: white;
+}
 
+footer small {
+    font-size: 0.85rem;
+    color: var(--taupe);
+}
 .card h4{
   font-weight:bold;
 }

@@ -72,9 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "../html/login-admin.html";
     }
   });
-<<<<<<< HEAD
-});
-=======
 });
 
 function getCart() {
@@ -103,4 +100,3 @@ document.addEventListener("DOMContentLoaded", () => {
   
   updateCartCount();
 });
->>>>>>> danna-lopez

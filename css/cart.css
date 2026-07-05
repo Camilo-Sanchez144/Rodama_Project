@@ -264,6 +264,15 @@ body {
   color: #d6a77a;
 }
 
+footer {
+    background-color: white;
+}
+
+footer small {
+    font-size: 0.85rem;
+    color: var(--taupe);
+}
+
 .custom-navbar.scrolled {
   background-color: #111;
   padding-top: 4px;
