@@ -3,10 +3,6 @@
   transition:.3s;
 }
 
-<<<<<<< Updated upstream
-.card:hover{
-  transform:translateY(-5px);
-=======
 .back-admin {
   position: fixed;
   top: 90px;
@@ -21,7 +17,6 @@
   z-index: 999;
   display: none;
   transition: 0.3s;
->>>>>>> Stashed changes
 }
 
 .card img{
@@ -29,10 +24,11 @@
   object-fit:cover;
 }
 
-<<<<<<< Updated upstream
+
 .card h4{
   font-weight:bold;
-=======
+}
+
 body {
   background: #f6f0e8;
   font-family: 'Playfair Display', serif;
@@ -567,9 +563,7 @@ body {
   }
 }
 
-/* =========================
-   FIX NAVBAR REAL
-========================= */
+/* FIX NAVBAR REAL */
 
 /* NAV  */
 .nav-links {
@@ -596,9 +590,7 @@ body {
   display: block;
 }
 
-/* =========================
-   RESPONSIVE CORREGIDO
-========================= */
+/* RESPONSIVE CORREGIDO */
 
 /* TABLET */
 @media (max-width: 992px) {
@@ -696,9 +688,6 @@ body {
       justify-content: center;
       align-items: center;
       padding: 2px;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 }
 
 .social-link {
@@ -707,6 +696,5 @@ body {
 }
 
 .social-link:hover {
-  color: #0c0c0c; /* rosa, por ejemplo */
->>>>>>> Stashed changes
+  color: #0c0c0c;
 }

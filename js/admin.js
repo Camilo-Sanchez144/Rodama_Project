@@ -1,18 +1,9 @@
-// =========================
-// LOCAL STORAGE
-// =========================
-
 let products = JSON.parse(localStorage.getItem("products")) || [];
 
 const form = document.getElementById("productForm");
 const table = document.getElementById("productTable");
 
-// Mostrar productos al iniciar
 renderProducts();
-
-// =========================
-// CREAR PRODUCTO
-// =========================
 
 form.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -24,7 +15,6 @@ form.addEventListener("submit", function (e) {
     stock: Number(document.getElementById("stock").value),
     category: document.getElementById("category").value,
 
-    // Imagen temporal
     image:
       "https://via.placeholder.com/300x350?text=Producto"
   };
@@ -52,10 +42,6 @@ form.addEventListener("submit", function (e) {
   }
 });
 
-// =========================
-// MOSTRAR PRODUCTOS
-// =========================
-
 function renderProducts() {
   table.innerHTML = "";
 
@@ -79,10 +65,6 @@ function renderProducts() {
   });
 }
 
-// =========================
-// ELIMINAR
-// =========================
-
 function deleteProduct(id) {
   products = products.filter(
     product => product.id !== id
@@ -96,10 +78,6 @@ function deleteProduct(id) {
     JSON.stringify(products, null, 2)
   );
 }
-
-// =========================
-// GUARDAR
-// =========================
 
 function saveProducts() {
   localStorage.setItem(
