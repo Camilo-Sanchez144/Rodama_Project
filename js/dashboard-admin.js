@@ -1,9 +1,4 @@
 
-
-// =========================
-// LOCAL STORAGE
-// =========================
-
 function getProducts() {
   return JSON.parse(localStorage.getItem("products")) || [];
 }
@@ -44,10 +39,6 @@ imageFilesInput.addEventListener("change", renderPreview);
   }
 })();
 
-// =========================
-// CREAR PRODUCTO
-// =========================
-
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
@@ -55,8 +46,6 @@ form.addEventListener("submit", async function (e) {
   const sizes = category === "Accesorios" ? [] : getSelectedSizes();
 
   let images = [];
-
-  // 👉 SI SUBE IMÁGENES
   if (imageFilesInput.files.length > 0) {
     images = await getImagesFromFiles(imageFilesInput.files);
   } else {
@@ -64,11 +53,7 @@ form.addEventListener("submit", async function (e) {
   }
 
   const product = {
-<<<<<<< HEAD
-    id: Date.now(),
-=======
     key: Date.now(),
->>>>>>> danna-lopez
     name: document.getElementById("name").value.trim(),
     price: Number(document.getElementById("price").value),
     stock: Number(document.getElementById("stock").value),
@@ -94,10 +79,6 @@ form.addEventListener("submit", async function (e) {
 
   if (modal) modal.hide();
 });
-
-// =========================
-// MOSTRAR PRODUCTOS
-// =========================
 
 function renderProducts(productList) {
   table.innerHTML = "";
@@ -160,10 +141,6 @@ function renderProducts(productList) {
   });
 }
 
-// =========================
-// BUSCAR
-// =========================
-
 function handleSearch() {
   const value = searchInput.value.toLowerCase().trim();
 
@@ -175,27 +152,15 @@ function handleSearch() {
   renderProducts(filtered);
 }
 
-// =========================
-// ELIMINAR
-// =========================
-
 function deleteProduct(id) {
   products = products.filter(product => product.id !== id);
   saveProducts();
   handleSearch();
 }
 
-// =========================
-// GUARDAR
-// =========================
-
 function saveProducts() {
   localStorage.setItem("products", JSON.stringify(products));
 }
-
-// =========================
-// TALLAS
-// =========================
 
 function toggleSizesByCategory() {
   const isAccessory = categorySelect.value === "Accesorios";
@@ -213,10 +178,6 @@ function toggleSizesByCategory() {
 function getSelectedSizes() {
   return [...document.querySelectorAll(".size-check:checked")].map(input => input.value);
 }
-
-// =========================
-// IMÁGENES
-// =========================
 
 
 function compressImage(file, maxWidth = 500, quality = 0.7) {
@@ -304,18 +265,10 @@ hamburger.addEventListener('click', () => {
 });
 
 overlay.addEventListener('click', closeSidebar);
-
-// =========================
-// LOGOUT REAL
-// =========================
 function logout() {
   localStorage.removeItem("adminSession");
   window.location.href = "login-admin.html";
 }
-
-// =========================
-// VERIFICAR SESIÓN
-// =========================
 
 function checkSession() {
   const session = JSON.parse(localStorage.getItem("adminSession"));

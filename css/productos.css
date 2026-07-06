@@ -3,11 +3,18 @@
   padding: 0;
   box-sizing: border-box;
 }
+:root {
+  --beige: #f3ece3;
+  --rosa: #c8a19c;
+  --taupe: #91766e;
+  --verde: #7a8564;
+  --marron: #473a1f;
+  --negro: #222222;
+}
 
 .back-admin {
   position: fixed;
   top: 90px;
-  /* 🔥 debajo del navbar */
   left: 20px;
   background: #000;
   color: #fff;
@@ -24,12 +31,12 @@
   background: #333;
 }
 footer {
-    background-color: white;
+  background-color: white;
 }
 
 footer small {
-    font-size: 0.85rem;
-    color: var(--taupe);
+  font-size: 0.85rem;
+  color: var(--taupe);
 }
 .card h4{
   font-weight:bold;
@@ -568,11 +575,9 @@ body {
   }
 }
 
-/* =========================
-   FIX NAVBAR REAL
-========================= */
 
-/* NAV LINKS BASE (te faltaba estructura real) */
+
+
 .nav-links {
   display: flex;
   gap: 28px;
@@ -580,7 +585,7 @@ body {
   align-items: center;
 }
 
-/* HAMBURGER (NO LO TENÍAS DEFINIDO) */
+
 .hamburger {
   display: none;
   flex-direction: column;
@@ -597,11 +602,9 @@ body {
   display: block;
 }
 
-/* =========================
-   RESPONSIVE CORREGIDO
-========================= */
 
-/* TABLET */
+
+
 @media (max-width: 992px) {
 
   .nav-links {
@@ -613,7 +616,7 @@ body {
   }
 }
 
-/* MOBILE */
+
 @media (max-width: 768px) {
 
   .nav-links {
@@ -645,7 +648,7 @@ body {
   }
 }
 
-/* MOBILE PEQUEÑO */
+
 @media (max-width: 480px) {
 
   .nav-container {
@@ -670,31 +673,42 @@ body {
 }
 
 .cart-icon {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: inherit;
-      text-decoration: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
 }
 
 .cart-icon i {
-      font-size: 24px;
+  font-size: 24px;
 }
 
 .cart-count {
-      position: absolute;
-      top: -8px;
-      right: -10px;
-      min-width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #f5ebeb;
-      color: #0e0d0d;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2px;
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f5ebeb;
+  color: #0e0d0d;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+}
+footer .social-link {
+  color: var(--taupe);
+  text-decoration: none;
+}
+footer .social-link:hover {
+  color: var(--rosa);
+}
+
+footer .social-link:visited {
+  color: var(--taupe);
 }

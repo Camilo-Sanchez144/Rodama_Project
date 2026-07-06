@@ -1,10 +1,6 @@
 const container = document.getElementById("productContainer");
 const searchInput1 = document.getElementById("searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
-
-// =========================
-// CARRITO
-// =========================
 function getCart() {
   return JSON.parse(localStorage.getItem("cart")) || [];
 }
@@ -30,20 +26,12 @@ function addToCart(product, size, quantity) {
       quantity
     });
   }
-
   saveCart(cart);
+  updateCartCount();
 }
-
-// =========================
-// PRODUCTOS
-// =========================
 function getProducts() {
   return JSON.parse(localStorage.getItem("products")) || [];
 }
-
-// =========================
-// MODAL
-// =========================
 function openAddToCartModal(productIndex) {
   const products = getProducts();
   const product = products[productIndex];
@@ -88,7 +76,7 @@ function openAddToCartModal(productIndex) {
             <div class="mb-3">
               <label class="form-label fw-semibold">Cantidad</label>
               <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn btn-outline-secondary px-3" id="btnMinus">−</button>
+                <button type="button" class="btn btn-outline-secondary px-3" id="btnMinus">-</button>
                 <span id="qtyDisplay" style="font-size:1.2rem;min-width:24px;text-align:center">1</span>
                 <button type="button" class="btn btn-outline-secondary px-3" id="btnPlus">+</button>
               </div>
@@ -114,8 +102,6 @@ function openAddToCartModal(productIndex) {
       </div>
     </div>
   `;
-
-  // Limpiar modal anterior si existe
   const old = document.getElementById("addToCartModal");
   if (old) old.remove();
 
@@ -124,12 +110,8 @@ function openAddToCartModal(productIndex) {
   const modalEl = document.getElementById("addToCartModal");
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
-
-  // Estado interno del modal
   let selectedSize = (!isAccesorio && hasSizes) ? null : "Única";
   let quantity = 1;
-
-  // Selección de talla
   modalEl.querySelectorAll(".size-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       modalEl.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active", "btn-dark"));
@@ -139,8 +121,6 @@ function openAddToCartModal(productIndex) {
       document.getElementById("sizeError")?.classList.add("d-none");
     });
   });
-
-  // Cantidad
   function updateQty() {
     document.getElementById("qtyDisplay").textContent = quantity;
     document.getElementById("modalTotal").textContent =
@@ -154,8 +134,6 @@ function openAddToCartModal(productIndex) {
   document.getElementById("btnPlus").addEventListener("click", () => {
     if (quantity < (product.stock ?? 99)) { quantity++; updateQty(); }
   });
-
-  // Confirmar
   document.getElementById("confirmAddToCart").addEventListener("click", () => {
     if (!selectedSize) {
       document.getElementById("sizeError")?.classList.remove("d-none");
@@ -165,26 +143,20 @@ function openAddToCartModal(productIndex) {
     modal.hide();
     showCartToast(product.name, quantity, selectedSize);
   });
-
-  // Limpiar DOM al cerrar
   modalEl.addEventListener("hidden.bs.modal", () => modalEl.remove());
 }
-
-// =========================
-// TOAST CONFIRMACIÓN
-// =========================
 function showCartToast(name, qty, size) {
   const old = document.getElementById("cartToast");
   if (old) old.remove();
 
-  const sizeLabel = size !== "Única" ? ` — Talla ${size}` : "";
+  const sizeLabel = size !== "Única" ? ` €” Talla ${size}` : "";
 
   document.body.insertAdjacentHTML("beforeend", `
     <div id="cartToast" class="toast align-items-center text-bg-dark border-0 position-fixed bottom-0 end-0 m-3"
       role="alert" style="z-index:9999">
       <div class="d-flex">
         <div class="toast-body">
-          ✓ ${qty}× <strong>${name}</strong>${sizeLabel} añadido al carrito
+          ${qty}<strong>${name}</strong>${sizeLabel} añadido al carrito
         </div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
@@ -194,18 +166,10 @@ function showCartToast(name, qty, size) {
   const toast = new bootstrap.Toast(document.getElementById("cartToast"), { delay: 3000 });
   toast.show();
 }
-
-// =========================
-// INICIALIZAR
-// =========================
 renderProducts(getProducts());
 
 searchInput1.addEventListener("input", filterProducts);
 categoryFilter.addEventListener("change", filterProducts);
-
-// =========================
-// FILTRO
-// =========================
 function filterProducts() {
   const search = searchInput1.value.toLowerCase().trim();
   const category = categoryFilter.value;
@@ -222,10 +186,6 @@ function filterProducts() {
 
   renderProducts(filtered);
 }
-
-// =========================
-// RENDER
-// =========================
 function renderProducts(productList) {
   if (!productList.length) {
     container.innerHTML = `
@@ -327,7 +287,7 @@ function renderProducts(productList) {
   });
 }
 
-function addToCart(product) {
+function addToCartSimple(product) {
   const cart = getCart();
 
   const existing = cart.find(item => item.key === product.key);
@@ -340,5 +300,5 @@ function addToCart(product) {
 
   localStorage.setItem("cart", JSON.stringify(cart));
 
-  updateCartCount(); 
+  updateCartCount();
 }

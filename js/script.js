@@ -65,10 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const session = JSON.parse(localStorage.getItem("adminSession"));
 
     if (session) {
-      // 🔐 YA LOGUEADO
       window.location.href = "../html/dashboard-admin.html";
     } else {
-      // 🔓 NO LOGUEADO
       window.location.href = "../html/login-admin.html";
     }
   });

@@ -200,7 +200,7 @@ body{
     font-size:.96rem;
 }
 
-/* ── Toolbar ── */
+
 .toolbar{
     margin-bottom:22px;
 }
@@ -302,6 +302,7 @@ body{
     line-height:1.45;
     max-width:260px;
     display:-webkit-box;
+    line-clamp:2;
     -webkit-line-clamp:2;
     -webkit-box-orient:vertical;
     overflow:hidden;
@@ -531,7 +532,7 @@ body{
         left:0;
         height:100vh;
         transform:translateX(-100%);
-        padding-top:70px; /* ← agrega esto */
+        padding-top:70px; 
     }
 
     .sidebar.open{

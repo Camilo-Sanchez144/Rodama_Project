@@ -2,8 +2,6 @@ const form = document.getElementById('form');
 const user = document.getElementById('user');
 const password = document.getElementById('password');
 const eyeButton = document.getElementById('eye');
-
-// 🔥 REDIRECCIÓN SI YA ESTÁ LOGUEADO
 const session = JSON.parse(localStorage.getItem("adminSession"));
 if (session) {
   window.location.href ="../html/dashboard-admin.html";
@@ -28,8 +26,6 @@ form.addEventListener('submit', (e) => {
 
   window.location.href = "dashboard-admin.html";
 });
-
-// 👁️ mostrar contraseña
 let eyeHidden = false;
 
 eyeButton.addEventListener('click', () => {

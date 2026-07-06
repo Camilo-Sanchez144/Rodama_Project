@@ -17,8 +17,6 @@ function saveCart(cart) {
 
 function updateCartCount() {
   const cart = getCart();
-
-  // Total de productos (suma de cantidades)
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   console.log(totalItems);
   const cartCount = document.getElementById("cartCount");
@@ -67,8 +65,8 @@ function renderCart() {
   if (cart.length === 0) {
     container.innerHTML = `
       <div class="cart-empty">
-        <h3>Tu carrito está vacío</h3>
-        <p>Explora el catálogo y añade tus productos favoritos.</p>
+        <h3>Tu carrito está vací­o</h3>
+        <p>Explora el catalogo y añade tus productos favoritos.</p>
       </div>
     `;
     summary.style.display = "none";
@@ -119,7 +117,7 @@ function renderCart() {
             <button
               onclick="updateQuantity('${item.key}', -1)"
               aria-label="Disminuir cantidad">
-              −
+              -
             </button>
 
             <span>${item.quantity}</span>
@@ -135,7 +133,7 @@ function renderCart() {
           <button
             class="btn-remove"
             onclick="removeFromCart('${item.key}')">
-            Eliminar
+            EliminarExplora el catalogo y añade tus productos favoritos.
           </button>
 
         </div>
@@ -157,9 +155,6 @@ if (btnCheckout) {
       alert("Tu carrito está vacío.");
       return;
     }
-
-    // Aquí puedes redirigir a tu página de pago
-    // window.location.href = "checkout.html";
 
     alert("Función de checkout pendiente de implementar.");
   });

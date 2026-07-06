@@ -21,7 +21,7 @@ body {
 }
 .back-admin {
   position: fixed;
-  top: 90px; /* 🔥 debajo del navbar */
+  top: 90px; 
   left: 20px;
   background: #000;
   color: #fff;
@@ -216,6 +216,7 @@ footer small {
 .social-link {
     color: var(--taupe);
     transition: 0.3s;
+    text-decoration: none;
 }
 
 .social-link:hover {
