@@ -1,13 +1,15 @@
-const form = document.getElementById('form');
-const user = document.getElementById('user');
-const password = document.getElementById('password');
-const eyeButton = document.getElementById('eye');
+const form = document.getElementById("form");
+const user = document.getElementById("user");
+const password = document.getElementById("password");
+const eyeButton = document.getElementById("eye");
 const session = JSON.parse(localStorage.getItem("adminSession"));
+const botonRegistro = document.getElementById("btn-abrir-registro");
+const modal = document.getElementById("modal");
 if (session) {
-  window.location.href ="../html/dashboard-admin.html";
+  window.location.href = "../html/dashboard-admin.html";
 }
 
-form.addEventListener('submit', (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const username = user.value.trim();
@@ -19,7 +21,7 @@ form.addEventListener('submit', (e) => {
   }
 
   const session = {
-    user: username
+    user: username,
   };
 
   localStorage.setItem("adminSession", JSON.stringify(session));
@@ -28,13 +30,17 @@ form.addEventListener('submit', (e) => {
 });
 let eyeHidden = false;
 
-eyeButton.addEventListener('click', () => {
+eyeButton.addEventListener("click", () => {
   if (eyeHidden) {
-    eyeButton.className = 'bi-eye-slash';
+    eyeButton.className = "bi-eye-slash";
     password.type = "password";
   } else {
-    eyeButton.className = 'bi-eye';
+    eyeButton.className = "bi-eye";
     password.type = "text";
   }
   eyeHidden = !eyeHidden;
+});
+
+botonRegistro.addEventListener("click", function () {
+  modal.style.display = "flex";
 });
