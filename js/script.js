@@ -80,7 +80,6 @@ function getCart() {
   }
 }
 
-
 function updateCartCount() {
   const cart = getCart();
 
@@ -93,8 +92,6 @@ function updateCartCount() {
   counter.style.display = total > 0 ? "flex" : "none";
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
-  
   updateCartCount();
 });
