@@ -1,0 +1,131 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f8f5f2;
+    font-family: "Montserrat", sans-serif;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    padding: 45px;
+    border-radius: 18px;
+}
+
+.logo {
+    width: 170px;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 38px;
+    font-weight: 700;
+    color: #473A1F;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #6b6b6b;
+    margin-bottom: 35px;
+    line-height: 1.6;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #7A8564;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+.back-link:hover {
+    color: #473A1F;
+}
+
+.form-label {
+    color: #473A1F;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    box-shadow: none !important;
+}
+
+.form-control:focus {
+    border-color: #91766E;
+}
+
+.btn-register {
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    background: #473A1F;
+    color: #ffffff;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: .3s;
+}
+
+.btn-register:hover {
+    background: #91766E;
+}
+
+.login-text {
+    text-align: center;
+    margin-top: 25px;
+    color: #555;
+}
+
+.login-text a {
+    color: #7A8564;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-text a:hover {
+    color: #473A1F;
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+@media (max-width:992px) {
+
+    .register-card {
+        margin: 30px 15px;
+        padding: 35px;
+    }
+
+}
+
+@media (max-width:576px) {
+
+    .register-card {
+        padding: 25px;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    .logo {
+        width: 140px;
+    }
+
+}

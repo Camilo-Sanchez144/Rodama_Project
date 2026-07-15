@@ -12,7 +12,6 @@ const categorySelect = document.getElementById("category");
 const sizesWrapper = document.getElementById("sizesWrapper");
 const sizesMessage = document.getElementById("sizesMessage");
 const imageFilesInput = document.getElementById("imageFiles");
-const imageUrlsInput = document.getElementById("imageUrls");
 const previewContainer = document.getElementById("previewContainer");
 const menuItems = document.querySelectorAll('.menu li');
 const sections = document.querySelectorAll('.section');
@@ -53,7 +52,7 @@ form.addEventListener("submit", async function (e) {
   }
 
   const product = {
-    key: Date.now(),
+    id: Date.now(),
     name: document.getElementById("name").value.trim(),
     price: Number(document.getElementById("price").value),
     stock: Number(document.getElementById("stock").value),
@@ -265,17 +264,22 @@ hamburger.addEventListener('click', () => {
 });
 
 overlay.addEventListener('click', closeSidebar);
-function logout() {
-  localStorage.removeItem("adminSession");
-  window.location.href = "login-admin.html";
+function checkSession() {
+
+    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+    if (!usuario || usuario.rol !== "ADMIN") {
+        alert("No tienes permisos para acceder.");
+        window.location.href = "login.html";
+
+    }
+
 }
 
-function checkSession() {
-  const session = JSON.parse(localStorage.getItem("adminSession"));
+function logout() {
+    localStorage.removeItem("usuarioActivo");
+    window.location.href = "login.html";
 
-  if (!session) {
-    window.location.href = "login-admin.html";
-  }
 }
 
 checkSession();
