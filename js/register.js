@@ -1,93 +1,81 @@
-const form = document.getElementById("registerForm");
+const registerForm = document.getElementById("registerForm");
 
-form.addEventListener("submit", (e) => {
+registerForm.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-    e.preventDefault();
+  const nombre = document.getElementById("nombre").value.trim();
+  const apellido = document.getElementById("apellido").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const direccion = document.getElementById("direccion").value.trim();
+  const correo = document.getElementById("correo").value.trim().toLowerCase();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-    const nombre = document.getElementById("nombre").value.trim();
-    const apellido = document.getElementById("apellido").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
-    const correo = document.getElementById("correo").value.trim().toLowerCase();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+  if (
+    nombre === "" ||
+    apellido === "" ||
+    telefono === "" ||
+    direccion === "" ||
+    correo === "" ||
+    password === "" ||
+    confirmPassword === ""
+  ) {
+    alert("Completa todos los campos para crear tu cuenta.");
+    return;
+  }
 
-    if (
-        nombre === "" ||
-        apellido === "" ||
-        telefono === "" ||
-        direccion === "" ||
-        correo === "" ||
-        password === "" ||
-        confirmPassword === ""
-    ) {
-        alert("Todos los campos son obligatorios.");
-        return;
-    }
+  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const telefonoValido = /^\+?[0-9\s-]{7,15}$/;
 
-    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!correoValido.test(correo)) {
+    alert("Ingresa un correo electrónico válido.");
+    return;
+  }
 
-    if (!regexCorreo.test(correo)) {
-        alert("Ingresa un correo electrónico válido.");
-        return;
-    }
+  if (!telefonoValido.test(telefono)) {
+    alert("Ingresa un teléfono válido.");
+    return;
+  }
 
-    const regexTelefono = /^[0-9]{10}$/;
+  if (password.length < 8) {
+    alert("La contraseña debe tener al menos 8 caracteres.");
+    return;
+  }
 
-    if (!regexTelefono.test(telefono)) {
-        alert("El teléfono debe tener 10 números.");
-        return;
-    }
+  if (password !== confirmPassword) {
+    alert("Las contraseñas no coinciden.");
+    return;
+  }
 
-    if (password.length < 8) {
-        alert("La contraseña debe tener mínimo 8 caracteres.");
-        return;
-    }
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    if (password !== confirmPassword) {
-        alert("Las contraseñas no coinciden.");
-        return;
-    }
+  const correoRepetido = usuarios.some((usuario) => {
+    return (usuario.correo || "").toLowerCase() === correo;
+  });
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  if (correoRepetido) {
+    alert("Ya existe una cuenta con este correo.");
+    return;
+  }
 
-    const existeCorreo = usuarios.some(usuario =>
-        usuario.correo.toLowerCase() === correo
-    );
+  const nuevoUsuario = {
+    id: `cliente-${Date.now()}`,
+    nombre: nombre,
+    apellido: apellido,
+    telefono: telefono,
+    direccion: direccion,
+    correo: correo,
+    password: password,
+    rol: "CLIENTE"
+  };
 
-    if (existeCorreo) {
-        alert("Este correo ya se encuentra registrado.");
-        return;
-    }
+  usuarios.push(nuevoUsuario);
 
-    const nuevoUsuario = {
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-        id: Date.now(),
+  alert("Cuenta creada correctamente. Ahora puedes iniciar sesión.");
 
-        nombre,
+  registerForm.reset();
 
-        apellido,
-
-        telefono,
-
-        direccion,
-
-        correo,
-
-        password,
-
-        rol: "CLIENTE"
-
-    };
-
-    usuarios.push(nuevoUsuario);
-
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-    alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
-
-    form.reset();
-
-    window.location.href = "login.html";
-
+  window.location.href = "login.html";
 });

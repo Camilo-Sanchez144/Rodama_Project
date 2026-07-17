@@ -3,64 +3,79 @@ const correo = document.getElementById("correo");
 const password = document.getElementById("password");
 const eye = document.getElementById("eye");
 
-let passwordVisible = false;
-
 const adminPorDefecto = {
-    id: 1,
-    nombre: "Administrador",
-    apellido: "",
-    telefono: "",
-    correo: "admin@rodama.com",
-    password: "Admin123",
-    rol: "ADMIN"
+  id: "admin-rodama",
+  nombre: "Administrador",
+  correo: "admin@rodama.com",
+  password: "Admin123",
+  rol: "ADMIN"
 };
 
 let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-if (!usuarios.some(u => u.rol === "ADMIN")) {
-    usuarios.push(adminPorDefecto);
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+const existeAdmin = usuarios.some((usuario) => {
+  return (
+    usuario.id === adminPorDefecto.id ||
+    usuario.correo?.toLowerCase() === adminPorDefecto.correo
+  );
+});
+
+if (!existeAdmin) {
+  usuarios.push(adminPorDefecto);
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
 }
 
 eye.addEventListener("click", () => {
-    passwordVisible = !passwordVisible;
-    password.type = passwordVisible ? "text" : "password";
-    eye.classList.toggle("bi-eye");
-    eye.classList.toggle("bi-eye-slash");
+  if (password.type === "password") {
+    password.type = "text";
+    eye.classList.remove("bi-eye-slash");
+    eye.classList.add("bi-eye");
+  } else {
+    password.type = "password";
+    eye.classList.remove("bi-eye");
+    eye.classList.add("bi-eye-slash");
+  }
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-    e.preventDefault();
+  const correoIngresado = correo.value.trim().toLowerCase();
+  const passwordIngresado = password.value;
 
-    const correoIngresado = correo.value.trim().toLowerCase();
-    const passwordIngresado = password.value.trim();
+  if (correoIngresado === "" || passwordIngresado === "") {
+    alert("Completa el correo y la contraseña.");
+    return;
+  }
 
-    usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    const usuario = usuarios.find(u =>
-        u.correo.toLowerCase() === correoIngresado &&
-        u.password === passwordIngresado
+  const usuarioEncontrado = usuarios.find((usuario) => {
+    const correoUsuario = (usuario.correo || "").toLowerCase();
+    const usuarioUsuario = (usuario.usuario || "").toLowerCase();
+
+    return (
+      (correoUsuario === correoIngresado ||
+        usuarioUsuario === correoIngresado) &&
+      usuario.password === passwordIngresado
     );
+  });
 
-    if (!usuario) {
-        alert("Correo o contraseña incorrectos.");
-        return;
-    }
+  if (!usuarioEncontrado) {
+    alert("Correo o contraseña incorrectos.");
+    return;
+  }
 
-    // Guardar sesión
-    localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+  localStorage.setItem(
+    "usuarioActivo",
+    JSON.stringify(usuarioEncontrado)
+  );
 
-    alert(`Bienvenido ${usuario.nombre}`);
+  alert(`Inicio de sesión exitoso. Bienvenido/a, ${usuarioEncontrado.nombre}.`);
 
-    if (usuario.rol === "ADMIN") {
-
-        window.location.href = "dashboard-admin.html";
-
-    } else {
-
-        window.location.href = "../index.html";
-
-    }
-
+  if (usuarioEncontrado.rol === "ADMIN") {
+    window.location.href = "dashboard-admin.html";
+  } else {
+    window.location.href = "../index.html";
+  }
 });

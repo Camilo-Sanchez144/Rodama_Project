@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Mi perfil | RODAMA</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/perfil.css">
+</head>
+
+<body>
+  <header class="profile-header">
+    <a href="../index.html">
+      <i class="bi bi-arrow-left"></i>
+      Volver a la tienda
+    </a>
+
+    <img src="../img/RODAMA_LOGO.png" alt="RODAMA">
+  </header>
+
+  <main class="profile-page">
+    <section class="profile-intro">
+      <p>MI CUENTA</p>
+
+      <h1>
+        Hola, <span id="clientName"></span>
+      </h1>
+
+      <span>Gestiona tu información y consulta tu actividad.</span>
+    </section>
+
+    <div id="profileMessage" class="profile-message"></div>
+
+    <div class="profile-grid">
+      <section class="profile-card">
+        <h2>Datos personales</h2>
+
+        <form id="profileForm">
+          <div class="fields">
+            <div>
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre">
+            </div>
+
+            <div>
+              <label for="apellido">Apellido</label>
+              <input type="text" id="apellido">
+            </div>
+          </div>
+
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo">
+
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono">
+
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion">
+
+          <button type="submit">
+            Guardar cambios
+          </button>
+        </form>
+      </section>
+
+      <aside class="profile-card profile-actions">
+        <h2>Tu cuenta</h2>
+
+        <a href="#historial">
+          <i class="bi bi-clock-history"></i>
+          Historial de pedidos
+        </a>
+
+        <a href="#favoritos">
+          <i class="bi bi-heart"></i>
+          Favoritos
+        </a>
+
+        <button id="logoutBtn" class="logout">
+          <i class="bi bi-box-arrow-right"></i>
+          Cerrar sesión
+        </button>
+      </aside>
+    </div>
+
+    <section id="historial" class="profile-card empty-section">
+      <h2>Historial de pedidos</h2>
+
+      <i class="bi bi-bag-heart"></i>
+
+      <p>
+        Aún no tienes pedidos. Cuando realices una compra, aparecerá aquí.
+      </p>
+    </section>
+
+    <section id="favoritos" class="profile-card empty-section">
+      <h2>Favoritos</h2>
+
+      <i class="bi bi-heart"></i>
+
+      <p>
+        No tienes favoritos guardados todavía.
+      </p>
+    </section>
+  </main>
+
+  <script src="../js/perfil.js"></script>
+</body>
+</html>

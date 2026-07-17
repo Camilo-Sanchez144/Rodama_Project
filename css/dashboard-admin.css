@@ -500,6 +500,45 @@ body{
     background:#1a1a1a;
 }
 
+.size-option input[type="number"] {
+  width: 62px;
+  border: 1px solid #dccec0;
+  border-radius: 7px;
+  padding: 5px 7px;
+}
+
+.preview-item {
+  min-height: 150px;
+  height: auto;
+}
+
+.preview-item img {
+  height: 90px;
+  object-fit: cover;
+}
+
+.preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 6px;
+  background: #fffdfb;
+  font-size: 0.68rem;
+}
+
+.preview-actions strong {
+  width: 100%;
+  text-align: center;
+  color: #5c4b42;
+}
+
+.preview-actions .btn {
+  padding: 2px 5px;
+  font-size: 0.66rem;
+}
+
 @media(max-width:992px){
 
     .admin-layout{

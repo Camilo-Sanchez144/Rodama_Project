@@ -1,131 +1,76 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #f8f5f2;
-    font-family: "Montserrat", sans-serif;
-}
+@import url("login.css");
 
 .register-card {
-    width: 100%;
-    max-width: 520px;
-    background: #ffffff;
-    padding: 45px;
-    border-radius: 18px;
+  max-width: 560px;
+  padding: 1.75rem 2.25rem;
 }
 
-.logo {
-    width: 170px;
-    margin-bottom: 10px;
+.register-card .auth-logo {
+  margin: 1rem auto 0.5rem;
 }
 
-.title {
-    font-family: "Cormorant Garamond", serif;
-    font-size: 38px;
-    font-weight: 700;
-    color: #473A1F;
-    text-align: center;
-    margin-bottom: 10px;
+.register-card label {
+  display: block;
+  color: var(--marron);
+  font-weight: 600;
+  margin: 0.65rem 0 0.3rem;
 }
 
-.subtitle {
-    text-align: center;
-    color: #6b6b6b;
-    margin-bottom: 35px;
-    line-height: 1.6;
+.register-card input {
+  width: 100%;
+  border: 1px solid #dfd4cc;
+  border-radius: 9px;
+  padding: 0.72rem 0.85rem;
+  font-family: inherit;
+  outline: 0;
 }
 
-.back-link {
-    text-decoration: none;
-    color: #7A8564;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 30px;
-    font-weight: 500;
+.register-card input:focus {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 0.18rem rgba(200, 161, 156, 0.22);
 }
 
-.back-link:hover {
-    color: #473A1F;
-}
-
-.form-label {
-    color: #473A1F;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.form-control {
-    height: 48px;
-    border-radius: 8px;
-    border: 1px solid #d9d9d9;
-    box-shadow: none !important;
-}
-
-.form-control:focus {
-    border-color: #91766E;
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .btn-register {
-    width: 100%;
-    height: 50px;
-    border: none;
-    border-radius: 8px;
-    background: #473A1F;
-    color: #ffffff;
-    font-weight: 600;
-    margin-top: 10px;
-    transition: .3s;
+  width: 100%;
+  margin-top: 1.25rem;
+  border: 0;
+  border-radius: 9px;
+  padding: 0.85rem;
+  background: var(--rosa);
+  color: #fff;
+  font: 600 1rem "Playfair Display", serif;
+  cursor: pointer;
 }
 
 .btn-register:hover {
-    background: #91766E;
+  background: var(--marron);
 }
 
 .login-text {
-    text-align: center;
-    margin-top: 25px;
-    color: #555;
+  text-align: center;
+  color: var(--taupe);
+  font-size: 0.9rem;
+  margin: 1.4rem 0 0;
 }
 
 .login-text a {
-    color: #7A8564;
-    font-weight: 600;
-    text-decoration: none;
+  color: var(--marron);
+  font-weight: 700;
 }
 
-.login-text a:hover {
-    color: #473A1F;
-}
+@media (max-width: 520px) {
+  .register-card {
+    padding: 1.5rem;
+  }
 
-.object-fit-cover {
-    object-fit: cover;
-}
-
-@media (max-width:992px) {
-
-    .register-card {
-        margin: 30px 15px;
-        padding: 35px;
-    }
-
-}
-
-@media (max-width:576px) {
-
-    .register-card {
-        padding: 25px;
-    }
-
-    .title {
-        font-size: 30px;
-    }
-
-    .logo {
-        width: 140px;
-    }
-
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }

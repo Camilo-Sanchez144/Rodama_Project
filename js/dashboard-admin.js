@@ -1,285 +1,526 @@
-
-function getProducts() {
-  return JSON.parse(localStorage.getItem("products")) || [];
+function obtenerUsuarioActivo() {
+  try {
+    return JSON.parse(localStorage.getItem("usuarioActivo"));
+  } catch {
+    return null;
+  }
 }
 
-let products = getProducts();
+const usuarioActivo = obtenerUsuarioActivo();
 
-const form = document.getElementById("productForm");
-const table = document.getElementById("productTable");
-const searchInput = document.getElementById("searchProduct");
-const categorySelect = document.getElementById("category");
+if (!usuarioActivo || usuarioActivo.rol !== "ADMIN") {
+  alert("No tienes permisos para acceder al panel administrativo.");
+  window.location.href = "login.html";
+}
+
+function logout() {
+  localStorage.removeItem("usuarioActivo");
+  window.location.href = "login.html";
+}
+
+function obtenerProductos() {
+  try {
+    return JSON.parse(localStorage.getItem("products")) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarProductos(productos) {
+  localStorage.setItem("products", JSON.stringify(productos));
+}
+
+function normalizarProducto(producto) {
+  let imagenes = [];
+
+  if (Array.isArray(producto.images) && producto.images.length > 0) {
+    imagenes = producto.images;
+  } else if (producto.image) {
+    imagenes = [producto.image];
+  }
+
+  let stockPorTalla = {};
+
+  if (producto.stockBySize) {
+    stockPorTalla = producto.stockBySize;
+  } else if (
+    producto.sizes &&
+    !Array.isArray(producto.sizes) &&
+    typeof producto.sizes === "object"
+  ) {
+    stockPorTalla = producto.sizes;
+  }
+
+  let tallas = [];
+
+  if (Array.isArray(producto.sizes)) {
+    tallas = producto.sizes;
+  } else {
+    tallas = Object.keys(stockPorTalla);
+  }
+
+  let stock = Number(producto.stock || 0);
+
+  if (Object.keys(stockPorTalla).length > 0) {
+    stock = Object.values(stockPorTalla).reduce((total, cantidad) => {
+      return total + Number(cantidad || 0);
+    }, 0);
+  }
+
+  return {
+    ...producto,
+    image:
+      imagenes[0] ||
+      "https://via.placeholder.com/400x500?text=Producto",
+    images: imagenes,
+    sizes: tallas,
+    stockBySize: stockPorTalla,
+    stock: stock
+  };
+}
+
+const productForm = document.getElementById("productForm");
+const productTable = document.getElementById("productTable");
+const searchProduct = document.getElementById("searchProduct");
+const category = document.getElementById("category");
+const stock = document.getElementById("stock");
+const imageFiles = document.getElementById("imageFiles");
+const previewContainer = document.getElementById("previewContainer");
 const sizesWrapper = document.getElementById("sizesWrapper");
 const sizesMessage = document.getElementById("sizesMessage");
-const imageFilesInput = document.getElementById("imageFiles");
-const previewContainer = document.getElementById("previewContainer");
-const menuItems = document.querySelectorAll('.menu li');
-const sections = document.querySelectorAll('.section');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('sidebarOverlay');
-const hamburger = document.getElementById('hamburger');
+const modalTitle = document.getElementById("modalTitle");
+const saveProductBtn = document.getElementById("saveProductBtn");
+const newProductButton = document.getElementById("newProductButton");
 
-renderProducts(products);
-toggleSizesByCategory();
+let productoEditandoId = null;
+let imagenesTemporales = [];
 
-categorySelect.addEventListener("change", toggleSizesByCategory);
-searchInput.addEventListener("input", handleSearch);
-imageFilesInput.addEventListener("change", renderPreview);
+function cambiarTallasPorCategoria() {
+  const esAccesorio = category.value === "Accesorios";
 
-(function initSection() {
-  const activeItem = document.querySelector('.menu li.active');
-  if (activeItem) {
-    const target = activeItem.dataset.section;
-    const section = document.getElementById(`section-${target}`);
-    if (section) {
-      section.classList.add('active');
-      requestAnimationFrame(() => section.classList.add('fade-in'));
-    }
-  }
-})();
+  sizesWrapper.classList.toggle("d-none", esAccesorio);
+  sizesMessage.classList.toggle("d-none", !esAccesorio);
 
-form.addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const category = categorySelect.value;
-  const sizes = category === "Accesorios" ? [] : getSelectedSizes();
-
-  let images = [];
-  if (imageFilesInput.files.length > 0) {
-    images = await getImagesFromFiles(imageFilesInput.files);
+  if (esAccesorio) {
+    stock.disabled = false;
   } else {
-    images = ["https://via.placeholder.com/400x500?text=Producto"];
+    stock.disabled = true;
+    stock.value = "0";
+  }
+}
+
+function obtenerStockPorTalla() {
+  const stockPorTalla = {};
+
+  document.querySelectorAll(".size-stock").forEach((input) => {
+    const talla = input.dataset.size;
+    const cantidad = Math.max(0, Number(input.value || 0));
+
+    if (cantidad > 0) {
+      stockPorTalla[talla] = cantidad;
+    }
+  });
+
+  return stockPorTalla;
+}
+
+function obtenerTextoStock(producto) {
+  if (producto.category === "Accesorios") {
+    return `General: ${producto.stock}`;
   }
 
-  const product = {
-    id: Date.now(),
-    name: document.getElementById("name").value.trim(),
-    price: Number(document.getElementById("price").value),
-    stock: Number(document.getElementById("stock").value),
-    category: category,
-    description: document.getElementById("description").value.trim(),
-    sizes: sizes,
-    image: images[0],
-    images: images
-  };
+  const stockPorTalla = producto.stockBySize || {};
 
-  products = getProducts();
-  products.push(product);
-  saveProducts();
+  const texto = Object.entries(stockPorTalla)
+    .filter(([, cantidad]) => Number(cantidad) > 0)
+    .map(([talla, cantidad]) => `${talla}: ${cantidad}`)
+    .join(" · ");
 
-  renderProducts(products);
+  return texto || "Sin stock por talla";
+}
 
-  form.reset();
-  previewContainer.innerHTML = "";
-  toggleSizesByCategory();
+function mostrarProductos(listaProductos = obtenerProductos()) {
+  productTable.innerHTML = "";
 
-  const modalElement = document.getElementById("productModal");
-  const modal = bootstrap.Modal.getInstance(modalElement);
-
-  if (modal) modal.hide();
-});
-
-function renderProducts(productList) {
-  table.innerHTML = "";
-
-  if (!productList.length) {
-    table.innerHTML = `
+  if (listaProductos.length === 0) {
+    productTable.innerHTML = `
       <tr>
         <td colspan="7" class="text-center py-4">
           No hay productos registrados.
         </td>
       </tr>
     `;
+
     return;
   }
 
-  productList.forEach((product) => {
-    const sizesHTML = product.category === "Accesorios"
-      ? `<span class="no-size-text">No aplica</span>`
-      : product.sizes && product.sizes.length
-        ? `<div class="sizes-list-table">
-            ${product.sizes.map(size => `<span class="size-pill">${size}</span>`).join("")}
-          </div>`
-        : `<span class="no-size-text">Sin tallas</span>`;
+  listaProductos.forEach((productoOriginal) => {
+    const producto = normalizarProducto(productoOriginal);
 
-    table.innerHTML += `
-      <tr>
-        <td>
-          <img
-            src="${product.image}"
-            alt="${product.name}"
-            class="product-thumb">
-        </td>
+    const tallasHTML =
+      producto.category === "Accesorios"
+        ? `<span class="no-size-text">No aplica</span>`
+        : producto.sizes.length > 0
+          ? producto.sizes
+              .map((talla) => {
+                return `<span class="size-pill">${talla}</span>`;
+              })
+              .join(" ")
+          : `<span class="no-size-text">Sin tallas</span>`;
 
-        <td class="product-name-cell">
-          <div class="product-name-text">${product.name}</div>
-          <div class="product-description-preview">
-            ${product.description ? product.description : "Sin descripción"}
-          </div>
-        </td>
+    const fila = document.createElement("tr");
 
-        <td>
-          <span class="product-category-badge">
-            ${product.category}
-          </span>
-        </td>
+    fila.innerHTML = `
+      <td>
+        <img
+          src="${producto.image}"
+          alt="${producto.name}"
+          class="product-thumb"
+        >
+      </td>
 
-        <td>$${Number(product.price).toLocaleString()}</td>
-        <td>${product.stock}</td>
-        <td>${sizesHTML}</td>
+      <td class="product-name-cell">
+        <div class="product-name-text"></div>
+        <div class="product-description-preview"></div>
+      </td>
 
-        <td>
-          <button
-            class="btn-delete"
-            onclick="deleteProduct(${product.id})">
-            Eliminar
-          </button>
-        </td>
-      </tr>
+      <td>
+        <span class="product-category-badge"></span>
+      </td>
+
+      <td>$${Number(producto.price || 0).toLocaleString()}</td>
+
+      <td>${obtenerTextoStock(producto)}</td>
+
+      <td>${tallasHTML}</td>
+
+      <td>
+        <button class="btn btn-sm btn-outline-dark btn-edit">
+          Editar
+        </button>
+
+        <button class="btn-delete btn-delete-product">
+          Eliminar
+        </button>
+      </td>
     `;
-  });
-}
 
-function handleSearch() {
-  const value = searchInput.value.toLowerCase().trim();
+    fila.querySelector(".product-name-text").textContent =
+      producto.name || "Producto sin nombre";
 
-  const filtered = products.filter(product =>
-    product.name.toLowerCase().includes(value) ||
-    product.category.toLowerCase().includes(value)
-  );
+    fila.querySelector(".product-description-preview").textContent =
+      producto.description || "Sin descripción";
 
-  renderProducts(filtered);
-}
+    fila.querySelector(".product-category-badge").textContent =
+      producto.category || "Sin categoría";
 
-function deleteProduct(id) {
-  products = products.filter(product => product.id !== id);
-  saveProducts();
-  handleSearch();
-}
-
-function saveProducts() {
-  localStorage.setItem("products", JSON.stringify(products));
-}
-
-function toggleSizesByCategory() {
-  const isAccessory = categorySelect.value === "Accesorios";
-
-  sizesWrapper.classList.toggle("d-none", isAccessory);
-  sizesMessage.classList.toggle("d-none", !isAccessory);
-
-  if (isAccessory) {
-    document.querySelectorAll(".size-check").forEach(check => {
-      check.checked = false;
+    fila.querySelector(".btn-edit").addEventListener("click", () => {
+      editarProducto(producto);
     });
-  }
-}
 
-function getSelectedSizes() {
-  return [...document.querySelectorAll(".size-check:checked")].map(input => input.value);
-}
+    fila
+      .querySelector(".btn-delete-product")
+      .addEventListener("click", () => {
+        eliminarProducto(producto.id, producto.name);
+      });
 
-
-function compressImage(file, maxWidth = 500, quality = 0.7) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = e => img.src = e.target.result;
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const scale = maxWidth / img.width;
-
-      canvas.width = maxWidth;
-      canvas.height = img.height * scale;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      resolve(canvas.toDataURL("image/jpeg", quality));
-    };
-
-    reader.readAsDataURL(file);
+    productTable.appendChild(fila);
   });
 }
 
-function getImagesFromFiles(files) {
-  return Promise.all(
-    [...files].map(file => compressImage(file))
-  );
-}
-
-function renderPreview() {
+function renderizarImagenes() {
   previewContainer.innerHTML = "";
 
-  const files = [...imageFilesInput.files];
+  imagenesTemporales.forEach((imagen, indice) => {
+    const item = document.createElement("div");
 
-  files.forEach(file => {
-    const reader = new FileReader();
+    item.classList.add("preview-item");
 
-    reader.onload = function (e) {
-      previewContainer.innerHTML += `
-        <div class="preview-item">
-          <img src="${e.target.result}" alt="preview">
-        </div>
-      `;
+    item.innerHTML = `
+      <img src="${imagen}" alt="Imagen ${indice + 1}">
+
+      <div class="preview-actions">
+        <strong>
+          ${indice === 0 ? "Principal" : `Imagen ${indice + 1}`}
+        </strong>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-light btn-subir"
+          ${indice === 0 ? "disabled" : ""}
+        >
+          Subir
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-light btn-bajar"
+          ${
+            indice === imagenesTemporales.length - 1
+              ? "disabled"
+              : ""
+          }
+        >
+          Bajar
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger btn-quitar"
+        >
+          Quitar
+        </button>
+      </div>
+    `;
+
+    item.querySelector(".btn-subir").addEventListener("click", () => {
+      moverImagen(indice, -1);
+    });
+
+    item.querySelector(".btn-bajar").addEventListener("click", () => {
+      moverImagen(indice, 1);
+    });
+
+    item.querySelector(".btn-quitar").addEventListener("click", () => {
+      imagenesTemporales.splice(indice, 1);
+      renderizarImagenes();
+    });
+
+    previewContainer.appendChild(item);
+  });
+}
+
+function moverImagen(indice, direccion) {
+  const nuevaPosicion = indice + direccion;
+
+  if (
+    nuevaPosicion < 0 ||
+    nuevaPosicion >= imagenesTemporales.length
+  ) {
+    return;
+  }
+
+  const imagen = imagenesTemporales[indice];
+
+  imagenesTemporales[indice] =
+    imagenesTemporales[nuevaPosicion];
+
+  imagenesTemporales[nuevaPosicion] = imagen;
+
+  renderizarImagenes();
+}
+
+function convertirArchivoADataURL(archivo) {
+  return new Promise((resolve) => {
+    const lector = new FileReader();
+
+    lector.onload = (evento) => {
+      resolve(evento.target.result);
     };
 
-    reader.readAsDataURL(file);
+    lector.readAsDataURL(archivo);
   });
 }
 
-function switchSection(target) {
-  menuItems.forEach(i => i.classList.remove('active'));
-  sections.forEach(s => {
-    s.classList.remove('active', 'fade-in');
-    void s.offsetWidth;
+function limpiarFormulario() {
+  productoEditandoId = null;
+  imagenesTemporales = [];
+
+  productForm.reset();
+
+  document.querySelectorAll(".size-stock").forEach((input) => {
+    input.value = "0";
   });
 
-  document.querySelector(`[data-section="${target}"]`).classList.add('active');
-  const next = document.getElementById(`section-${target}`);
-  next.classList.add('active');
-  requestAnimationFrame(() => next.classList.add('fade-in'));
+  modalTitle.textContent = "Nuevo producto";
+  saveProductBtn.textContent = "CREAR PRODUCTO";
+
+  renderizarImagenes();
+  cambiarTallasPorCategoria();
 }
 
-menuItems.forEach(item => {
-  item.addEventListener('click', () => {
-    switchSection(item.dataset.section);
-    if (window.innerWidth < 992) closeSidebar();
+function editarProducto(productoOriginal) {
+  const producto = normalizarProducto(productoOriginal);
+
+  productoEditandoId = producto.id;
+
+  document.getElementById("name").value = producto.name || "";
+  category.value = producto.category || "";
+  document.getElementById("price").value = producto.price || 0;
+  stock.value = producto.stock || 0;
+  document.getElementById("description").value =
+    producto.description || "";
+
+  document.querySelectorAll(".size-stock").forEach((input) => {
+    input.value = producto.stockBySize[input.dataset.size] || 0;
   });
+
+  imagenesTemporales = [...producto.images];
+
+  modalTitle.textContent = "Editar producto";
+  saveProductBtn.textContent = "GUARDAR CAMBIOS";
+
+  cambiarTallasPorCategoria();
+  renderizarImagenes();
+
+  const modal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("productModal")
+  );
+
+  modal.show();
+}
+
+function eliminarProducto(id, nombreProducto) {
+  const confirmar = confirm(
+    `¿Deseas eliminar el producto "${nombreProducto}"?`
+  );
+
+  if (!confirmar) return;
+
+  const productos = obtenerProductos().filter((producto) => {
+    return String(producto.id) !== String(id);
+  });
+
+  guardarProductos(productos);
+  mostrarProductos(productos);
+}
+
+category.addEventListener("change", cambiarTallasPorCategoria);
+
+newProductButton.addEventListener("click", () => {
+  limpiarFormulario();
 });
 
-function openSidebar() {
-  sidebar.classList.add('open');
-  overlay.classList.add('visible');
-}
+imageFiles.addEventListener("change", async () => {
+  const archivos = [...imageFiles.files];
 
-function closeSidebar() {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('visible');
-}
+  const imagenesNuevas = await Promise.all(
+    archivos.map((archivo) => convertirArchivoADataURL(archivo))
+  );
 
-hamburger.addEventListener('click', () => {
-  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  imagenesTemporales.push(...imagenesNuevas);
+
+  imageFiles.value = "";
+
+  renderizarImagenes();
 });
 
-overlay.addEventListener('click', closeSidebar);
-function checkSession() {
+productForm.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+  const categoria = category.value;
+  const esAccesorio = categoria === "Accesorios";
+  const stockPorTalla = esAccesorio ? {} : obtenerStockPorTalla();
 
-    if (!usuario || usuario.rol !== "ADMIN") {
-        alert("No tienes permisos para acceder.");
-        window.location.href = "login.html";
+  let stockFinal = 0;
 
+  if (esAccesorio) {
+    stockFinal = Math.max(0, Number(stock.value || 0));
+  } else {
+    stockFinal = Object.values(stockPorTalla).reduce(
+      (total, cantidad) => total + Number(cantidad),
+      0
+    );
+  }
+
+  const nuevoProducto = {
+    id: productoEditandoId || `product-${Date.now()}`,
+    name: document.getElementById("name").value.trim(),
+    category: categoria,
+    price: Number(document.getElementById("price").value),
+    stock: stockFinal,
+    stockBySize: stockPorTalla,
+    sizes: Object.keys(stockPorTalla),
+    description: document.getElementById("description").value.trim(),
+    images: imagenesTemporales,
+    image:
+      imagenesTemporales[0] ||
+      "https://via.placeholder.com/400x500?text=Producto"
+  };
+
+  let productos = obtenerProductos();
+
+  const posicionProducto = productos.findIndex((producto) => {
+    return String(producto.id) === String(nuevoProducto.id);
+  });
+
+  if (posicionProducto === -1) {
+    productos.push(nuevoProducto);
+  } else {
+    productos[posicionProducto] = nuevoProducto;
+  }
+
+  guardarProductos(productos);
+  mostrarProductos(productos);
+
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("productModal")
+  );
+
+  if (modal) {
+    modal.hide();
+  }
+});
+
+searchProduct.addEventListener("input", () => {
+  const texto = searchProduct.value.toLowerCase().trim();
+
+  const productosFiltrados = obtenerProductos().filter((producto) => {
+    const nombre = (producto.name || "").toLowerCase();
+    const categoria = (producto.category || "").toLowerCase();
+
+    return nombre.includes(texto) || categoria.includes(texto);
+  });
+
+  mostrarProductos(productosFiltrados);
+});
+
+const menuItems = document.querySelectorAll(".menu li");
+const sections = document.querySelectorAll(".section");
+const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
+const hamburger = document.getElementById("hamburger");
+
+menuItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    const seccion = item.dataset.section;
+
+    menuItems.forEach((menu) => {
+      menu.classList.remove("active");
+    });
+
+    sections.forEach((section) => {
+      section.classList.remove("active", "fade-in");
+    });
+
+    item.classList.add("active");
+
+    const seccionSeleccionada = document.getElementById(
+      `section-${seccion}`
+    );
+
+    if (seccionSeleccionada) {
+      seccionSeleccionada.classList.add("active");
+
+      requestAnimationFrame(() => {
+        seccionSeleccionada.classList.add("fade-in");
+      });
     }
 
-}
+    sidebar.classList.remove("open");
+    sidebarOverlay.classList.remove("visible");
+  });
+});
 
-function logout() {
-    localStorage.removeItem("usuarioActivo");
-    window.location.href = "login.html";
+hamburger.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  sidebarOverlay.classList.toggle("visible");
+});
 
-}
+sidebarOverlay.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+  sidebarOverlay.classList.remove("visible");
+});
 
-checkSession();
+mostrarProductos();
+cambiarTallasPorCategoria();
