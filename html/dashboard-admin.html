@@ -24,11 +24,66 @@
     />
 
     <link rel="stylesheet" href="../css/dashboard-admin.css" />
+    <link rel="stylesheet" href="../css/user-menu.css" />
   </head>
 
-  <body>
-    <div class="admin-layout">
+  <body class="dashboard-page">
+    <nav class="custom-navbar">
+      <div class="nav-container">
+        <img src="../img/RODAMA_LOGO.png" alt="RODAMA" class="logo-img" />
 
+        <ul class="nav-links">
+          <li><a href="../index.html">Tienda</a></li>
+          <li><a href="productos.html">Colecciones</a></li>
+          <li><a href="acerca-de-nosotros.html">Acerca de nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+
+        <div class="nav-icons">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Buscar productos..."
+          />
+
+          <a href="#" id="searchToggle" title="Buscar">
+            <i class="bi bi-search"></i>
+          </a>
+
+          <a href="login.html" id="adminAccess" title="Mi cuenta">
+            <i class="bi bi-person-fill"></i>
+          </a>
+
+          <a href="cart.html" class="cart-icon" title="Carrito">
+            <i class="bi bi-bag"></i>
+            <span id="cartCount" class="cart-count">0</span>
+          </a>
+
+          <button
+            class="site-hamburger"
+            id="siteHamburger"
+            type="button"
+            aria-label="Abrir menú"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <ul>
+          <li><a href="../index.html">Tienda</a></li>
+          <li><a href="productos.html">Colecciones</a></li>
+          <li><a href="acerca-de-nosotros.html">Acerca de nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="admin-layout">
       <button class="hamburger" id="hamburger" aria-label="Abrir menú">
         <i class="bi bi-list"></i>
       </button>
@@ -36,7 +91,6 @@
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
       <aside class="sidebar" id="sidebar">
-
         <h2 class="logo">
           Rodama<br />
           Admin
@@ -53,25 +107,20 @@
         <button class="btn btn-outline-light logout" onclick="logout()">
           Cerrar sesión
         </button>
-
       </aside>
 
       <main class="content" id="mainContent">
-
         <section class="section active" id="section-productos">
-
           <div class="topbar">
-
             <div>
               <h2>Productos</h2>
 
               <p class="topbar-subtitle">
-                Gestiona el catalogo de Rodama desde el panel administrativo.
+                Gestiona el catálogo de Rodama desde el panel administrativo.
               </p>
             </div>
 
             <div>
-
               <a href="../index.html" class="btn btn-dark px-4">
                 Página de inicio
               </a>
@@ -84,9 +133,7 @@
               >
                 + Nuevo Producto
               </button>
-
             </div>
-
           </div>
 
           <div class="toolbar">
@@ -101,9 +148,7 @@
           </div>
 
           <div class="product-table-wrapper">
-
             <table class="table align-middle product-table">
-
               <thead>
                 <tr>
                   <th>Imagen</th>
@@ -117,11 +162,8 @@
               </thead>
 
               <tbody id="productTable"></tbody>
-
             </table>
-
           </div>
-
         </section>
 
         <section class="section" id="section-resumen">
@@ -167,37 +209,28 @@
             </div>
           </div>
         </section>
-
       </main>
-
     </div>
 
     <div class="modal fade" id="productModal">
-
       <div class="modal-dialog modal-xl modal-dialog-scrollable">
-
         <div class="modal-content">
-
           <div class="modal-header">
-
             <h3 id="modalTitle">Nuevo producto</h3>
 
             <button
+              type="button"
               class="btn-close"
-              data-bs-dismiss="modal">
-            </button>
-
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
           </div>
 
           <div class="modal-body">
-
             <form id="productForm">
-
               <div class="row">
-
                 <div class="col-lg-6 mb-3">
-
-                  <label class="form-label">
+                  <label class="form-label" for="name">
                     Nombre del producto
                   </label>
 
@@ -208,20 +241,14 @@
                     placeholder="Ej. Blusa satinada"
                     required
                   />
-
                 </div>
 
                 <div class="col-lg-6 mb-3">
-
-                  <label class="form-label">
+                  <label class="form-label" for="category">
                     Categoría
                   </label>
 
-                  <select
-                    class="form-select"
-                    id="category"
-                    required>
-
+                  <select class="form-select" id="category" required>
                     <option value="">
                       Selecciona una categoría
                     </option>
@@ -233,18 +260,13 @@
                     <option>Pantalones</option>
                     <option>Sets / Conjuntos</option>
                     <option>Accesorios</option>
-
                   </select>
-
                 </div>
-
               </div>
 
               <div class="row">
-
                 <div class="col-lg-4 mb-3">
-
-                  <label class="form-label">
+                  <label class="form-label" for="price">
                     Precio
                   </label>
 
@@ -256,12 +278,10 @@
                     min="0"
                     required
                   />
-
                 </div>
 
                 <div class="col-lg-4 mb-3">
-
-                  <label class="form-label">
+                  <label class="form-label" for="stock">
                     Stock general
                   </label>
 
@@ -269,25 +289,25 @@
                     type="number"
                     class="form-control"
                     id="stock"
-                    placeholder="Solo para accesorios"
+                    placeholder="Se calcula automáticamente"
                     min="0"
                     value="0"
+                    readonly
+                    aria-describedby="stockHelp"
                   />
 
-                  <small class="helper-text">
-                    Para ropa, el stock se calcula con las cantidades de cada talla.
+                  <small id="stockHelp" class="helper-text">
+                    Para ropa, se calcula automáticamente con las cantidades de cada talla.
+                    Para accesorios, puedes ingresar el stock general.
                   </small>
-
                 </div>
 
                 <div class="col-lg-4 mb-3">
-
                   <label class="form-label">
                     Cantidad por talla
                   </label>
 
                   <div id="sizesWrapper" class="sizes-box">
-
                     <label class="size-option">
                       S
                       <input
@@ -296,7 +316,7 @@
                         value="0"
                         class="size-stock"
                         data-size="S"
-                      >
+                      />
                     </label>
 
                     <label class="size-option">
@@ -307,7 +327,7 @@
                         value="0"
                         class="size-stock"
                         data-size="M"
-                      >
+                      />
                     </label>
 
                     <label class="size-option">
@@ -318,7 +338,7 @@
                         value="0"
                         class="size-stock"
                         data-size="L"
-                      >
+                      />
                     </label>
 
                     <label class="size-option">
@@ -329,23 +349,18 @@
                         value="0"
                         class="size-stock"
                         data-size="XL"
-                      >
+                      />
                     </label>
-
                   </div>
 
-                  <small
-                    id="sizesMessage"
-                    class="sizes-message d-none">
+                  <small id="sizesMessage" class="sizes-message d-none">
                     Los accesorios no manejan tallas.
                   </small>
-
                 </div>
-
               </div>
 
-                            <div class="mb-3">
-                <label class="form-label">Descripción</label>
+              <div class="mb-3">
+                <label class="form-label" for="description">Descripción</label>
 
                 <textarea
                   class="form-control textarea-control"
@@ -356,7 +371,9 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Imágenes del producto</label>
+                <label class="form-label" for="imageFiles">
+                  Imágenes del producto
+                </label>
 
                 <input
                   type="file"
@@ -381,20 +398,14 @@
               >
                 CREAR PRODUCTO
               </button>
-
             </form>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="../js/script.js"></script>
     <script src="../js/dashboard-admin.js"></script>
-
-</body>
+  </body>
 </html>

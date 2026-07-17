@@ -8,16 +8,11 @@ function obtenerUsuarioActivo() {
 
 function obtenerRuta(nombreArchivo) {
   const rutaActual = window.location.pathname.toLowerCase();
-
   const estaEnRaiz =
     rutaActual.endsWith("/index.html") ||
     !rutaActual.includes("/html/");
 
-  if (estaEnRaiz) {
-    return `html/${nombreArchivo}`;
-  }
-
-  return nombreArchivo;
+  return estaEnRaiz ? `html/${nombreArchivo}` : nombreArchivo;
 }
 
 function escaparHTML(texto) {
@@ -25,7 +20,8 @@ function escaparHTML(texto) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function obtenerCarrito() {
@@ -45,10 +41,38 @@ function actualizarContadorCarrito() {
 
   const contador = document.getElementById("cartCount");
 
-  if (!contador) return;
+  if (!contador) {
+    return;
+  }
 
   contador.textContent = total;
   contador.style.display = total > 0 ? "flex" : "none";
+}
+
+function obtenerAvatarUsuario(usuario) {
+  return (
+    usuario?.avatar ||
+    usuario?.foto ||
+    usuario?.imagen ||
+    usuario?.image ||
+    ""
+  );
+}
+
+function crearIconoUsuario(usuario) {
+  const avatar = obtenerAvatarUsuario(usuario);
+
+  if (!avatar) {
+    return `<i class="bi bi-person-circle user-trigger-icon"></i>`;
+  }
+
+  return `
+    <img
+      class="user-avatar"
+      src="${escaparHTML(avatar)}"
+      alt="Foto de perfil de ${escaparHTML(usuario.nombre || "usuario")}"
+    >
+  `;
 }
 
 function crearMenuUsuario() {
@@ -56,7 +80,9 @@ function crearMenuUsuario() {
     document.getElementById("userAccess") ||
     document.getElementById("adminAccess");
 
-  if (!accesoUsuario) return;
+  if (!accesoUsuario) {
+    return;
+  }
 
   const usuario = obtenerUsuarioActivo();
 
@@ -70,79 +96,95 @@ function crearMenuUsuario() {
         <span>Ingresar</span>
       </a>
     `;
-  } else {
-    const esAdmin = usuario.rol === "ADMIN";
 
-    let opcionesCliente = "";
+    accesoUsuario.replaceWith(contenedor);
+    return;
+  }
 
-    if (!esAdmin) {
-      opcionesCliente = `
-        <a href="${obtenerRuta("perfil.html")}">
-          <i class="bi bi-person-vcard"></i>
-          Mi perfil
-        </a>
+  const esAdmin = usuario.rol === "ADMIN";
+  const avatarHTML = crearIconoUsuario(usuario);
 
-        <a href="${obtenerRuta("perfil.html")}#historial">
-          <i class="bi bi-clock-history"></i>
-          Historial
-        </a>
+  const opcionesCliente = esAdmin
+    ? ""
+    : `
+      <a href="${obtenerRuta("perfil.html")}#historial">
+        <i class="bi bi-clock-history"></i>
+        Historial
+      </a>
 
-        <a href="${obtenerRuta("perfil.html")}#favoritos">
-          <i class="bi bi-heart"></i>
-          Favoritos
-        </a>
-      `;
-    }
-
-    let opcionAdmin = "";
-
-    if (esAdmin) {
-      opcionAdmin = `
-        <a href="${obtenerRuta("dashboard-admin.html")}">
-          <i class="bi bi-grid"></i>
-          Panel administrativo
-        </a>
-      `;
-    }
-
-    contenedor.innerHTML = `
-      <button class="user-trigger" type="button" id="userMenuButton">
-        <i class="bi bi-person-circle"></i>
-        <span>${escaparHTML(usuario.nombre)}</span>
-        <i class="bi bi-chevron-down small"></i>
-      </button>
-
-      <div class="user-dropdown">
-        ${opcionAdmin}
-        ${opcionesCliente}
-
-        <button type="button" id="logoutButton">
-          <i class="bi bi-box-arrow-right"></i>
-          Cerrar sesión
-        </button>
-      </div>
+      <a href="${obtenerRuta("perfil.html")}#favoritos">
+        <i class="bi bi-heart"></i>
+        Favoritos
+      </a>
     `;
 
-    const botonMenu = contenedor.querySelector("#userMenuButton");
-    const botonCerrarSesion = contenedor.querySelector("#logoutButton");
+  const opcionPanelAdmin = esAdmin
+    ? `
+      <a href="${obtenerRuta("dashboard-admin.html")}">
+        <i class="bi bi-grid"></i>
+        Panel administrativo
+      </a>
+    `
+    : "";
 
-    botonMenu.addEventListener("click", (event) => {
-      event.stopPropagation();
-      contenedor.classList.toggle("open");
-    });
+  contenedor.innerHTML = `
+    <button
+      class="user-trigger"
+      type="button"
+      id="userMenuButton"
+      aria-expanded="false"
+      aria-label="Abrir menú de usuario"
+    >
+      ${avatarHTML}
+      <span>${escaparHTML(usuario.nombre || "Usuario")}</span>
+      <i class="bi bi-chevron-down small"></i>
+    </button>
 
-    botonCerrarSesion.addEventListener("click", () => {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = obtenerRuta("login.html");
-    });
-  }
+    <div class="user-dropdown">
+      <a href="${obtenerRuta("perfil.html")}">
+        <i class="bi bi-person-vcard"></i>
+        Mi perfil
+      </a>
+
+      <a href="${obtenerRuta("perfil.html")}#configuracion">
+        <i class="bi bi-gear"></i>
+        Configuración
+      </a>
+
+      ${opcionesCliente}
+      ${opcionPanelAdmin}
+
+      <button type="button" id="logoutButton">
+        <i class="bi bi-box-arrow-right"></i>
+        Cerrar sesión
+      </button>
+    </div>
+  `;
+
+  const botonMenu = contenedor.querySelector("#userMenuButton");
+  const botonCerrarSesion = contenedor.querySelector("#logoutButton");
+
+  botonMenu.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    const estaAbierto = contenedor.classList.toggle("open");
+
+    botonMenu.setAttribute("aria-expanded", String(estaAbierto));
+  });
+
+  botonCerrarSesion.addEventListener("click", () => {
+    localStorage.removeItem("usuarioActivo");
+    window.location.href = obtenerRuta("login.html");
+  });
 
   accesoUsuario.replaceWith(contenedor);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const navbar = document.querySelector(".custom-navbar");
-  const hamburger = document.getElementById("hamburger");
+  const hamburger =
+    document.getElementById("siteHamburger") ||
+    document.getElementById("hamburger");
   const mobileMenu = document.getElementById("mobileMenu");
   const searchToggle = document.getElementById("searchToggle");
   const searchInput = document.querySelector(".nav-icons #searchInput");
@@ -180,6 +222,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (menuUsuario && !menuUsuario.contains(event.target)) {
       menuUsuario.classList.remove("open");
+
+      const botonMenu = menuUsuario.querySelector("#userMenuButton");
+
+      if (botonMenu) {
+        botonMenu.setAttribute("aria-expanded", "false");
+      }
     }
 
     if (

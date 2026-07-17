@@ -30,6 +30,10 @@ function guardarProductos(productos) {
   localStorage.setItem("products", JSON.stringify(productos));
 }
 
+function normalizarCantidad(cantidad) {
+  return Math.max(0, Number(cantidad) || 0);
+}
+
 function normalizarProducto(producto) {
   let imagenes = [];
 
@@ -41,7 +45,7 @@ function normalizarProducto(producto) {
 
   let stockPorTalla = {};
 
-  if (producto.stockBySize) {
+  if (producto.stockBySize && typeof producto.stockBySize === "object") {
     stockPorTalla = producto.stockBySize;
   } else if (
     producto.sizes &&
@@ -51,21 +55,30 @@ function normalizarProducto(producto) {
     stockPorTalla = producto.sizes;
   }
 
+  stockPorTalla = Object.entries(stockPorTalla).reduce(
+    (resultado, [talla, cantidad]) => {
+      resultado[talla] = normalizarCantidad(cantidad);
+      return resultado;
+    },
+    {}
+  );
+
   let tallas = [];
 
   if (Array.isArray(producto.sizes)) {
-    tallas = producto.sizes;
+    tallas = producto.sizes.filter(Boolean);
   } else {
     tallas = Object.keys(stockPorTalla);
   }
 
-  let stock = Number(producto.stock || 0);
+  const tieneStockPorTalla = Object.keys(stockPorTalla).length > 0;
 
-  if (Object.keys(stockPorTalla).length > 0) {
-    stock = Object.values(stockPorTalla).reduce((total, cantidad) => {
-      return total + Number(cantidad || 0);
-    }, 0);
-  }
+  const stock = tieneStockPorTalla
+    ? Object.values(stockPorTalla).reduce(
+        (total, cantidad) => total + normalizarCantidad(cantidad),
+        0
+      )
+    : normalizarCantidad(producto.stock);
 
   return {
     ...producto,
@@ -75,7 +88,7 @@ function normalizarProducto(producto) {
     images: imagenes,
     sizes: tallas,
     stockBySize: stockPorTalla,
-    stock: stock
+    stock
   };
 }
 
@@ -95,26 +108,14 @@ const newProductButton = document.getElementById("newProductButton");
 let productoEditandoId = null;
 let imagenesTemporales = [];
 
-function cambiarTallasPorCategoria() {
-  const esAccesorio = category.value === "Accesorios";
-
-  sizesWrapper.classList.toggle("d-none", esAccesorio);
-  sizesMessage.classList.toggle("d-none", !esAccesorio);
-
-  if (esAccesorio) {
-    stock.disabled = false;
-  } else {
-    stock.disabled = true;
-    stock.value = "0";
-  }
-}
-
 function obtenerStockPorTalla() {
   const stockPorTalla = {};
 
   document.querySelectorAll(".size-stock").forEach((input) => {
     const talla = input.dataset.size;
-    const cantidad = Math.max(0, Number(input.value || 0));
+    const cantidad = normalizarCantidad(input.value);
+
+    input.value = cantidad;
 
     if (cantidad > 0) {
       stockPorTalla[talla] = cantidad;
@@ -122,6 +123,46 @@ function obtenerStockPorTalla() {
   });
 
   return stockPorTalla;
+}
+
+function actualizarStockGeneral() {
+  if (category.value === "Accesorios") {
+    stock.readOnly = false;
+    stock.disabled = false;
+    stock.value = normalizarCantidad(stock.value);
+    return;
+  }
+
+  const stockPorTalla = obtenerStockPorTalla();
+
+  const total = Object.values(stockPorTalla).reduce(
+    (suma, cantidad) => suma + normalizarCantidad(cantidad),
+    0
+  );
+
+  stock.value = total;
+  stock.readOnly = true;
+  stock.disabled = false;
+}
+
+function cambiarTallasPorCategoria() {
+  const esAccesorio = category.value === "Accesorios";
+
+  sizesWrapper.classList.toggle("d-none", esAccesorio);
+  sizesMessage.classList.toggle("d-none", !esAccesorio);
+
+  document.querySelectorAll(".size-stock").forEach((input) => {
+    input.disabled = esAccesorio;
+  });
+
+  if (esAccesorio) {
+    stock.readOnly = false;
+    stock.disabled = false;
+    stock.value = normalizarCantidad(stock.value);
+    return;
+  }
+
+  actualizarStockGeneral();
 }
 
 function obtenerTextoStock(producto) {
@@ -132,7 +173,7 @@ function obtenerTextoStock(producto) {
   const stockPorTalla = producto.stockBySize || {};
 
   const texto = Object.entries(stockPorTalla)
-    .filter(([, cantidad]) => Number(cantidad) > 0)
+    .filter(([, cantidad]) => normalizarCantidad(cantidad) > 0)
     .map(([talla, cantidad]) => `${talla}: ${cantidad}`)
     .join(" · ");
 
@@ -188,18 +229,18 @@ function mostrarProductos(listaProductos = obtenerProductos()) {
         <span class="product-category-badge"></span>
       </td>
 
-      <td>$${Number(producto.price || 0).toLocaleString()}</td>
+      <td>$${Number(producto.price || 0).toLocaleString("es-CO")}</td>
 
       <td>${obtenerTextoStock(producto)}</td>
 
       <td>${tallasHTML}</td>
 
       <td>
-        <button class="btn btn-sm btn-outline-dark btn-edit">
+        <button class="btn btn-sm btn-outline-dark btn-edit" type="button">
           Editar
         </button>
 
-        <button class="btn-delete btn-delete-product">
+        <button class="btn-delete btn-delete-product" type="button">
           Eliminar
         </button>
       </td>
@@ -255,11 +296,7 @@ function renderizarImagenes() {
         <button
           type="button"
           class="btn btn-sm btn-light btn-bajar"
-          ${
-            indice === imagenesTemporales.length - 1
-              ? "disabled"
-              : ""
-          }
+          ${indice === imagenesTemporales.length - 1 ? "disabled" : ""}
         >
           Bajar
         </button>
@@ -330,7 +367,11 @@ function limpiarFormulario() {
 
   document.querySelectorAll(".size-stock").forEach((input) => {
     input.value = "0";
+    input.disabled = false;
   });
+
+  stock.value = "0";
+  stock.readOnly = true;
 
   modalTitle.textContent = "Nuevo producto";
   saveProductBtn.textContent = "CREAR PRODUCTO";
@@ -347,7 +388,6 @@ function editarProducto(productoOriginal) {
   document.getElementById("name").value = producto.name || "";
   category.value = producto.category || "";
   document.getElementById("price").value = producto.price || 0;
-  stock.value = producto.stock || 0;
   document.getElementById("description").value =
     producto.description || "";
 
@@ -355,12 +395,14 @@ function editarProducto(productoOriginal) {
     input.value = producto.stockBySize[input.dataset.size] || 0;
   });
 
+  stock.value = producto.stock || 0;
   imagenesTemporales = [...producto.images];
 
   modalTitle.textContent = "Editar producto";
   saveProductBtn.textContent = "GUARDAR CAMBIOS";
 
   cambiarTallasPorCategoria();
+  actualizarStockGeneral();
   renderizarImagenes();
 
   const modal = bootstrap.Modal.getOrCreateInstance(
@@ -375,7 +417,9 @@ function eliminarProducto(id, nombreProducto) {
     `¿Deseas eliminar el producto "${nombreProducto}"?`
   );
 
-  if (!confirmar) return;
+  if (!confirmar) {
+    return;
+  }
 
   const productos = obtenerProductos().filter((producto) => {
     return String(producto.id) !== String(id);
@@ -386,6 +430,18 @@ function eliminarProducto(id, nombreProducto) {
 }
 
 category.addEventListener("change", cambiarTallasPorCategoria);
+
+document.querySelectorAll(".size-stock").forEach((input) => {
+  input.addEventListener("input", actualizarStockGeneral);
+
+  input.addEventListener("change", actualizarStockGeneral);
+});
+
+stock.addEventListener("input", () => {
+  if (category.value === "Accesorios") {
+    stock.value = normalizarCantidad(stock.value);
+  }
+});
 
 newProductButton.addEventListener("click", () => {
   limpiarFormulario();
@@ -412,16 +468,14 @@ productForm.addEventListener("submit", (event) => {
   const esAccesorio = categoria === "Accesorios";
   const stockPorTalla = esAccesorio ? {} : obtenerStockPorTalla();
 
-  let stockFinal = 0;
+  const stockFinal = esAccesorio
+    ? normalizarCantidad(stock.value)
+    : Object.values(stockPorTalla).reduce(
+        (total, cantidad) => total + normalizarCantidad(cantidad),
+        0
+      );
 
-  if (esAccesorio) {
-    stockFinal = Math.max(0, Number(stock.value || 0));
-  } else {
-    stockFinal = Object.values(stockPorTalla).reduce(
-      (total, cantidad) => total + Number(cantidad),
-      0
-    );
-  }
+  stock.value = stockFinal;
 
   const nuevoProducto = {
     id: productoEditandoId || `product-${Date.now()}`,

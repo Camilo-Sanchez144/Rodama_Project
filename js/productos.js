@@ -1,193 +1,694 @@
 const container = document.getElementById("productContainer");
-const searchInput1 = document.getElementById("searchInput");
+const searchInput = document.querySelector(".catalog-toolbar #searchInput");
 const categoryFilter = document.getElementById("categoryFilter");
-function getCart() {
-  return JSON.parse(localStorage.getItem("cart")) || [];
+
+function obtenerUsuarioActivo() {
+  try {
+    return JSON.parse(localStorage.getItem("usuarioActivo"));
+  } catch {
+    return null;
+  }
 }
 
-function saveCart(cart) {
-  localStorage.setItem("cart", JSON.stringify(cart));
+function obtenerProductos() {
+  try {
+    return JSON.parse(localStorage.getItem("products")) || [];
+  } catch {
+    return [];
+  }
 }
 
-function addToCart(product, size, quantity) {
-  const cart = getCart();
-  const key = `${product.name}-${size}`;
-  const existing = cart.find(i => i.key === key);
+function guardarCarrito(carrito) {
+  localStorage.setItem("cart", JSON.stringify(carrito));
 
-  if (existing) {
-    existing.quantity += quantity;
+  if (typeof window.updateCartCount === "function") {
+    window.updateCartCount();
+    return;
+  }
+
+  actualizarContadorCarrito();
+}
+
+function obtenerCarrito() {
+  try {
+    return JSON.parse(localStorage.getItem("cart")) || [];
+  } catch {
+    return [];
+  }
+}
+
+function actualizarContadorCarrito() {
+  const carrito = obtenerCarrito();
+  const contador = document.getElementById("cartCount");
+
+  if (!contador) {
+    return;
+  }
+
+  const total = carrito.reduce((suma, item) => {
+    return suma + Number(item.quantity || 0);
+  }, 0);
+
+  contador.textContent = total;
+  contador.style.display = total > 0 ? "flex" : "none";
+}
+
+function normalizarCantidad(cantidad) {
+  return Math.max(0, Number(cantidad) || 0);
+}
+
+function normalizarProducto(producto) {
+  const stockPorTalla =
+    producto.stockBySize &&
+    typeof producto.stockBySize === "object" &&
+    !Array.isArray(producto.stockBySize)
+      ? producto.stockBySize
+      : {};
+
+  const tallasGuardadas = Array.isArray(producto.sizes)
+    ? producto.sizes.filter(Boolean)
+    : Object.keys(stockPorTalla);
+
+  const tallas = [...new Set([
+    ...tallasGuardadas,
+    ...Object.keys(stockPorTalla)
+  ])];
+
+  const stockPorTallaNormalizado = tallas.reduce((resultado, talla) => {
+    resultado[talla] = normalizarCantidad(stockPorTalla[talla]);
+    return resultado;
+  }, {});
+
+  const esAccesorio = producto.category === "Accesorios";
+
+  const stockGeneral = esAccesorio
+    ? normalizarCantidad(producto.stock)
+    : Object.values(stockPorTallaNormalizado).reduce(
+        (total, cantidad) => total + cantidad,
+        0
+      );
+
+  const imagenes =
+    Array.isArray(producto.images) && producto.images.length > 0
+      ? producto.images
+      : producto.image
+        ? [producto.image]
+        : ["https://via.placeholder.com/700x900?text=Producto"];
+
+  return {
+    ...producto,
+    id: producto.id || producto.name,
+    images: imagenes,
+    image: imagenes[0],
+    sizes: tallas,
+    stockBySize: stockPorTallaNormalizado,
+    stock: stockGeneral,
+    esAccesorio
+  };
+}
+
+function escaparHTML(texto) {
+  return String(texto || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function obtenerClaveFavoritos(usuario) {
+  return `favorites_${usuario.id}`;
+}
+
+function obtenerFavoritos() {
+  const usuario = obtenerUsuarioActivo();
+
+  if (!usuario) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(localStorage.getItem(obtenerClaveFavoritos(usuario))) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarFavoritos(favoritos) {
+  const usuario = obtenerUsuarioActivo();
+
+  if (!usuario) {
+    return;
+  }
+
+  localStorage.setItem(
+    obtenerClaveFavoritos(usuario),
+    JSON.stringify(favoritos)
+  );
+}
+
+function esFavorito(productoId) {
+  return obtenerFavoritos().some((favorito) => {
+    return String(favorito.productId) === String(productoId);
+  });
+}
+
+function alternarFavorito(producto) {
+  const usuario = obtenerUsuarioActivo();
+
+  if (!usuario) {
+    alert("Inicia sesión para guardar productos en favoritos.");
+    return;
+  }
+
+  let favoritos = obtenerFavoritos();
+
+  const yaExiste = favoritos.some((favorito) => {
+    return String(favorito.productId) === String(producto.id);
+  });
+
+  if (yaExiste) {
+    favoritos = favoritos.filter((favorito) => {
+      return String(favorito.productId) !== String(producto.id);
+    });
   } else {
-    cart.push({
-      key,
-      name: product.name,
-      price: product.price,
-      image: product.image || (product.images?.[0] ?? ""),
-      size,
-      quantity
+    favoritos.push({
+      productId: producto.id,
+      name: producto.name || "Producto sin nombre",
+      price: Number(producto.price || 0),
+      image: producto.image || "",
+      category: producto.category || ""
     });
   }
-  saveCart(cart);
-  updateCartCount();
+
+  guardarFavoritos(favoritos);
+  filtrarProductos();
 }
-function getProducts() {
-  return JSON.parse(localStorage.getItem("products")) || [];
+
+function obtenerCantidadEnCarrito(producto, talla) {
+  return obtenerCarrito()
+    .filter((item) => {
+      const mismoId =
+        String(item.productId || "") === String(producto.id);
+
+      const mismoProductoAnterior =
+        !item.productId &&
+        item.name === producto.name;
+
+      return (
+        (mismoId || mismoProductoAnterior) &&
+        String(item.size || "Única") === String(talla)
+      );
+    })
+    .reduce((total, item) => {
+      return total + normalizarCantidad(item.quantity);
+    }, 0);
 }
-function openAddToCartModal(productIndex) {
-  const products = getProducts();
-  const product = products[productIndex];
-  if (!product) return;
 
-  const hasSizes = Array.isArray(product.sizes) && product.sizes.filter(Boolean).length > 0;
-  const isAccesorio = product.category === "Accesorios";
+function obtenerStockDisponible(producto, talla) {
+  const stockDeLaTalla = producto.esAccesorio
+    ? normalizarCantidad(producto.stock)
+    : normalizarCantidad(producto.stockBySize[talla]);
 
-  const sizesHTML = (!isAccesorio && hasSizes)
-    ? `
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Talla</label>
-        <div class="d-flex flex-wrap gap-2" id="modalSizeList">
-          ${product.sizes.filter(Boolean).map(size => `
-            <button type="button"
-              class="btn btn-outline-dark size-btn"
-              data-size="${size}">
-              ${size}
-            </button>
-          `).join("")}
+  return Math.max(
+    0,
+    stockDeLaTalla - obtenerCantidadEnCarrito(producto, talla)
+  );
+}
+
+function obtenerProductoActualizado(productoId) {
+  return obtenerProductos()
+    .map(normalizarProducto)
+    .find((producto) => String(producto.id) === String(productoId));
+}
+
+function agregarAlCarrito(productoId, talla, cantidad) {
+  const producto = obtenerProductoActualizado(productoId);
+
+  if (!producto) {
+    alert("El producto ya no está disponible.");
+    return false;
+  }
+
+  const disponible = obtenerStockDisponible(producto, talla);
+  const cantidadSolicitada = normalizarCantidad(cantidad);
+
+  if (cantidadSolicitada < 1 || disponible < cantidadSolicitada) {
+    alert(
+      `Solo hay ${disponible} unidad${
+        disponible === 1 ? "" : "es"
+      } disponible${
+        disponible === 1 ? "" : "s"
+      } para esta talla.`
+    );
+
+    return false;
+  }
+
+  const carrito = obtenerCarrito();
+  const clave = `${producto.id}-${talla}`;
+
+  const productoExistente = carrito.find((item) => item.key === clave);
+
+  if (productoExistente) {
+    productoExistente.quantity += cantidadSolicitada;
+  } else {
+    carrito.push({
+      key: clave,
+      productId: producto.id,
+      name: producto.name,
+      price: Number(producto.price || 0),
+      image: producto.image || "",
+      size: talla,
+      quantity: cantidadSolicitada
+    });
+  }
+
+  guardarCarrito(carrito);
+  mostrarNotificacionCarrito(producto.name, cantidadSolicitada, talla);
+
+  return true;
+}
+
+function mostrarNotificacionCarrito(nombre, cantidad, talla) {
+  const notificacionAnterior = document.getElementById("cartToast");
+
+  if (notificacionAnterior) {
+    notificacionAnterior.remove();
+  }
+
+  const toast = document.createElement("div");
+
+  toast.id = "cartToast";
+  toast.className =
+    "toast align-items-center text-bg-dark border-0 position-fixed bottom-0 end-0 m-3";
+  toast.setAttribute("role", "alert");
+  toast.style.zIndex = "9999";
+
+  const contenido = document.createElement("div");
+  contenido.className = "d-flex";
+
+  const mensaje = document.createElement("div");
+  mensaje.className = "toast-body";
+  mensaje.textContent =
+    `${cantidad} unidad${cantidad === 1 ? "" : "es"} de ${nombre}` +
+    (talla !== "Única" ? `, talla ${talla}` : "") +
+    " se añadió al carrito.";
+
+  const cerrar = document.createElement("button");
+  cerrar.type = "button";
+  cerrar.className = "btn-close btn-close-white me-2 m-auto";
+  cerrar.setAttribute("data-bs-dismiss", "toast");
+  cerrar.setAttribute("aria-label", "Cerrar");
+
+  contenido.append(mensaje, cerrar);
+  toast.appendChild(contenido);
+  document.body.appendChild(toast);
+
+  const instanciaToast = new bootstrap.Toast(toast, { delay: 3000 });
+
+  instanciaToast.show();
+
+  toast.addEventListener("hidden.bs.toast", () => {
+    toast.remove();
+  });
+}
+
+function crearCarrusel(producto, indice) {
+  const carouselId = `productCarousel${indice}`;
+
+  const indicadores =
+    producto.images.length > 1
+      ? `
+        <div class="carousel-indicators">
+          ${producto.images
+            .map((_, posicion) => {
+              return `
+                <button
+                  type="button"
+                  data-bs-target="#${carouselId}"
+                  data-bs-slide-to="${posicion}"
+                  class="${posicion === 0 ? "active" : ""}"
+                  ${posicion === 0 ? 'aria-current="true"' : ""}
+                  aria-label="Imagen ${posicion + 1}"
+                ></button>
+              `;
+            })
+            .join("")}
         </div>
-        <div id="sizeError" class="text-danger mt-1 d-none" style="font-size:0.85rem">
-          Selecciona una talla
-        </div>
-      </div>
-    `
-    : `<input type="hidden" id="selectedSizeHidden" value="Única">`;
+      `
+      : "";
 
-  const modalHTML = `
-    <div class="modal fade" id="addToCartModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+  const controles =
+    producto.images.length > 1
+      ? `
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#${carouselId}"
+          data-bs-slide="prev"
+          aria-label="Imagen anterior"
+        >
+          <span class="carousel-control-prev-icon"></span>
+        </button>
 
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title">${product.name}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#${carouselId}"
+          data-bs-slide="next"
+          aria-label="Imagen siguiente"
+        >
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      `
+      : "";
 
-          <div class="modal-body">
-            ${sizesHTML}
+  return `
+    <div id="${carouselId}" class="carousel slide product-carousel">
+      ${indicadores}
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Cantidad</label>
-              <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn btn-outline-secondary px-3" id="btnMinus">-</button>
-                <span id="qtyDisplay" style="font-size:1.2rem;min-width:24px;text-align:center">1</span>
-                <button type="button" class="btn btn-outline-secondary px-3" id="btnPlus">+</button>
+      <div class="carousel-inner">
+        ${producto.images
+          .map((imagen, posicion) => {
+            return `
+              <div class="carousel-item ${posicion === 0 ? "active" : ""}">
+                <img
+                  src="${escaparHTML(imagen)}"
+                  alt="${escaparHTML(producto.name || "Producto")}"
+                >
               </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <span class="text-muted">Precio unitario</span>
-              <span class="fw-bold">$${Number(product.price).toLocaleString()}</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1" id="totalRow">
-              <span class="text-muted">Total</span>
-              <span class="fw-bold" id="modalTotal">$${Number(product.price).toLocaleString()}</span>
-            </div>
-          </div>
-
-          <div class="modal-footer border-0 pt-0">
-            <button type="button" class="btn btn-dark w-100" id="confirmAddToCart">
-              Añadir al carrito
-            </button>
-          </div>
-
-        </div>
+            `;
+          })
+          .join("")}
       </div>
+
+      ${controles}
     </div>
   `;
-  const old = document.getElementById("addToCartModal");
-  if (old) old.remove();
+}
 
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-  const modalEl = document.getElementById("addToCartModal");
-  const modal = new bootstrap.Modal(modalEl);
-  modal.show();
-  let selectedSize = (!isAccesorio && hasSizes) ? null : "Única";
-  let quantity = 1;
-  modalEl.querySelectorAll(".size-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      modalEl.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active", "btn-dark"));
-      btn.classList.add("active", "btn-dark");
-      btn.classList.remove("btn-outline-dark");
-      selectedSize = btn.dataset.size;
-      document.getElementById("sizeError")?.classList.add("d-none");
-    });
-  });
-  function updateQty() {
-    document.getElementById("qtyDisplay").textContent = quantity;
-    document.getElementById("modalTotal").textContent =
-      `$${(product.price * quantity).toLocaleString()}`;
+function crearSelectorTallas(producto) {
+  if (producto.esAccesorio) {
+    return `
+      <div class="product-size-selector">
+        <span class="meta-label">Presentación</span>
+        <span class="size-chip size-chip-selected">Única</span>
+      </div>
+    `;
   }
 
-  document.getElementById("btnMinus").addEventListener("click", () => {
-    if (quantity > 1) { quantity--; updateQty(); }
-  });
+  if (producto.sizes.length === 0) {
+    return `
+      <div class="product-size-selector">
+        <span class="meta-label">Tallas</span>
+        <p class="stock-message">Este producto no tiene tallas disponibles.</p>
+      </div>
+    `;
+  }
 
-  document.getElementById("btnPlus").addEventListener("click", () => {
-    if (quantity < (product.stock ?? 99)) { quantity++; updateQty(); }
-  });
-  document.getElementById("confirmAddToCart").addEventListener("click", () => {
-    if (!selectedSize) {
-      document.getElementById("sizeError")?.classList.remove("d-none");
+  return `
+    <div class="product-size-selector">
+      <span class="meta-label">Elige tu talla</span>
+
+      <div class="size-list product-size-list">
+        ${producto.sizes
+          .map((talla) => {
+            const cantidad = normalizarCantidad(producto.stockBySize[talla]);
+            const agotada = cantidad === 0;
+
+            return `
+              <button
+                type="button"
+                class="size-choice ${agotada ? "is-disabled" : ""}"
+                data-size="${escaparHTML(talla)}"
+                ${agotada ? "disabled" : ""}
+                aria-label="Talla ${escaparHTML(talla)}, ${cantidad} disponibles"
+              >
+                ${escaparHTML(talla)}
+                <small>${cantidad}</small>
+              </button>
+            `;
+          })
+          .join("")}
+      </div>
+
+      <p class="stock-message" data-stock-message>
+        Selecciona una talla para continuar.
+      </p>
+    </div>
+  `;
+}
+
+function crearTarjetaProducto(producto, indice) {
+  const productoSinStock = producto.stock <= 0;
+  const favorito = esFavorito(producto.id);
+
+  const tarjeta = document.createElement("div");
+  tarjeta.className = "col-md-6 col-lg-4";
+
+  tarjeta.innerHTML = `
+    <article class="product-card" data-product-id="${escaparHTML(producto.id)}">
+      <div class="product-image-wrapper">
+        ${crearCarrusel(producto, indice)}
+
+        <button
+          type="button"
+          class="favorite-button ${favorito ? "is-favorite" : ""}"
+          aria-label="${favorito ? "Quitar de favoritos" : "Agregar a favoritos"}"
+          title="${favorito ? "Quitar de favoritos" : "Agregar a favoritos"}"
+        >
+          <i class="bi ${favorito ? "bi-heart-fill" : "bi-heart"}"></i>
+        </button>
+      </div>
+
+      <div class="product-body">
+        <div class="product-top">
+          <span class="product-category">
+            ${escaparHTML(producto.category || "Sin categoría")}
+          </span>
+
+          <span class="product-stock">
+            Stock: ${producto.stock}
+          </span>
+        </div>
+
+        <h3 class="product-name">
+          ${escaparHTML(producto.name || "Producto sin nombre")}
+        </h3>
+
+        ${
+          producto.description
+            ? `
+              <p class="product-description">
+                ${escaparHTML(producto.description)}
+              </p>
+            `
+            : ""
+        }
+
+        <div class="product-meta">
+          ${crearSelectorTallas(producto)}
+        </div>
+
+        <div class="product-purchase-controls">
+          <div class="quantity-selector">
+            <span class="meta-label">Cantidad</span>
+
+            <div class="quantity-control">
+              <button
+                type="button"
+                class="quantity-button quantity-minus"
+                aria-label="Disminuir cantidad"
+                disabled
+              >
+                −
+              </button>
+
+              <span class="quantity-value" aria-live="polite">1</span>
+
+              <button
+                type="button"
+                class="quantity-button quantity-plus"
+                aria-label="Aumentar cantidad"
+                disabled
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <p class="stock-message product-stock-feedback" aria-live="polite">
+            ${
+              productoSinStock
+                ? "Producto agotado."
+                : producto.esAccesorio
+                  ? `${obtenerStockDisponible(producto, "Única")} disponibles.`
+                  : "Selecciona una talla para conocer la disponibilidad."
+            }
+          </p>
+        </div>
+
+        <div class="product-footer">
+          <h4 class="product-price">
+            $${Number(producto.price || 0).toLocaleString("es-CO")}
+          </h4>
+
+          <button
+            type="button"
+            class="btn btn-dark btn-add-cart"
+            ${productoSinStock ? "disabled" : ""}
+          >
+            ${productoSinStock ? "Sin stock" : "Añadir al carrito"}
+          </button>
+        </div>
+      </div>
+    </article>
+  `;
+
+  configurarTarjetaProducto(tarjeta, producto);
+
+  return tarjeta;
+}
+
+function configurarTarjetaProducto(tarjeta, producto) {
+  const botonFavorito = tarjeta.querySelector(".favorite-button");
+  const botonesTalla = tarjeta.querySelectorAll(".size-choice");
+  const botonMenos = tarjeta.querySelector(".quantity-minus");
+  const botonMas = tarjeta.querySelector(".quantity-plus");
+  const valorCantidad = tarjeta.querySelector(".quantity-value");
+  const botonAgregar = tarjeta.querySelector(".btn-add-cart");
+  const mensajeStock = tarjeta.querySelector(".product-stock-feedback");
+
+  let tallaSeleccionada = producto.esAccesorio ? "Única" : null;
+  let cantidadSeleccionada = 1;
+
+  function obtenerDisponibleActual() {
+    if (!tallaSeleccionada) {
+      return 0;
+    }
+
+    const productoActualizado =
+      obtenerProductoActualizado(producto.id) || producto;
+
+    return obtenerStockDisponible(productoActualizado, tallaSeleccionada);
+  }
+
+  function actualizarControles() {
+    const disponible = obtenerDisponibleActual();
+
+    if (cantidadSeleccionada > disponible && disponible > 0) {
+      cantidadSeleccionada = disponible;
+    }
+
+    if (cantidadSeleccionada < 1) {
+      cantidadSeleccionada = 1;
+    }
+
+    valorCantidad.textContent = cantidadSeleccionada;
+
+    botonMenos.disabled = cantidadSeleccionada <= 1 || disponible <= 0;
+    botonMas.disabled =
+      !tallaSeleccionada ||
+      disponible <= cantidadSeleccionada;
+
+    botonAgregar.disabled = !tallaSeleccionada || disponible <= 0;
+
+    if (!tallaSeleccionada) {
+      mensajeStock.textContent =
+        "Selecciona una talla para conocer la disponibilidad.";
       return;
     }
-    addToCart(product, selectedSize, quantity);
-    modal.hide();
-    showCartToast(product.name, quantity, selectedSize);
-  });
-  modalEl.addEventListener("hidden.bs.modal", () => modalEl.remove());
-}
-function showCartToast(name, qty, size) {
-  const old = document.getElementById("cartToast");
-  if (old) old.remove();
 
-  const sizeLabel = size !== "Única" ? ` €” Talla ${size}` : "";
+    if (disponible <= 0) {
+      mensajeStock.textContent =
+        "Esta talla ya no tiene unidades disponibles.";
+      return;
+    }
 
-  document.body.insertAdjacentHTML("beforeend", `
-    <div id="cartToast" class="toast align-items-center text-bg-dark border-0 position-fixed bottom-0 end-0 m-3"
-      role="alert" style="z-index:9999">
-      <div class="d-flex">
-        <div class="toast-body">
-          ${qty}<strong>${name}</strong>${sizeLabel} añadido al carrito
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>
-  `);
+    mensajeStock.textContent =
+      `${disponible} unidad${disponible === 1 ? "" : "es"} disponible${
+        disponible === 1 ? "" : "s"
+      } para esta selección.`;
+  }
 
-  const toast = new bootstrap.Toast(document.getElementById("cartToast"), { delay: 3000 });
-  toast.show();
-}
-renderProducts(getProducts());
-
-searchInput1.addEventListener("input", filterProducts);
-categoryFilter.addEventListener("change", filterProducts);
-function filterProducts() {
-  const search = searchInput1.value.toLowerCase().trim();
-  const category = categoryFilter.value;
-  const products = getProducts();
-
-  const filtered = products.filter(product => {
-    const matchesSearch =
-      (product.name || "").toLowerCase().includes(search) ||
-      (product.category || "").toLowerCase().includes(search) ||
-      (product.description || "").toLowerCase().includes(search);
-    const matchesCategory = category === "all" || product.category === category;
-    return matchesSearch && matchesCategory;
+  botonFavorito.addEventListener("click", () => {
+    alternarFavorito(producto);
   });
 
-  renderProducts(filtered);
+  botonesTalla.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      tallaSeleccionada = boton.dataset.size;
+      cantidadSeleccionada = 1;
+
+      botonesTalla.forEach((botonTalla) => {
+        botonTalla.classList.remove("selected");
+        botonTalla.setAttribute("aria-pressed", "false");
+      });
+
+      boton.classList.add("selected");
+      boton.setAttribute("aria-pressed", "true");
+
+      const mensajeTallas = tarjeta.querySelector("[data-stock-message]");
+
+      if (mensajeTallas) {
+        const disponible = obtenerDisponibleActual();
+
+        mensajeTallas.textContent =
+          disponible > 0
+            ? `Talla ${tallaSeleccionada} seleccionada.`
+            : `La talla ${tallaSeleccionada} está agotada.`;
+      }
+
+      actualizarControles();
+    });
+  });
+
+  botonMenos.addEventListener("click", () => {
+    if (cantidadSeleccionada > 1) {
+      cantidadSeleccionada -= 1;
+      actualizarControles();
+    }
+  });
+
+  botonMas.addEventListener("click", () => {
+    const disponible = obtenerDisponibleActual();
+
+    if (cantidadSeleccionada < disponible) {
+      cantidadSeleccionada += 1;
+      actualizarControles();
+    }
+  });
+
+  botonAgregar.addEventListener("click", () => {
+    if (!tallaSeleccionada) {
+      mensajeStock.textContent = "Selecciona una talla antes de añadir.";
+      return;
+    }
+
+    const agregado = agregarAlCarrito(
+      producto.id,
+      tallaSeleccionada,
+      cantidadSeleccionada
+    );
+
+    if (agregado) {
+      cantidadSeleccionada = 1;
+      actualizarControles();
+    }
+  });
+
+  actualizarControles();
 }
-function renderProducts(productList) {
-  if (!productList.length) {
+
+function renderizarProductos(listaProductos) {
+  if (!container) {
+    return;
+  }
+
+  const productos = listaProductos.map(normalizarProducto);
+
+  if (productos.length === 0) {
     container.innerHTML = `
       <div class="col-12">
         <div class="empty-state">
@@ -196,109 +697,48 @@ function renderProducts(productList) {
         </div>
       </div>
     `;
+
     return;
   }
 
   container.innerHTML = "";
 
-  productList.forEach((product, index) => {
-    const images =
-      Array.isArray(product.images) && product.images.length
-        ? product.images
-        : product.image
-          ? [product.image]
-          : ["https://via.placeholder.com/700x900?text=Producto"];
-
-    const sizes = Array.isArray(product.sizes) ? product.sizes.filter(Boolean) : [];
-    const carouselId = `productCarousel${index}`;
-
-    const indicators = images.length > 1
-      ? `<div class="carousel-indicators">
-          ${images.map((_, i) => `
-            <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${i}"
-              class="${i === 0 ? "active" : ""}" ${i === 0 ? 'aria-current="true"' : ""}
-              aria-label="Slide ${i + 1}"></button>
-          `).join("")}
-        </div>`
-      : "";
-
-    const controls = images.length > 1
-      ? `<button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
-          <span class="carousel-control-next-icon"></span>
-        </button>`
-      : "";
-
-    const sizesHTML = product.category !== "Accesorios" && sizes.length
-      ? `<div class="meta-block">
-          <span class="meta-label">Tallas</span>
-          <div class="size-list">
-            ${sizes.map(s => `<span class="size-chip">${s}</span>`).join("")}
-          </div>
-        </div>`
-      : "";
-
-    container.innerHTML += `
-      <div class="col-md-6 col-lg-4">
-        <article class="product-card">
-
-          <div class="product-image-wrapper">
-            <div id="${carouselId}" class="carousel slide product-carousel">
-              ${indicators}
-              <div class="carousel-inner">
-                ${images.map((img, i) => `
-                  <div class="carousel-item ${i === 0 ? "active" : ""}">
-                    <img src="${img}" alt="${product.name}">
-                  </div>
-                `).join("")}
-              </div>
-              ${controls}
-            </div>
-          </div>
-
-          <div class="product-body">
-            <div class="product-top">
-              <span class="product-category">${product.category || "Sin categoría"}</span>
-              <span class="product-stock">Stock: ${product.stock ?? 0}</span>
-            </div>
-
-            <h3 class="product-name">${product.name || "Producto sin nombre"}</h3>
-
-            ${product.description ? `<p class="product-description">${product.description}</p>` : ""}
-
-            <div class="product-meta">${sizesHTML}</div>
-
-            <div class="product-footer">
-              <h4 class="product-price">$${Number(product.price || 0).toLocaleString()}</h4>
-              <button
-                class="btn btn-dark btn-add-cart"
-                onclick="openAddToCartModal(${index})"
-                ${(product.stock ?? 0) === 0 ? "disabled" : ""}>
-                ${(product.stock ?? 0) === 0 ? "Sin stock" : "Añadir al carrito"}
-              </button>
-            </div>
-
-          </div>
-        </article>
-      </div>
-    `;
+  productos.forEach((producto, indice) => {
+    container.appendChild(crearTarjetaProducto(producto, indice));
   });
 }
 
-function addToCartSimple(product) {
-  const cart = getCart();
+function filtrarProductos() {
+  const textoBusqueda = (searchInput?.value || "").toLowerCase().trim();
+  const categoriaSeleccionada = categoryFilter?.value || "all";
 
-  const existing = cart.find(item => item.key === product.key);
+  const productosFiltrados = obtenerProductos().filter((producto) => {
+    const nombre = (producto.name || "").toLowerCase();
+    const categoria = (producto.category || "").toLowerCase();
+    const descripcion = (producto.description || "").toLowerCase();
 
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.push({ ...product, quantity: 1 });
-  }
+    const coincideBusqueda =
+      nombre.includes(textoBusqueda) ||
+      categoria.includes(textoBusqueda) ||
+      descripcion.includes(textoBusqueda);
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+    const coincideCategoria =
+      categoriaSeleccionada === "all" ||
+      producto.category === categoriaSeleccionada;
 
-  updateCartCount();
+    return coincideBusqueda && coincideCategoria;
+  });
+
+  renderizarProductos(productosFiltrados);
 }
+
+if (searchInput) {
+  searchInput.addEventListener("input", filtrarProductos);
+}
+
+if (categoryFilter) {
+  categoryFilter.addEventListener("change", filtrarProductos);
+}
+
+renderizarProductos(obtenerProductos());
+actualizarContadorCarrito();
