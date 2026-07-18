@@ -6,31 +6,35 @@
 .nav-icons .user-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px;
+  justify-content: center;
+  min-width: 28px;
+  padding: 5px;
   color: #fff;
   font-family: "Playfair Display", serif;
-  font-size: 0.8rem;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: 1px;
   cursor: pointer;
   background: transparent;
   border: 0;
   text-decoration: none;
-  text-transform: uppercase;
 }
 
 .nav-icons .user-trigger:hover {
   color: #d6a77a;
 }
 
+.nav-icons .user-trigger > span,
+.nav-icons .user-trigger .bi-chevron-down {
+  display: none;
+}
+
 .user-trigger-icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   object-fit: cover;
   background: #f3ece3;
   border: 1px solid rgba(255, 255, 255, 0.55);
@@ -87,16 +91,12 @@
 }
 
 @media (max-width: 480px) {
-  .user-trigger span {
-    display: none;
-  }
-
   .user-dropdown {
     right: -38px;
   }
 
   .user-avatar {
-    width: 25px;
-    height: 25px;
+    width: 23px;
+    height: 23px;
   }
 }

@@ -114,12 +114,12 @@ footer .social-link:hover {
 .nav-icons {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 
 .nav-icons > a {
   color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -160,7 +160,7 @@ footer .social-link:hover {
 }
 
 .cart-icon i {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .cart-count {
@@ -529,9 +529,7 @@ footer .social-link:hover {
 }
 
 .size-choice small {
-  color: #8a6f5a;
-  font-size: 0.68rem;
-  font-weight: 600;
+  display: none;
 }
 
 .size-choice:hover:not(:disabled),
@@ -539,10 +537,6 @@ footer .social-link:hover {
   color: #fff;
   background: #222;
   border-color: #222;
-}
-
-.size-choice.selected small {
-  color: #f3d9bd;
 }
 
 .size-choice.is-disabled,
@@ -782,7 +776,7 @@ footer .social-link:hover {
   }
 
   .nav-icons > a {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .search-input.active {
