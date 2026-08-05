@@ -38,69 +38,17 @@ body {
   background: #333;
 }
 
-.navbar {
-    background-color: rgba(255,255,255,0.95) !important;
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid #e5ddd5;
-}
-
-.navbar-brand {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: var(--marron) !important;
-    letter-spacing: 1px;
-}
-
-.nav-link {
-    color: var(--taupe) !important;
-    position: relative;
-}
-
-.nav-link::after {
-    content: "";
-    width: 0;
-    height: 2px;
-    background: var(--rosa);
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    transition: 0.3s;
-}
-
-.nav-link:hover::after {
-    width: 100%;
-}
-
 .btn {
     border-radius: 8px;
 }
 
-.btn-primary {
-    background-color: var(--rosa);
-    border: none;
-}
-
-.btn-primary:hover {
-    background-color: var(--marron);
-}
-
-.btn-outline-primary {
-    border-color: var(--rosa);
-    color: var(--rosa);
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--rosa);
-    color: white;
-}
-
-/* ===== MAIN WRAPPER: offset for fixed navbar ===== */
-.main-contacto {
+/* ===== MAIN WRAPPER ===== */
+.main-pago {
     padding-top: 78px;
 }
 
 /* ===== TOPBAR ===== */
-.topbar-contacto {
+.topbar-pago {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -132,16 +80,15 @@ body {
     background-color: rgba(243, 236, 227, 0.25);
 }
 
-/* ===== SHARED HEADINGS / TEXT ===== */
-h2 {
+/* ===== HEADINGS ===== */
+h4 {
     color: var(--marron);
-    letter-spacing: 1px;
     font-weight: 700;
 }
 
-.lead {
-    color: var(--taupe);
-    max-width: 700px;
+.text-verde {
+    color: var(--verde);
+    font-weight: 600;
 }
 
 /* ===== CARD BASE ===== */
@@ -150,6 +97,181 @@ h2 {
     background-color: white;
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     padding: 30px;
+    border: none;
+}
+
+.pago-main {
+    padding: 50px 20px 90px;
+}
+
+/* ===== RESUMEN ===== */
+.resumen-card {
+    position: sticky;
+    top: 90px;
+}
+
+.resumen-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(71, 58, 31, 0.08);
+}
+
+.resumen-img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.resumen-info {
+    flex: 1;
+}
+
+.resumen-nombre {
+    color: var(--marron);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.resumen-detalle {
+    color: var(--taupe);
+    font-size: 0.82rem;
+}
+
+.resumen-precio {
+    color: var(--marron);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.resumen-linea {
+    display: flex;
+    justify-content: space-between;
+    color: var(--taupe);
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.resumen-linea.total {
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(71, 58, 31, 0.12);
+    color: var(--marron);
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: 'Playfair Display', serif;
+}
+
+/* ===== MÉTODOS DE PAGO ===== */
+.metodos-pago {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.metodo-item {
+    cursor: pointer;
+}
+
+.metodo-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.metodo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 10px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(71, 58, 31, 0.12);
+    background-color: var(--beige);
+    transition: 0.25s;
+    text-align: center;
+}
+
+.metodo-box i {
+    font-size: 1.6rem;
+    color: var(--taupe);
+    transition: 0.25s;
+}
+
+.metodo-nombre {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--marron);
+}
+
+.metodo-item input:checked + .metodo-box {
+    border-color: var(--rosa);
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(200, 161, 156, 0.25);
+}
+
+.metodo-item input:checked + .metodo-box i {
+    color: var(--rosa);
+}
+
+.metodo-item:hover .metodo-box {
+    border-color: var(--rosa);
+}
+
+/* ===== PANEL DINÁMICO ===== */
+.metodo-panel {
+    display: none;
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px dashed rgba(71, 58, 31, 0.15);
+    animation: fadeInPanel 0.3s ease;
+}
+
+.metodo-panel.activo {
+    display: block;
+}
+
+@keyframes fadeInPanel {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background-color: var(--beige);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+}
+
+.panel-info i {
+    color: var(--rosa);
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+
+.panel-info p {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    color: var(--taupe);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.panel-info strong {
+    color: var(--marron);
 }
 
 /* ===== FORM ===== */
@@ -172,6 +294,11 @@ h2 {
     outline: none;
 }
 
+.form-control.campo-error {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 0.15rem rgba(192, 57, 43, 0.15);
+}
+
 .btn-contacto {
     background-color: var(--rosa);
     color: white;
@@ -187,137 +314,58 @@ h2 {
     transform: translateY(-2px);
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.pago-error {
+    color: #c0392b;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    min-height: 18px;
 }
 
-/* ===== PROMESAS (beneficios) ===== */
-.promesas-contacto {
-    padding: 60px 20px 10px;
-}
-
-.promesa-item i {
-    font-size: 1.8rem;
-    color: var(--rosa);
-    margin-bottom: 12px;
-    display: block;
-}
-
-.promesa-item h5 {
-    color: var(--marron);
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin-bottom: 6px;
-}
-
-.promesa-item p {
-    color: var(--taupe);
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-/* ===== CONTACT MAIN (info + form) ===== */
-.contacto-main {
-    padding: 40px 20px 90px;
-}
-
-.contacto-main h2 {
-    font-size: 2rem;
-}
-
-.info-item {
+/* ===== TOAST DE NOTIFICACIÓN ===== */
+.toast-pago {
+    position: fixed;
+    top: -120px;
+    right: 24px;
+    z-index: 2000;
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
+    background-color: white;
+    border-left: 4px solid var(--verde);
+    border-radius: 10px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.15);
+    padding: 16px 20px;
+    max-width: 320px;
+    transition: top 0.4s ease;
 }
 
-.info-icon {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: var(--beige);
-    color: var(--marron);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    border: 1px solid rgba(71, 58, 31, 0.1);
+.toast-pago.show {
+    top: 100px;
 }
 
-.info-item h6 {
+.toast-pago i {
+    color: var(--verde);
+    font-size: 1.4rem;
+    margin-top: 2px;
+}
+
+.toast-pago strong {
+    display: block;
     color: var(--marron);
-    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
     margin-bottom: 2px;
 }
 
-.info-item p {
+.toast-pago p {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.82rem;
     color: var(--taupe);
     margin: 0;
-    font-size: 0.95rem;
 }
 
-.social-follow {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid rgba(71, 58, 31, 0.1);
-}
-
-.social-follow span {
-    color: var(--marron);
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.social-follow .social-link {
-    font-size: 1.2rem;
-}
-
-.form-card h4 {
-    color: var(--marron);
-    font-weight: 700;
-}
-
-/* ===== MAP ===== */
-.mapa-contacto {
-    line-height: 0;
-}
-
-.mapa-contacto iframe {
-    display: block;
-    width: 100%;
-    filter: grayscale(15%) contrast(1.02);
-}
-
-/* ===== FOOTER ===== */
-footer {
-    background-color: white;
-}
-
-footer small {
-    font-size: 0.85rem;
-    color: var(--taupe);
-}
-
-.social-link {
-    color: var(--taupe);
-    transition: 0.3s;
-    text-decoration: none;
-}
-
-.social-link:hover {
-    color: var(--rosa);
-    transform: translateY(-3px);
-}
-
-/* ===== NAVBAR ===== */
+/* ===== NAVBAR (igual en todas las páginas) ===== */
 .custom-navbar {
     background-color: #000;
     border-bottom: 1px solid #222;
@@ -517,11 +565,31 @@ footer small {
       padding: 2px;
 }
 
+/* ===== FOOTER ===== */
+footer {
+    background-color: white;
+}
+
+footer small {
+    font-size: 0.85rem;
+    color: var(--taupe);
+}
+
+.social-link {
+    color: var(--taupe);
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    color: var(--rosa);
+    transform: translateY(-3px);
+}
+
 /* ============================================================ */
 /* RESPONSIVE                                                    */
 /* ============================================================ */
 
-/* Tablets / laptops pequeños */
 @media (max-width: 992px) {
     .nav-links {
         gap: 18px;
@@ -539,20 +607,16 @@ footer small {
         width: 140px;
     }
 
-    .main-contacto {
+    .main-pago {
         padding-top: 66px;
     }
 
-    .contacto-main .col-lg-5 {
-        margin-bottom: 30px;
-    }
-
-    .contacto-main h2 {
-        font-size: 1.8rem;
+    .resumen-card {
+        position: static;
+        margin-bottom: 10px;
     }
 }
 
-/* Tablets */
 @media (max-width: 768px) {
     .nav-links {
         display: none;
@@ -574,11 +638,11 @@ footer small {
         width: 120px;
     }
 
-    .main-contacto {
+    .main-pago {
         padding-top: 60px;
     }
 
-    .topbar-contacto {
+    .topbar-pago {
         gap: 14px;
         padding: 14px 16px;
     }
@@ -591,11 +655,7 @@ footer small {
         font-size: 0.78rem;
     }
 
-    .promesas-contacto {
-        padding: 40px 16px 10px;
-    }
-
-    .contacto-main {
+    .pago-main {
         padding: 30px 16px 60px;
     }
 
@@ -603,17 +663,29 @@ footer small {
         padding: 22px;
     }
 
-    .social-follow {
-        justify-content: center;
-        text-align: center;
+    .metodos-pago {
+        gap: 10px;
     }
 
-    .mapa-contacto iframe {
-        height: 300px;
+    .metodo-box {
+        padding: 16px 6px;
+    }
+
+    .metodo-box i {
+        font-size: 1.4rem;
+    }
+
+    .metodo-nombre {
+        font-size: 0.78rem;
+    }
+
+    .toast-pago {
+        right: 12px;
+        left: 12px;
+        max-width: none;
     }
 }
 
-/* Móviles */
 @media (max-width: 480px) {
     .nav-container {
         padding: 8px 14px;
@@ -631,38 +703,28 @@ footer small {
         gap: 12px;
     }
 
-    .main-contacto {
+    .main-pago {
         padding-top: 54px;
     }
 
-    .topbar-item span {
-        font-size: 0.72rem;
+    .metodos-pago {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
     }
 
-    .contacto-main h2 {
-        font-size: 1.6rem;
-        text-align: center;
+    .metodo-nombre {
+        font-size: 0.7rem;
     }
 
-    .contacto-main .lead {
-        text-align: center;
-        margin: 0 auto 24px;
-    }
-
-    .info-item {
-        text-align: left;
-    }
-
-    .form-card h4 {
-        text-align: center;
-        font-size: 1.2rem;
+    .resumen-item {
+        flex-wrap: wrap;
     }
 
     .btn-contacto {
         width: 100%;
     }
 
-    .mapa-contacto iframe {
-        height: 260px;
+    .toast-pago.show {
+        top: 74px;
     }
 }

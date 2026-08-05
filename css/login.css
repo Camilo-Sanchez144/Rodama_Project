@@ -9,6 +9,10 @@
   box-sizing: border-box;
 }
 
+@view-transition {
+  navigation: auto;
+}
+
 body {
   margin: 0;
   font-family: "Playfair Display", serif;
@@ -45,12 +49,13 @@ body {
   padding: 2.25rem;
   border-radius: 16px;
   box-shadow: 0 14px 34px rgba(71, 58, 31, 0.13);
+  view-transition-name: auth-card;
 }
 
 .back-link {
   color: var(--taupe);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 2rem;
 }
 
 .auth-logo {
