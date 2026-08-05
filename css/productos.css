@@ -60,7 +60,7 @@ footer .social-link:hover {
   margin: 0 auto;
   padding: 12px 24px;
 }
-.nav-links{
+.nav-links {
   margin-top: 12px;
 }
 
@@ -78,7 +78,7 @@ footer .social-link:hover {
 .nav-links a {
   color: #0c0c0c;
   text-decoration: none;
-  font-size: 1.0rem;
+  font-size: 1rem;
   letter-spacing: 1px;
   text-transform: uppercase;
   position: relative;
@@ -149,7 +149,6 @@ footer .social-link:hover {
 .search-input::placeholder {
   color: #aaa;
 }
-
 
 .cart-icon {
   position: relative;
@@ -323,6 +322,12 @@ footer .social-link:hover {
   color: #9c8d80;
 }
 
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px;
+}
+
 .product-card {
   height: 100%;
   overflow: hidden;
@@ -340,12 +345,21 @@ footer .social-link:hover {
 
 .product-image-wrapper {
   position: relative;
+  overflow: hidden;
   background: #f3ebe3;
 }
 
 .product-carousel .carousel-inner,
 .product-carousel .carousel-item {
-  height: 370px;
+  height: 260px;
+}
+
+.product-carousel img {
+  transition: transform 0.45s ease;
+}
+
+.product-card:hover .product-carousel img {
+  transform: scale(1.07);
 }
 
 .product-carousel img {
@@ -397,6 +411,40 @@ footer .social-link:hover {
   opacity: 1;
 }
 
+.product-badges {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.product-badge {
+  padding: 5px 12px;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.product-badge-nuevo {
+  background: var(--verde);
+}
+
+.product-badge-oferta {
+  background: #b5485d;
+}
+
+.product-badge-bestseller {
+  background: var(--marron);
+}
+
 .favorite-button {
   position: absolute;
   top: 14px;
@@ -432,8 +480,8 @@ footer .social-link:hover {
 .product-body {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 370px);
-  padding: 20px 20px 22px;
+  height: calc(100% - 260px);
+  padding: 16px 18px 18px;
 }
 
 .product-top {
@@ -462,18 +510,18 @@ footer .social-link:hover {
 }
 
 .product-name {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: #000;
-  font-size: 1.18rem;
+  font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .product-description {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: #5f5852;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 0.88rem;
+  line-height: 1.55;
 }
 
 .product-meta {
@@ -634,7 +682,7 @@ footer .social-link:hover {
 .product-price {
   margin: 0;
   color: #000;
-  font-size: 1.45rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
@@ -680,7 +728,7 @@ footer .social-link:hover {
 
   .product-carousel .carousel-inner,
   .product-carousel .carousel-item {
-    height: 330px;
+    height: 230px;
   }
 
   .product-body {
@@ -736,7 +784,7 @@ footer .social-link:hover {
 
   .product-carousel .carousel-inner,
   .product-carousel .carousel-item {
-    height: 290px;
+    height: 210px;
   }
 
   .product-body {
@@ -787,7 +835,11 @@ footer .social-link:hover {
 
   .product-carousel .carousel-inner,
   .product-carousel .carousel-item {
-    height: 260px;
+    height: 190px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
   }
 
   .favorite-button {
@@ -796,4 +848,20 @@ footer .social-link:hover {
     width: 38px;
     height: 38px;
   }
+}
+.product-description-toggle {
+  display: inline;
+  padding: 0;
+  margin-left: 4px;
+  color: #2563eb;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-decoration: underline;
+}
+
+.product-description-toggle:hover {
+  color: #1d4ed8;
 }

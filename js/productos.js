@@ -69,10 +69,9 @@ function normalizarProducto(producto) {
     ? producto.sizes.filter(Boolean)
     : Object.keys(stockPorTalla);
 
-  const tallas = [...new Set([
-    ...tallasGuardadas,
-    ...Object.keys(stockPorTalla)
-  ])];
+  const tallas = [
+    ...new Set([...tallasGuardadas, ...Object.keys(stockPorTalla)]),
+  ];
 
   const stockPorTallaNormalizado = tallas.reduce((resultado, talla) => {
     resultado[talla] = normalizarCantidad(stockPorTalla[talla]);
@@ -85,7 +84,7 @@ function normalizarProducto(producto) {
     ? normalizarCantidad(producto.stock)
     : Object.values(stockPorTallaNormalizado).reduce(
         (total, cantidad) => total + cantidad,
-        0
+        0,
       );
 
   const imagenes =
@@ -103,7 +102,7 @@ function normalizarProducto(producto) {
     sizes: tallas,
     stockBySize: stockPorTallaNormalizado,
     stock: stockGeneral,
-    esAccesorio
+    esAccesorio,
   };
 }
 
@@ -128,7 +127,9 @@ function obtenerFavoritos() {
   }
 
   try {
-    return JSON.parse(localStorage.getItem(obtenerClaveFavoritos(usuario))) || [];
+    return (
+      JSON.parse(localStorage.getItem(obtenerClaveFavoritos(usuario))) || []
+    );
   } catch {
     return [];
   }
@@ -143,7 +144,7 @@ function guardarFavoritos(favoritos) {
 
   localStorage.setItem(
     obtenerClaveFavoritos(usuario),
-    JSON.stringify(favoritos)
+    JSON.stringify(favoritos),
   );
 }
 
@@ -177,7 +178,7 @@ function alternarFavorito(producto) {
       name: producto.name || "Producto sin nombre",
       price: Number(producto.price || 0),
       image: producto.image || "",
-      category: producto.category || ""
+      category: producto.category || "",
     });
   }
 
@@ -188,12 +189,10 @@ function alternarFavorito(producto) {
 function obtenerCantidadEnCarrito(producto, talla) {
   return obtenerCarrito()
     .filter((item) => {
-      const mismoId =
-        String(item.productId || "") === String(producto.id);
+      const mismoId = String(item.productId || "") === String(producto.id);
 
       const mismoProductoAnterior =
-        !item.productId &&
-        item.name === producto.name;
+        !item.productId && item.name === producto.name;
 
       return (
         (mismoId || mismoProductoAnterior) &&
@@ -212,7 +211,7 @@ function obtenerStockDisponible(producto, talla) {
 
   return Math.max(
     0,
-    stockDeLaTalla - obtenerCantidadEnCarrito(producto, talla)
+    stockDeLaTalla - obtenerCantidadEnCarrito(producto, talla),
   );
 }
 
@@ -235,11 +234,9 @@ function agregarAlCarrito(productoId, talla, cantidad) {
 
   if (cantidadSolicitada < 1 || disponible < cantidadSolicitada) {
     alert(
-      `Solo hay ${disponible} unidad${
-        disponible === 1 ? "" : "es"
-      } disponible${
+      `Solo hay ${disponible} unidad${disponible === 1 ? "" : "es"} disponible${
         disponible === 1 ? "" : "s"
-      } para esta talla.`
+      } para esta talla.`,
     );
 
     return false;
@@ -260,7 +257,7 @@ function agregarAlCarrito(productoId, talla, cantidad) {
       price: Number(producto.price || 0),
       image: producto.image || "",
       size: talla,
-      quantity: cantidadSolicitada
+      quantity: cantidadSolicitada,
     });
   }
 
@@ -440,17 +437,57 @@ function crearSelectorTallas(producto) {
   `;
 }
 
-function crearTarjetaProducto(producto, indice) {
+function obtenerEtiquetas(producto, indice, totalProductos) {
+  const etiquetas = [];
+
+  if (producto.bestseller === true) {
+    etiquetas.push({ texto: "Bestseller", clase: "product-badge-bestseller" });
+  }
+
+  const precioOriginal = Number(
+    producto.originalPrice || producto.precioAnterior || 0,
+  );
+
+  if (precioOriginal > Number(producto.price || 0)) {
+    etiquetas.push({ texto: "Oferta", clase: "product-badge-oferta" });
+  }
+
+  const esReciente = producto.createdAt
+    ? (Date.now() - new Date(producto.createdAt).getTime()) / 86400000 <= 14
+    : indice >= totalProductos - 3;
+
+  if (esReciente) {
+    etiquetas.push({ texto: "Nuevo", clase: "product-badge-nuevo" });
+  }
+
+  return etiquetas;
+}
+
+function crearTarjetaProducto(producto, indice, totalProductos) {
   const productoSinStock = producto.stock <= 0;
   const favorito = esFavorito(producto.id);
+  const etiquetas = obtenerEtiquetas(producto, indice, totalProductos);
 
   const tarjeta = document.createElement("div");
-  tarjeta.className = "col-md-6 col-lg-4";
 
   tarjeta.innerHTML = `
     <article class="product-card" data-product-id="${escaparHTML(producto.id)}">
       <div class="product-image-wrapper">
         ${crearCarrusel(producto, indice)}
+
+        ${
+          etiquetas.length > 0
+            ? `
+              <div class="product-badges">
+                ${etiquetas
+                  .map((etiqueta) => {
+                    return `<span class="product-badge ${etiqueta.clase}">${etiqueta.texto}</span>`;
+                  })
+                  .join("")}
+              </div>
+            `
+            : ""
+        }
 
         <button
           type="button"
@@ -589,8 +626,7 @@ function configurarTarjetaProducto(tarjeta, producto) {
 
     botonMenos.disabled = cantidadSeleccionada <= 1 || disponible <= 0;
     botonMas.disabled =
-      !tallaSeleccionada ||
-      disponible <= cantidadSeleccionada;
+      !tallaSeleccionada || disponible <= cantidadSeleccionada;
 
     botonAgregar.disabled = !tallaSeleccionada || disponible <= 0;
 
@@ -601,15 +637,13 @@ function configurarTarjetaProducto(tarjeta, producto) {
     }
 
     if (disponible <= 0) {
-      mensajeStock.textContent =
-        "Esta talla ya no tiene unidades disponibles.";
+      mensajeStock.textContent = "Esta talla ya no tiene unidades disponibles.";
       return;
     }
 
-    mensajeStock.textContent =
-      `${disponible} unidad${disponible === 1 ? "" : "es"} disponible${
-        disponible === 1 ? "" : "s"
-      } para esta selección.`;
+    mensajeStock.textContent = `${disponible} unidad${disponible === 1 ? "" : "es"} disponible${
+      disponible === 1 ? "" : "s"
+    } para esta selección.`;
   }
 
   botonFavorito.addEventListener("click", () => {
@@ -669,7 +703,7 @@ function configurarTarjetaProducto(tarjeta, producto) {
     const agregado = agregarAlCarrito(
       producto.id,
       tallaSeleccionada,
-      cantidadSeleccionada
+      cantidadSeleccionada,
     );
 
     if (agregado) {
@@ -704,7 +738,9 @@ function renderizarProductos(listaProductos) {
   container.innerHTML = "";
 
   productos.forEach((producto, indice) => {
-    container.appendChild(crearTarjetaProducto(producto, indice));
+    container.appendChild(
+      crearTarjetaProducto(producto, indice, productos.length),
+    );
   });
 }
 
