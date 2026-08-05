@@ -483,6 +483,125 @@ footer small {
     gap: 12px;
   }
 }
+/* ===== Sección de indicadores (stats) ===== */
+.stats-section {
+  background-color: white;
+  padding: 50px 20px 40px;
+  border-bottom: 1px solid #e5ddd5;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-number {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--verde);
+  line-height: 1;
+}
+
+.stat-plus {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--verde);
+}
+
+.stat-icon {
+  font-size: 2.2rem;
+  color: var(--verde);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: var(--taupe);
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ===== Sección de valores de marca ===== */
+.values-section {
+  background-color: #ece3d7;
+}
+
+.value-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 32px 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(71, 58, 31, 0.06);
+}
+
+.value-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(71, 58, 31, 0.12);
+}
+
+.value-icon {
+  font-size: 2.2rem;
+  color: var(--rosa);
+  margin-bottom: 14px;
+  display: block;
+}
+
+.value-card h5 {
+  color: var(--marron);
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+.value-card p {
+  color: var(--taupe);
+  font-size: 0.88rem;
+  margin: 0;
+  max-width: none;
+}
+
+/* ===== Sección de preguntas frecuentes ===== */
+.faq-section {
+  background-color: var(--beige);
+}
+
+.faq-section .accordion-item {
+  background-color: white;
+  border: 1px solid #e5ddd5;
+  border-radius: 8px !important;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.faq-section .accordion-button {
+  font-family: "Playfair Display", serif;
+  color: var(--marron);
+  font-weight: 600;
+  background-color: white;
+}
+
+.faq-section .accordion-button:not(.collapsed) {
+  color: var(--marron);
+  background-color: #f7f1e9;
+  box-shadow: none;
+}
+
+.faq-section .accordion-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(200, 161, 156, 0.35);
+}
+
+.faq-section .accordion-button::after {
+  filter: sepia(40%) saturate(400%) hue-rotate(315deg);
+}
+
+.faq-section .accordion-body {
+  color: var(--taupe);
+  font-size: 0.92rem;
+}
+
 .cart-icon {
       position: relative;
       display: inline-flex;

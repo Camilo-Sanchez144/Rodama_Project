@@ -7,12 +7,41 @@
   --negro: #222222;
 }
 
+<<<<<<< HEAD
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+=======
+.back-admin {
+  position: fixed;
+  top: 90px;
+  /*  debajo del navbar */
+  left: 20px;
+  background: #000;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 999;
+  display: none;
+  transition: 0.3s;
+}
+
+.card img{
+  height:350px;
+  object-fit:cover;
+}
+
+
+.card h4{
+  font-weight:bold;
+}
+
+>>>>>>> origin/Danna-Lopez
 body {
   color: #1f1f1f;
   font-family: "Playfair Display", serif;
@@ -688,6 +717,85 @@ footer .social-link:hover {
 }
 
 @media (max-width: 768px) {
+<<<<<<< HEAD
+=======
+  .catalog-header {
+    padding: 40px 0 20px;
+  }
+
+  .catalog-title {
+    font-size: 1.9rem;
+  }
+
+  .catalog-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-box {
+    width: 100%;
+  }
+
+  .product-carousel .carousel-inner,
+  .product-carousel .carousel-item {
+    height: 290px;
+  }
+
+  .product-body {
+    padding: 18px;
+  }
+
+  .product-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* FIX NAVBAR REAL */
+
+/* NAV  */
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  align-items: center;
+}
+
+/* HAMBURGER (NO LO TENÍAS DEFINIDO) */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: #fff;
+  display: block;
+}
+
+/* RESPONSIVE CORREGIDO */
+
+/* TABLET */
+@media (max-width: 992px) {
+
+  .nav-links {
+    gap: 16px;
+  }
+
+  .logo-img {
+    height: 42px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+>>>>>>> origin/Danna-Lopez
   .nav-links {
     display: none;
   }
@@ -789,10 +897,41 @@ footer .social-link:hover {
     height: 260px;
   }
 
+<<<<<<< HEAD
   .favorite-button {
     top: 10px;
     right: 10px;
     width: 38px;
     height: 38px;
   }
+=======
+.cart-icon i {
+      font-size: 24px;
+}
+
+.cart-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #f5ebeb;
+      color: #0e0d0d;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2px;
+}
+
+.social-link {
+  color: #555;
+  transition: 0.3s;
+}
+
+.social-link:hover {
+  color: #0c0c0c;
+>>>>>>> origin/Danna-Lopez
 }
