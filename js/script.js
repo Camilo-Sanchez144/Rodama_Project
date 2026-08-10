@@ -125,6 +125,19 @@ function crearMenuUsuario() {
       </a>
     `
     : "";
+  const opcionesPerfil = esAdmin
+    ? ""
+    : `
+        <a href="${obtenerRuta("perfil.html")}">
+            <i class="bi bi-person-vcard"></i>
+            Mi perfil
+        </a>
+
+        <a href="${obtenerRuta("perfil.html")}#configuracion">
+            <i class="bi bi-gear"></i>
+            Configuración
+        </a>
+    `;
 
   contenedor.innerHTML = `
     <button
@@ -140,25 +153,16 @@ function crearMenuUsuario() {
     </button>
 
     <div class="user-dropdown">
-      <a href="${obtenerRuta("perfil.html")}">
-        <i class="bi bi-person-vcard"></i>
-        Mi perfil
-      </a>
+    ${opcionesPerfil}
+    ${opcionesCliente}
+    ${opcionPanelAdmin}
 
-      <a href="${obtenerRuta("perfil.html")}#configuracion">
-        <i class="bi bi-gear"></i>
-        Configuración
-      </a>
-
-      ${opcionesCliente}
-      ${opcionPanelAdmin}
-
-      <button type="button" id="logoutButton">
+    <button type="button" id="logoutButton">
         <i class="bi bi-box-arrow-right"></i>
         Cerrar sesión
-      </button>
+    </button>
     </div>
-  `;
+    `;
 
   const botonMenu = contenedor.querySelector("#userMenuButton");
   const botonCerrarSesion = contenedor.querySelector("#logoutButton");
