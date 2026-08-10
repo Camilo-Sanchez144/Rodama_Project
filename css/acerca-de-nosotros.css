@@ -385,65 +385,58 @@ h2 {
   background: none;
   border: none;
   padding: 4px;
+  position: relative;
 }
-
 .hamburger span {
   display: block;
   width: 24px;
   height: 2px;
-  background: #fff;
+  background: var(--negro); /* líneas oscuras para ser visibles */
   border-radius: 2px;
   transition: all 0.3s ease;
 }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-.hamburger.open span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.open span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
-.mobile-menu {
+nav.custom-navbar .mobile-menu {
   display: none;
-  background: #111;
+  background: #fff !important; /* fondo blanquito */
+  color: var(--negro);
   overflow: hidden;
   max-height: 0;
-  transition:
-    max-height 0.35s ease,
-    padding 0.3s ease;
+  transition: max-height 0.35s ease, padding 0.3s ease;
+  z-index: 1100;
+  border-bottom: 1px solid #e9e6e2;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
-
-.mobile-menu.open {
-  max-height: 400px;
+nav.custom-navbar .mobile-menu.open {
+  display: block;
+  max-height: 1000px;
   padding: 12px 24px 20px;
 }
-
-.mobile-menu ul {
+nav.custom-navbar .mobile-menu ul {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
-
-.mobile-menu ul li a {
+nav.custom-navbar .mobile-menu ul li a {
   display: block;
-  color: #fff;
+  color: var(--negro) !important; /* forzar color texto oscuro */
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   letter-spacing: 1px;
   text-transform: uppercase;
   padding: 12px 0;
-  border-bottom: 0.5px solid #333;
-  transition: color 0.2s;
+  border-bottom: 1px solid #f0efed;
+  transition: color 0.15s;
 }
-
-.mobile-menu ul li:last-child a {
+nav.custom-navbar .mobile-menu ul li:last-child a {
   border-bottom: none;
 }
+nav.custom-navbar .mobile-menu ul li a:hover { color: var(--marron); }
 
-.mobile-menu ul li a:hover {
-  color: #d6a77a;
-}
+
 
 @media (max-width: 992px) {
   .nav-links {
@@ -472,10 +465,7 @@ h2 {
     display: flex;
   }
 
-  .mobile-menu {
-    display: block;
-  }
-
+  
   .logo-img {
     height: 36px;
   }
@@ -502,7 +492,7 @@ h2 {
     gap: 12px;
   }
 }
-/* ===== Sección de indicadores (stats) ===== */
+
 .stats-section {
   background-color: white;
   padding: 50px 20px 40px;
@@ -621,6 +611,7 @@ h2 {
   font-size: 0.92rem;
 }
 
+/* resto del CSS (cart, footer, etc.) queda igual que el original */
 .cart-icon {
   position: relative;
   display: inline-flex;

@@ -162,7 +162,7 @@ function crearMenuUsuario() {
         Cerrar sesión
     </button>
     </div>
-    `;
+  `;
 
   const botonMenu = contenedor.querySelector("#userMenuButton");
   const botonCerrarSesion = contenedor.querySelector("#logoutButton");
@@ -201,10 +201,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* hamburguesa: toggle + aria + cerrar al click fuera */
   if (hamburger && mobileMenu) {
-    hamburger.addEventListener("click", () => {
-      hamburger.classList.toggle("open");
+    hamburger.setAttribute("aria-expanded", "false");
+
+    hamburger.addEventListener("click", (e) => {
+      const abierto = hamburger.classList.toggle("open");
       mobileMenu.classList.toggle("open");
+      hamburger.setAttribute("aria-expanded", abierto ? "true" : "false");
+      e.stopPropagation();
+    });
+
+    // cerrar mobile menu si se hace click fuera
+    document.addEventListener("click", (e) => {
+      if (!mobileMenu.classList.contains("open")) return;
+      if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        mobileMenu.classList.remove("open");
+        hamburger.classList.remove("open");
+        hamburger.setAttribute("aria-expanded", "false");
+      }
     });
   }
 

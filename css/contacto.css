@@ -441,7 +441,7 @@ footer small {
     display: block;
     width: 24px;
     height: 2px;
-    background: #fff;
+    background: #000000;
     border-radius: 2px;
     transition: all 0.3s ease;
 }
@@ -924,6 +924,20 @@ footer small {
   font-size: 1rem;
   max-width: 600px;
   color: rgba(255,255,255,0.95);
+}
+
+nav.custom-navbar .mobile-menu,
+.mobile-menu {
+    background: #fff !important;
+    color: #222 !important;
+    border-bottom: 1px solid #e9e6e2 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+nav.custom-navbar .mobile-menu ul li a,
+.mobile-menu ul li a {
+    color: #222 !important;
+    border-bottom: 1px solid #f0efed !important;
 }
 
 /* Responsive tweaks (coinciden con tus media queries existentes) */

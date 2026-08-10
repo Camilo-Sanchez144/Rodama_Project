@@ -235,7 +235,7 @@ footer .social-link:hover {
   display: block;
   width: 24px;
   height: 2px;
-  background: #fff;
+  background: #000000;
   border-radius: 2px;
   transition: all 0.3s ease;
 }
@@ -1082,6 +1082,22 @@ footer .social-link:hover {
   background: #b28558;
   transform: translateY(-3px);
 }
+
+ /* Forzar mobile menu claro (parche) */
+nav.custom-navbar .mobile-menu,
+.mobile-menu {
+    background: #fff !important;
+    color: #222 !important;
+    border-bottom: 1px solid #e9e6e2 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+nav.custom-navbar .mobile-menu ul li a,
+.mobile-menu ul li a {
+    color: #222 !important;
+    border-bottom: 1px solid #f0efed !important;
+}
+
 @media (max-width: 992px) {
   .footer-container{
     grid-template-columns: 1fr 1fr;
