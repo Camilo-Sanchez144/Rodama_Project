@@ -115,19 +115,27 @@ function normalizarProducto(producto) {
   const stock = esAccesorio
     ? normalizarCantidad(producto.stock)
     : Object.values(stockPorTalla).reduce(
-        (total, cantidad) => total + cantidad,
-        0
+          (total, cantidad) => total + cantidad,
+          0
       );
+
+  const imagenes =
+    Array.isArray(producto.images) && producto.images.length > 0
+        ? producto.images
+        : producto.image
+            ? [producto.image]
+            : ["https://via.placeholder.com/700x900?text=Producto"];
 
   return {
     ...producto,
     id: producto.id || producto.name,
+    images: imagenes,
+    image: imagenes[0],
     stockBySize: stockPorTalla,
     stock,
     esAccesorio
-  };
+};
 }
-
 function encontrarProductoParaItem(item, productos = obtenerProductos()) {
   return productos
     .map(normalizarProducto)
@@ -319,11 +327,13 @@ function crearItemCarrito(item, carrito) {
   elemento.innerHTML = `
     <div class="cart-item-img">
       <img
-        src="${escaparHTML(
-          item.image || "https://via.placeholder.com/110x110?text=Producto"
-        )}"
-        alt="${escaparHTML(item.name || "Producto")}"
-      >
+    src="${escaparHTML(
+        (producto && producto.image) ||
+        item.image ||
+        "https://via.placeholder.com/110x110?text=Producto"
+    )}"
+    alt="${escaparHTML(item.name || "Producto")}"
+    > 
     </div>
 
     <div class="cart-item-info">

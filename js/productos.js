@@ -80,30 +80,31 @@ function normalizarProducto(producto) {
 
   const esAccesorio = producto.category === "Accesorios";
 
-  const stockGeneral = esAccesorio
+  const stock = esAccesorio
     ? normalizarCantidad(producto.stock)
-    : Object.values(stockPorTallaNormalizado).reduce(
-        (total, cantidad) => total + cantidad,
-        0,
+    : Object.values(stockPorTalla).reduce(
+          (total, cantidad) => total + cantidad,
+          0
       );
 
   const imagenes =
     Array.isArray(producto.images) && producto.images.length > 0
-      ? producto.images
-      : producto.image
-        ? [producto.image]
-        : ["https://via.placeholder.com/700x900?text=Producto"];
+        ? producto.images
+        : producto.image
+            ? [producto.image]
+            : [
+                  "https://via.placeholder.com/700x900?text=Producto"
+              ];
 
   return {
     ...producto,
     id: producto.id || producto.name,
     images: imagenes,
     image: imagenes[0],
-    sizes: tallas,
-    stockBySize: stockPorTallaNormalizado,
-    stock: stockGeneral,
-    esAccesorio,
-  };
+    stockBySize: stockPorTalla,
+    stock,
+    esAccesorio
+};
 }
 
 function escaparHTML(texto) {
@@ -255,7 +256,6 @@ function agregarAlCarrito(productoId, talla, cantidad) {
       productId: producto.id,
       name: producto.name,
       price: Number(producto.price || 0),
-      image: producto.image || "",
       size: talla,
       quantity: cantidadSolicitada,
     });
