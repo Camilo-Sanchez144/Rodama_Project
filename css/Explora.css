@@ -41,9 +41,10 @@
 }
 
 /* stronger framing to reveal faces */
-.hero-img.hero-01{ object-position: center 30%; }
-.hero-img.hero-03{ object-position: center 68%; }
-.hero-img.hero-04{ object-position: center 30%; }
+.hero-img.hero-01{ object-position: 68% 30%; }
+.hero-img.hero-02{ object-position: 82% center; }
+.hero-img.hero-03{ object-position: 75% 68%; }
+.hero-img.hero-04{ object-position: 55% 30%; }
 
 /* caption */
 .hero-caption{
@@ -342,7 +343,8 @@
   .category-img{ width: 84px; height: 84px; }
   .categories-list{ gap: 16px; padding: 12px; }
   /* mobile hero framing */
-  .hero-img.hero-01{ object-position: center 28%; }
-  .hero-img.hero-03{ object-position: center 74%; }
-  .hero-img.hero-04{ object-position: center 28%; }
+  .hero-img.hero-01{ object-position: 78% 28%; }
+  .hero-img.hero-02{ object-position: 88% center; }
+  .hero-img.hero-03{ object-position: 82% 74%; }
+  .hero-img.hero-04{ object-position: 55% 28%; }
 }
