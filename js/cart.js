@@ -620,6 +620,13 @@ function finalizarCompra() {
     return;
   }
 
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!usuarioActivo) {
+    alert("Debes iniciar sesión para finalizar la compra.");
+    window.location.href = "login.html";
+    return;
+  }
+
   const productos = obtenerProductos();
   const errores = validarCarritoAntesDeCompra(carrito, productos);
 
@@ -631,22 +638,24 @@ function finalizarCompra() {
     return;
   }
 
-  const confirmar = confirm(
-    "¿Deseas finalizar la compra? El stock de los productos se actualizará."
-  );
+  const subtotal = calcularSubtotal(carrito);
+  const descuentoRegistro = calcularDescuentoRegistro(subtotal);
+  const cupon = obtenerCuponAplicado();
+  const descuentoCupon = calcularDescuentoCupon(subtotal, cupon);
+  const envio = calcularEnvio(subtotal);
+  const total = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
 
-  if (!confirmar) return;
+  localStorage.setItem("compraPendiente", JSON.stringify({
+    items: carrito,
+    subtotal,
+    descuentoRegistro,
+    cupon,
+    descuentoCupon,
+    envio,
+    total
+  }));
 
-  const productosActualizados = descontarStockDeCompra(carrito, productos);
-
-  guardarProductos(productosActualizados);
-  localStorage.removeItem("cart");
-  quitarCupon();
-
-  renderizarCarrito();
-  actualizarContadorCarrito();
-
-  alert("Compra finalizada correctamente. Gracias por tu compra.");
+  window.location.href = "./payment.html";
 }
 
 /* =========================================================

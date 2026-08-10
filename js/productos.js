@@ -256,6 +256,7 @@ function agregarAlCarrito(productoId, talla, cantidad) {
       productId: producto.id,
       name: producto.name,
       price: Number(producto.price || 0),
+      image: producto.image,
       size: talla,
       quantity: cantidadSolicitada,
     });
