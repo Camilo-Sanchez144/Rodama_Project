@@ -56,6 +56,68 @@ function guardarCuponAplicado(cupon) {
   }
 }
 
+/* ===== NUEVO: usuario activo (usado por profile.js y por el checkout) ===== */
+function obtenerUsuarioActivo() {
+  try {
+    return JSON.parse(localStorage.getItem("usuarioActivo")) || null;
+  } catch {
+    return null;
+  }
+}
+
+/* ===== NUEVO: puente carrito -> pago ===== */
+function obtenerCompraPendiente() {
+  try {
+    return JSON.parse(localStorage.getItem("compraPendiente")) || null;
+  } catch {
+    return null;
+  }
+}
+
+function guardarCompraPendiente(compra) {
+  localStorage.setItem("compraPendiente", JSON.stringify(compra));
+}
+
+function eliminarCompraPendiente() {
+  localStorage.removeItem("compraPendiente");
+}
+
+/* ===== NUEVO: pedidos (historial de compras) ===== */
+function obtenerTodosPedidos() {
+  try {
+    return JSON.parse(localStorage.getItem("pedidos")) || [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarPedido(pedido) {
+  const todos = obtenerTodosPedidos();
+  todos.push(pedido);
+  localStorage.setItem("pedidos", JSON.stringify(todos));
+}
+
+function obtenerPedidos(usuarioId) {
+  return obtenerTodosPedidos()
+    .filter((pedido) => String(pedido.usuarioId) === String(usuarioId))
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+}
+
+function generarIdPedido() {
+  const fecha = Date.now().toString(36).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `PED-${fecha}-${azar}`;
+}
+
+function etiquetaMetodoPago(metodo) {
+  const etiquetas = {
+    nequi: "Nequi",
+    transferencia: "Transferencia bancaria",
+    contraentrega: "Pago contraentrega"
+  };
+  return etiquetas[metodo] || "Otro";
+}
+
 /* =========================================================
    UTILIDADES
    ========================================================= */
@@ -76,9 +138,6 @@ function formatearPrecio(valor) {
   return `$${Number(valor || 0).toLocaleString("es-CO")}`;
 }
 
-// CORREGIDO: antes leía "currentUser" (clave que nunca se crea) y además
-// tenía un fallback que forzaba `true` siempre (SIMULAR_USUARIO_REGISTRADO).
-// Ahora consulta la sesión real que guarda login.js/script.js: "usuarioActivo".
 function esUsuarioRegistrado() {
   try {
     return Boolean(JSON.parse(localStorage.getItem("usuarioActivo")));
@@ -602,11 +661,25 @@ function descontarStockDeCompra(carrito, productos) {
   });
 }
 
+/* =========================================================
+   CHECKOUT -> PAGO
+   MODIFICADO: ya no descuenta stock ni finaliza la compra aquí.
+   Solo valida, guarda un "compraPendiente" y redirige a payment.html.
+   El stock se descuenta y el pedido se crea en pago.js, una vez
+   confirmado el método de pago.
+   ========================================================= */
 function finalizarCompra() {
   const carrito = obtenerCarrito();
 
   if (carrito.length === 0) {
     alert("Tu carrito está vacío.");
+    return;
+  }
+
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!usuarioActivo) {
+    alert("Debes iniciar sesión para finalizar la compra.");
+    window.location.href = "login.html";
     return;
   }
 
@@ -621,22 +694,24 @@ function finalizarCompra() {
     return;
   }
 
-  const confirmar = confirm(
-    "¿Deseas finalizar la compra? El stock de los productos se actualizará."
-  );
+  const subtotal = calcularSubtotal(carrito);
+  const descuentoRegistro = calcularDescuentoRegistro(subtotal);
+  const cupon = obtenerCuponAplicado();
+  const descuentoCupon = calcularDescuentoCupon(subtotal, cupon);
+  const envio = calcularEnvio(subtotal);
+  const total = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
 
-  if (!confirmar) return;
+  guardarCompraPendiente({
+    items: carrito,
+    subtotal,
+    descuentoRegistro,
+    cupon,
+    descuentoCupon,
+    envio,
+    total
+  });
 
-  const productosActualizados = descontarStockDeCompra(carrito, productos);
-
-  guardarProductos(productosActualizados);
-  localStorage.removeItem("cart");
-  quitarCupon();
-
-  renderizarCarrito();
-  actualizarContadorCarrito();
-
-  alert("Compra finalizada correctamente. Gracias por tu compra.");
+  window.location.href = "./payment.html";
 }
 
 /* =========================================================

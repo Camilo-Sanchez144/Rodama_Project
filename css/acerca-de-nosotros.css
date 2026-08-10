@@ -51,6 +51,14 @@
   }
 }
 
+
+body {
+  font-family: "Playfair Display", serif;
+  color: var(--negro);
+  background: var(--beige);
+}
+
+
 .back-admin:hover {
   background: #333;
 }
@@ -96,6 +104,9 @@
 .nav-link:hover::after {
   width: 100%;
 }
+
+
+
 
 .btn-primary {
   background-color: var(--rosa);

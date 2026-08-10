@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rodama Admin</title>
+    <title>Admin | RODAMA</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +20,7 @@
     />
 
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -122,9 +123,36 @@
             <div>
               <h2>Resumen</h2>
               <p class="topbar-subtitle">
-                Vista general del panel.
+                Vista general de las ventas de Rodama.
               </p>
             </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Total vendido</span>
+              <span class="stat-value" id="resumenTotalVentas">$0</span>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Pedidos realizados</span>
+              <span class="stat-value" id="resumenTotalPedidos">0</span>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Clientes registrados</span>
+              <span class="stat-value" id="resumenTotalClientes">0</span>
+            </div>
+
+            <div class="stat-card">
+              <span class="stat-label">Ticket promedio</span>
+              <span class="stat-value" id="resumenTicketPromedio">$0</span>
+            </div>
+          </div>
+
+          <div class="resumen-recientes-card">
+            <h4>Pedidos recientes</h4>
+            <div id="resumenPedidosRecientes"></div>
           </div>
         </section>
 
@@ -148,6 +176,33 @@
               </p>
             </div>
           </div>
+
+          <div class="toolbar">
+            <div class="search-box">
+              <input
+                type="text"
+                id="searchClient"
+                class="form-control"
+                placeholder="Buscar cliente por nombre o correo"
+              />
+            </div>
+          </div>
+
+          <div class="product-table-wrapper">
+            <table class="table align-middle product-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Correo</th>
+                  <th>Pedidos</th>
+                  <th>Total gastado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody id="clientTable"></tbody>
+            </table>
+          </div>
         </section>
 
         <section class="section" id="section-ajustes">
@@ -155,8 +210,136 @@
             <div>
               <h2>Ajustes</h2>
               <p class="topbar-subtitle">
-                Configuración del panel administrativo.
+                Configuración de la tienda y de tu cuenta de administrador.
               </p>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <!-- CONFIGURACIÓN DE ENVÍO -->
+            <div class="col-12 col-xl-6">
+              <div class="settings-card">
+                <h4>Envío</h4>
+                <p class="settings-card-subtitle">
+                  Estos valores se aplican de inmediato en el carrito de todos los clientes.
+                </p>
+
+                <form id="shippingForm">
+                  <div class="mb-3">
+                    <label class="form-label" for="costoEnvio">Costo de envío</label>
+                    <input type="number" class="form-control" id="costoEnvio" min="0" required />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="envioGratisDesde">Envío gratis desde</label>
+                    <input type="number" class="form-control" id="envioGratisDesde" min="0" required />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="descuentoRegistro">
+                      Descuento por usuario registrado (%)
+                    </label>
+                    <input type="number" class="form-control" id="descuentoRegistro" min="0" max="100" required />
+                  </div>
+
+                  <div id="shippingMessage" class="settings-message"></div>
+
+                  <button type="submit" class="btn btn-dark px-4">Guardar cambios</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- CUPONES -->
+            <div class="col-12 col-xl-6">
+              <div class="settings-card">
+                <h4>Cupones</h4>
+                <p class="settings-card-subtitle">
+                  Códigos que tus clientes pueden aplicar en el carrito.
+                </p>
+
+                <div id="couponsList" class="coupons-list"></div>
+
+                <form id="couponForm" class="coupon-form">
+                  <div class="row g-2">
+                    <div class="col-5">
+                      <input type="text" class="form-control" id="couponCode" placeholder="CÓDIGO" required />
+                    </div>
+                    <div class="col-3">
+                      <input type="number" class="form-control" id="couponPercent" placeholder="%" min="1" max="100" required />
+                    </div>
+                    <div class="col-4">
+                      <input type="text" class="form-control" id="couponDescription" placeholder="Descripción" required />
+                    </div>
+                  </div>
+
+                  <div id="couponMessageAdmin" class="settings-message"></div>
+
+                  <button type="submit" class="btn btn-dark px-4 mt-2">Agregar cupón</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- CUENTA DEL ADMINISTRADOR -->
+            <div class="col-12 col-xl-6">
+              <div class="settings-card">
+                <h4>Mis datos</h4>
+                <p class="settings-card-subtitle">
+                  Información de tu cuenta de administrador.
+                </p>
+
+                <form id="adminProfileForm">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label" for="adminNombre">Nombre</label>
+                      <input type="text" class="form-control" id="adminNombre" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label" for="adminApellido">Apellido</label>
+                      <input type="text" class="form-control" id="adminApellido" />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="adminCorreo">Correo</label>
+                    <input type="email" class="form-control" id="adminCorreo" required />
+                  </div>
+
+                  <div id="adminProfileMessage" class="settings-message"></div>
+
+                  <button type="submit" class="btn btn-dark px-4">Guardar datos</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- CAMBIAR CONTRASEÑA -->
+            <div class="col-12 col-xl-6">
+              <div class="settings-card">
+                <h4>Cambiar contraseña</h4>
+                <p class="settings-card-subtitle">
+                  Usa una contraseña de al menos 8 caracteres.
+                </p>
+
+                <form id="adminPasswordForm">
+                  <div class="mb-3">
+                    <label class="form-label" for="adminCurrentPassword">Contraseña actual</label>
+                    <input type="password" class="form-control" id="adminCurrentPassword" required />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="adminNewPassword">Nueva contraseña</label>
+                    <input type="password" class="form-control" id="adminNewPassword" required />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="adminConfirmPassword">Confirmar nueva contraseña</label>
+                    <input type="password" class="form-control" id="adminConfirmPassword" required />
+                  </div>
+
+                  <div id="adminPasswordMessage" class="settings-message"></div>
+
+                  <button type="submit" class="btn btn-dark px-4">Actualizar contraseña</button>
+                </form>
+              </div>
             </div>
           </div>
         </section>
@@ -351,6 +534,25 @@
               </button>
             </form>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="clientOrdersModal">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="clientOrdersModalTitle">Pedidos del cliente</h3>
+
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+
+          <div class="modal-body" id="clientOrdersModalBody"></div>
         </div>
       </div>
     </div>

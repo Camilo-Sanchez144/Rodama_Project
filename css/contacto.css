@@ -7,7 +7,6 @@
     --negro: #222222;
 }
 
-
 * {
     margin: 0;
     padding: 0;
@@ -19,9 +18,10 @@ body {
     background-color: var(--beige);
     color: var(--negro);
 }
+
 .back-admin {
   position: fixed;
-  top: 90px; 
+  top: 90px;
   left: 20px;
   background: #000;
   color: #fff;
@@ -37,7 +37,6 @@ body {
 .back-admin:hover {
   background: #333;
 }
-
 
 .navbar {
     background-color: rgba(255,255,255,0.95) !important;
@@ -95,49 +94,45 @@ body {
     color: white;
 }
 
-.hero-contacto {
-    position: relative;
-    height: 320px;
+/* ===== MAIN WRAPPER: offset for fixed navbar ===== */
+.main-contacto {
+    padding-top: 78px;
+}
+
+/* ===== TOPBAR ===== */
+.topbar-contacto {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    text-align: center;
-
-    background: url("https://i.pinimg.com/1200x/a7/61/d7/a761d75f9489ceb2a49231c2e96d640a.jpg") center/cover no-repeat;
-
-    filter: grayscale(80%) brightness(0.9);
+    gap: 28px;
+    background-color: var(--marron);
+    padding: 16px 20px;
 }
 
-.hero-contacto .overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        rgba(71, 58, 31, 0.35),
-        rgba(200, 161, 156, 0.4)
-    );
+.topbar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.4px;
+    color: var(--beige);
+    white-space: nowrap;
 }
 
-.contenido-hero {
-    position: relative;
-    z-index: 2;
-    max-width: 700px;
-    padding: 0 20px;
-    color: white;
+.topbar-item i {
+    font-size: 1rem;
+    color: var(--rosa);
 }
 
-.contenido-hero h2 {
-    font-size: 2.4rem;
-    margin-bottom: 10px;
-    color: #ffffff;
+.topbar-sep {
+    width: 1px;
+    height: 16px;
+    background-color: rgba(243, 236, 227, 0.25);
 }
 
-.contenido-hero p {
-    font-size: 1.05rem;
-    line-height: 1.6;
-    color: white;
-}
-
+/* ===== SHARED HEADINGS / TEXT ===== */
 h2 {
     color: var(--marron);
     letter-spacing: 1px;
@@ -147,18 +142,9 @@ h2 {
 .lead {
     color: var(--taupe);
     max-width: 700px;
-    margin: 0 auto;
 }
 
-.info-contacto {
-    padding: 80px 20px 30px;
-    text-align: center;
-}
-
-.info-contacto p {
-    color: var(--taupe);
-}
-
+/* ===== CARD BASE ===== */
 .card {
     border-radius: 14px;
     background-color: white;
@@ -166,7 +152,7 @@ h2 {
     padding: 30px;
 }
 
-
+/* ===== FORM ===== */
 .form-label {
     color: var(--marron);
     font-weight: 600;
@@ -177,11 +163,13 @@ h2 {
     border: 1px solid #ddd;
     padding: 10px;
     transition: 0.3s;
+    width: 100%;
 }
 
 .form-control:focus {
     border-color: var(--rosa);
     box-shadow: 0 0 0 0.15rem rgba(200, 161, 156, 0.25);
+    outline: none;
 }
 
 .btn-contacto {
@@ -191,6 +179,7 @@ h2 {
     border-radius: 10px;
     border: none;
     transition: 0.3s;
+    font-weight: 600;
 }
 
 .btn-contacto:hover {
@@ -204,6 +193,110 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+/* ===== PROMESAS (beneficios) ===== */
+.promesas-contacto {
+    padding: 60px 20px 10px;
+}
+
+.promesa-item i {
+    font-size: 1.8rem;
+    color: var(--rosa);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.promesa-item h5 {
+    color: var(--marron);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+}
+
+.promesa-item p {
+    color: var(--taupe);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ===== CONTACT MAIN (info + form) ===== */
+.contacto-main {
+    padding: 40px 20px 90px;
+}
+
+.contacto-main h2 {
+    font-size: 2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--beige);
+    color: var(--marron);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: 1px solid rgba(71, 58, 31, 0.1);
+}
+
+.info-item h6 {
+    color: var(--marron);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.info-item p {
+    color: var(--taupe);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.social-follow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(71, 58, 31, 0.1);
+}
+
+.social-follow span {
+    color: var(--marron);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.social-follow .social-link {
+    font-size: 1.2rem;
+}
+
+.form-card h4 {
+    color: var(--marron);
+    font-weight: 700;
+}
+
+/* ===== MAP ===== */
+.mapa-contacto {
+    line-height: 0;
+}
+
+.mapa-contacto iframe {
+    display: block;
+    width: 100%;
+    filter: grayscale(15%) contrast(1.02);
+}
+
+/* ===== FOOTER ===== */
 footer {
     background-color: white;
 }
@@ -213,6 +306,18 @@ footer small {
     color: var(--taupe);
 }
 
+.social-link {
+    color: var(--taupe);
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    color: var(--rosa);
+    transform: translateY(-3px);
+}
+
+/* ===== NAVBAR ===== */
 .custom-navbar {
   background-color: #fcf9f9;
   border-bottom: 1px solid #222;
@@ -475,6 +580,7 @@ footer small {
       align-items: center;
       padding: 2px;
 }
+
 .footer{
     width:100%;
     background:#532727;
@@ -616,3 +722,219 @@ footer small {
   .footer-links a{ display:block; }
   .footer-bottom{ flex-direction:column; gap:8px; }
 }
+
+/* ============================================================ */
+/* RESPONSIVE                                                    */
+/* ============================================================ */
+
+@media (max-width: 992px) {
+    .main-contacto {
+        padding-top: 66px;
+    }
+
+    .contacto-main .col-lg-5 {
+        margin-bottom: 30px;
+    }
+
+    .contacto-main h2 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-contacto {
+        padding-top: 60px;
+    }
+
+    .topbar-contacto {
+        gap: 14px;
+        padding: 14px 16px;
+    }
+
+    .topbar-sep {
+        display: none;
+    }
+
+    .topbar-item {
+        font-size: 0.78rem;
+    }
+
+    .promesas-contacto {
+        padding: 40px 16px 10px;
+    }
+
+    .contacto-main {
+        padding: 30px 16px 60px;
+    }
+
+    .card {
+        padding: 22px;
+    }
+
+    .social-follow {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .mapa-contacto iframe {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-contacto {
+        padding-top: 54px;
+    }
+
+    .topbar-item span {
+        font-size: 0.72rem;
+    }
+
+    .contacto-main h2 {
+        font-size: 1.6rem;
+        text-align: center;
+    }
+
+    .contacto-main .lead {
+        text-align: center;
+        margin: 0 auto 24px;
+    }
+
+    .info-item {
+        text-align: left;
+    }
+
+    .form-card h4 {
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+    .btn-contacto {
+        width: 100%;
+    }
+
+    .mapa-contacto iframe {
+        height: 260px;
+    }
+}
+
+/* ===== HERO CONTACTO ===== */
+.hero-contacto {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    overflow: hidden;
+    margin-top: 78px; /* para no quedar debajo del navbar fijo */
+}
+
+.hero-contacto-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-contacto-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(34, 34, 34, 0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 0 20px;
+}
+
+.hero-contacto-overlay h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.hero-contacto-overlay p {
+    font-size: 1rem;
+    max-width: 500px;
+}
+
+@media (max-width: 768px) {
+    .hero-contacto {
+        height: 260px;
+        margin-top: 60px;
+    }
+
+    .hero-contacto-overlay h1 {
+        font-size: 1.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-contacto {
+        height: 220px;
+        margin-top: 54px;
+    }
+
+    .hero-contacto-overlay h1 {
+        font-size: 1.6rem;
+    }
+
+    .hero-contacto-overlay p {
+        font-size: 0.85rem;
+    }
+    
+}
+
+
+.main-contacto {
+  padding-top: 0; 
+}
+
+.hero-contacto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* overlay de texto (ya tenías algo similar) */
+.hero-contacto-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(34, 34, 34, 0.25); /* ligera capa para contraste */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  padding: 0 20px;
+}
+
+.hero-contacto-overlay h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.hero-contacto-overlay p {
+  font-size: 1rem;
+  max-width: 600px;
+  color: rgba(255,255,255,0.95);
+}
+
+/* Responsive tweaks (coinciden con tus media queries existentes) */
+@media (max-width: 768px) {
+  .hero-contacto { height: 260px; margin-top: 60px; }
+  .hero-contacto-overlay h1 { font-size: 1.9rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-contacto { height: 220px; margin-top: 54px; }
+  .hero-contacto-overlay h1 { font-size: 1.6rem; }
+  .hero-contacto-overlay p { font-size: 0.85rem; }
+}
+
