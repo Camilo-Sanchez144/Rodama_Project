@@ -388,10 +388,13 @@ footer .social-link:hover {
   position: relative;
   overflow: hidden;
   background: #f3ebe3;
+  overflow: hidden;
 }
 
 .product-carousel .carousel-inner,
 .product-carousel .carousel-item {
+  overflow: hidden;
+  position: relative; 
   height: 260px;
 }
 
@@ -408,6 +411,7 @@ footer .social-link:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  cursor: zoom-in;
 }
 
 .product-carousel .carousel-control-prev,
@@ -484,6 +488,70 @@ footer .social-link:hover {
 
 .product-badge-bestseller {
   background: var(--marron);
+}
+
+/* Botones para navegar entre imágenes del zoom */
+.zoom-nav-btn {
+    position: absolute;
+    top: 50%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    color: #fff;
+    font-size: 1.4rem;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: background 0.2s;
+}
+
+.zoom-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.zoom-nav-prev {
+    left: 8px;
+}
+
+.zoom-nav-next {
+    right: 8px;
+}
+
+/* Botones para navegar entre imágenes del zoom */
+.zoom-nav-btn {
+    position: absolute;
+    top: 50%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    color: #fff;
+    font-size: 1.4rem;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: background 0.2s;
+}
+
+.zoom-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.zoom-nav-prev {
+    left: 8px;
+}
+
+.zoom-nav-next {
+    right: 8px;
 }
 
 .favorite-button {
@@ -643,7 +711,7 @@ footer .social-link:hover {
   min-height: 18px;
   margin: 0;
   color: #7b746e;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   line-height: 1.35;
 }
 
@@ -728,8 +796,9 @@ footer .social-link:hover {
 }
 
 .btn-add-cart {
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
 }
 
 .btn-add-cart:disabled {
@@ -807,7 +876,7 @@ footer .social-link:hover {
   }
 
   .catalog-header {
-    padding: 40px 0 20px;
+    padding: 24px 0 20px;
   }
 
   .catalog-title {

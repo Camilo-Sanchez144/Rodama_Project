@@ -73,7 +73,7 @@
       </div>
     </nav>
 
-    <section class="container py-5">
+    <section class="container pt-5 pb-0">
       <section class="catalog-header">
         <div class="container">
           <p class="catalog-subtitle">Colección femenina</p>
@@ -117,6 +117,53 @@
         <div class="product-grid" id="productContainer"></div>
       </div>
     </section>
+
+    <!-- Modal para ampliar imágenes del producto -->
+<div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+
+            <!-- Botón cerrar -->
+            <button
+                type="button"
+                class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+                style="z-index: 10;"
+            ></button>
+
+            <!-- Imagen anterior -->
+            <button
+                type="button"
+                id="zoomPrevBtn"
+                class="zoom-nav-btn zoom-nav-prev"
+                aria-label="Imagen anterior"
+            >
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Imagen ampliada -->
+            <img
+                id="zoomedImage"
+                src=""
+                alt="Producto"
+                class="img-fluid rounded"
+                style="max-height: 85vh; width: auto; margin: 0 auto; object-fit: contain;"
+            >
+
+            <!-- Imagen siguiente -->
+            <button
+                type="button"
+                id="zoomNextBtn"
+                class="zoom-nav-btn zoom-nav-next"
+                aria-label="Imagen siguiente"
+            >
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+        </div>
+    </div>
+</div>
 
     <footer class="footer">
       <div class="footer-container">

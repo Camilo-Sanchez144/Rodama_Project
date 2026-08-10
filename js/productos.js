@@ -1,5 +1,5 @@
 const container = document.getElementById("productContainer");
-const searchInput = document.querySelector(".catalog-toolbar #searchInput");
+const searchInput = document.getElementById("catalogSearchInput"); 
 const categoryFilter = document.getElementById("categoryFilter");
 
 function obtenerUsuarioActivo() {
@@ -387,12 +387,7 @@ function crearCarrusel(producto, indice) {
 
 function crearSelectorTallas(producto) {
   if (producto.esAccesorio) {
-    return `
-      <div class="product-size-selector">
-        <span class="meta-label">Presentación</span>
-        <span class="size-chip size-chip-selected">Única</span>
-      </div>
-    `;
+    return""
   }
 
   if (producto.sizes.length === 0) {
@@ -596,6 +591,13 @@ function configurarTarjetaProducto(tarjeta, producto) {
   const valorCantidad = tarjeta.querySelector(".quantity-value");
   const botonAgregar = tarjeta.querySelector(".btn-add-cart");
   const mensajeStock = tarjeta.querySelector(".product-stock-feedback");
+  const imagenesCarrusel = tarjeta.querySelectorAll(".product-carousel img");
+
+imagenesCarrusel.forEach((imagen, indice) => {
+    imagen.addEventListener("click", () => {
+        abrirImagenZoom(producto.images, indice);
+    });
+});  
 
   let tallaSeleccionada = producto.esAccesorio ? "Única" : null;
   let cantidadSeleccionada = 1;
@@ -715,6 +717,67 @@ function configurarTarjetaProducto(tarjeta, producto) {
   actualizarControles();
 }
 
+let imagenesZoomActuales = [];
+let indiceZoomActual = 0;
+
+function actualizarImagenZoom() {
+    const imagenModal = document.getElementById("zoomedImage");
+
+    if (!imagenModal || imagenesZoomActuales.length === 0) {
+        return;
+    }
+
+    imagenModal.src = imagenesZoomActuales[indiceZoomActual];
+}
+
+function moverImagenZoomAnterior() {
+    if (imagenesZoomActuales.length === 0) {
+        return;
+    }
+
+    indiceZoomActual =
+        (indiceZoomActual - 1 + imagenesZoomActuales.length) %
+        imagenesZoomActuales.length;
+
+    actualizarImagenZoom();
+}
+
+function moverImagenZoomSiguiente() {
+    if (imagenesZoomActuales.length === 0) {
+        return;
+    }
+
+    indiceZoomActual =
+        (indiceZoomActual + 1) % imagenesZoomActuales.length;
+
+    actualizarImagenZoom();
+}
+
+function abrirImagenZoom(imagenes, indiceInicial) {
+    imagenesZoomActuales = imagenes || [];
+    indiceZoomActual = indiceInicial || 0;
+
+    actualizarImagenZoom();
+
+    const botonPrev = document.getElementById("zoomPrevBtn");
+    const botonNext = document.getElementById("zoomNextBtn");
+
+    const mostrarBotones = imagenesZoomActuales.length > 1;
+
+    if (botonPrev) {
+        botonPrev.style.display = mostrarBotones ? "flex" : "none";
+    }
+
+    if (botonNext) {
+        botonNext.style.display = mostrarBotones ? "flex" : "none";
+    }
+
+    const elementoModal = document.getElementById("imageZoomModal");
+    const modal = new bootstrap.Modal(elementoModal);
+
+    modal.show();
+}
+
 function renderizarProductos(listaProductos) {
   if (!container) {
     return;
@@ -774,6 +837,17 @@ if (searchInput) {
 
 if (categoryFilter) {
   categoryFilter.addEventListener("change", filtrarProductos);
+}
+
+const zoomPrevBtn = document.getElementById("zoomPrevBtn");
+const zoomNextBtn = document.getElementById("zoomNextBtn");
+
+if (zoomPrevBtn) {
+    zoomPrevBtn.addEventListener("click", moverImagenZoomAnterior);
+}
+
+if (zoomNextBtn) {
+    zoomNextBtn.addEventListener("click", moverImagenZoomSiguiente);
 }
 
 renderizarProductos(obtenerProductos());
