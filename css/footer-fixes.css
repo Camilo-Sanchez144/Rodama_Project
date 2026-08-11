@@ -1,0 +1,112 @@
+/* Footer: layout y estilos responsivos
+   NOTE: estilos pensados para usar con Bootstrap 5 y la paleta del proyecto.
+*/
+
+:root{
+  --beige: #f3ece3;
+  --rosa: #c8a19c;
+  --taupe: #91766e;
+  --verde: #7a8564;
+  --marron: #473a1f;
+  --negro: #222222;
+}
+
+/* Contenedor */
+.site-footer {
+  width: 100%;
+  background: #532727;
+  color: #fff;
+  padding: 48px 0 28px;
+  box-sizing: border-box;
+  font-family: "Playfair Display", serif;
+}
+
+/* Marca y suscripción */
+.footer-logo {
+  width: 110px;
+  height: auto;
+  display: block;
+}
+.footer-text {
+  color: #fff;
+  font-size: 14px;
+  margin: 12px 0;
+}
+.footer-subscribe {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.footer-subscribe .form-control {
+  width: 230px;
+  height: 44px;
+  border-radius: 6px;
+  border: none;
+  padding: 0 12px;
+}
+.footer-subscribe .btn {
+  height: 44px;
+  border-radius: 6px;
+  background: #d8bca6;
+  color: #fff;
+  border: none;
+}
+.footer-subscribe .btn:hover { background: #c39d7f; }
+
+/* Contacto y enlaces */
+.footer-contact, .footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.footer-contact p, .footer-links a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+}
+.footer-links a:hover { color: #b88963; }
+
+/* Social icons */
+.footer-social a, .social-icons a {
+  color: #fff;
+  font-size: 18px;
+  transition: color .22s, transform .22s;
+}
+.footer-social a:hover, .social-icons a:hover {
+  color: var(--rosa);
+  transform: translateY(-3px);
+}
+
+/* Footer bottom */
+.footer-bottom {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 14px;
+}
+
+/* Back-to-top (si usas) */
+.back-to-top a {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  background:#c49a6c;
+  color:#fff;
+  border-radius:20px;
+  text-decoration:none;
+}
+.back-to-top a:hover { background:#b28558; transform: translateY(-2px); }
+
+/* Responsiveness */
+@media (max-width: 992px) {
+  .footer-subscribe .form-control { width: 100%; max-width: 360px; }
+  .site-footer { padding: 38px 18px 24px; }
+}
+
+@media (max-width: 576px) {
+  .footer-subscribe { flex-direction: column; align-items: stretch; }
+  .footer-subscribe .form-control { width: 100%; }
+  .footer-social { justify-content:center; }
+  .footer-bottom { padding-top: 12px; }
+}

@@ -1,0 +1,109 @@
+.user-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.custom-navbar{
+  background-color: #fff;
+}
+
+.nav-icons .user-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 5px;
+  color: #0a0a0a;
+  font-family: "Playfair Display", serif;
+  font-size: 30px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  text-decoration: none;
+}
+
+.nav-icons .user-trigger:hover {
+  color: #d6a77a;
+}
+
+#searchToggle i {
+  font-size: 25px; 
+}
+
+.nav-icons .user-trigger > span,
+.nav-icons .user-trigger .bi-chevron-down {
+  display: none;
+}
+
+.user-trigger-icon {
+  font-size: 1rem;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  background: #f3ece3;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 2000;
+  display: none;
+  width: 210px;
+  padding: 7px;
+  background: #fff;
+  border: 1px solid #eadfd6;
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(71, 58, 31, 0.18);
+}
+
+.user-menu.open .user-dropdown {
+  display: block;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  color: #473a1f;
+  font-family: "Playfair Display", serif;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  text-decoration: none;
+  text-transform: none;
+}
+
+.user-dropdown a:hover,
+.user-dropdown button:hover {
+  color: #91766e;
+  background: #f3ece3;
+}
+
+.user-dropdown i {
+  width: 16px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .user-dropdown {
+    right: -38px;
+  }
+
+  .user-avatar {
+    width: 23px;
+    height: 23px;
+  }
+}

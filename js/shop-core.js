@@ -1,5 +1,5 @@
 /* =========================================================
-   1. CONFIGURACIÓN DE PRECIOS Y CUPONES
+   CONFIGURACIÓN DE PRECIOS
    ========================================================= */
 const CONFIG_PRECIOS = {
   DESCUENTO_REGISTRO: 0.10, // 10% para usuario registrado
@@ -12,9 +12,9 @@ const CONFIG_PRECIOS = {
 };
 
 /* =========================================================
-   2. ALMACENAMIENTO LOCAL Y SESIÓN
+   ALMACENAMIENTO
    ========================================================= */
-function obtenerCarritoLocal() {
+function obtenerCarrito() {
   try {
     return JSON.parse(localStorage.getItem("cart")) || [];
   } catch {
@@ -22,17 +22,22 @@ function obtenerCarritoLocal() {
   }
 }
 
-function guardarCarritoLocal(carrito) {
+function guardarCarrito(carrito) {
   localStorage.setItem("cart", JSON.stringify(carrito));
+  renderizarCarrito();
   actualizarContadorCarrito();
 }
 
-function obtenerUsuarioActivo() {
+function obtenerProductos() {
   try {
-    return JSON.parse(localStorage.getItem("usuarioActivo")) || null;
+    return JSON.parse(localStorage.getItem("products")) || [];
   } catch {
-    return null;
+    return [];
   }
+}
+
+function guardarProductos(productos) {
+  localStorage.setItem("products", JSON.stringify(productos));
 }
 
 function obtenerCuponAplicado() {
@@ -51,55 +56,70 @@ function guardarCuponAplicado(cupon) {
   }
 }
 
+/* ===== NUEVO: usuario activo (usado por profile.js y por el checkout) ===== */
+function obtenerUsuarioActivo() {
+  try {
+    return JSON.parse(localStorage.getItem("usuarioActivo")) || null;
+  } catch {
+    return null;
+  }
+}
+
+/* ===== NUEVO: puente carrito -> pago ===== */
+function obtenerCompraPendiente() {
+  try {
+    return JSON.parse(localStorage.getItem("compraPendiente")) || null;
+  } catch {
+    return null;
+  }
+}
+
 function guardarCompraPendiente(compra) {
   localStorage.setItem("compraPendiente", JSON.stringify(compra));
 }
 
-/* =========================================================
-   3. CONEXIÓN CON API (api.js / BACKEND)
-   ========================================================= */
+function eliminarCompraPendiente() {
+  localStorage.removeItem("compraPendiente");
+}
 
-// Obtiene el catálogo actualizado desde la API
-async function obtenerProductosAPI() {
+/* ===== NUEVO: pedidos (historial de compras) ===== */
+function obtenerTodosPedidos() {
   try {
-    if (typeof API !== "undefined" && typeof API.obtenerProductos === "function") {
-      return await API.obtenerProductos();
-    }
-    const respuesta = await fetch("/api/productos");
-    if (!respuesta.ok) throw new Error("Error al obtener productos");
-    return await respuesta.json();
-  } catch (error) {
-    console.warn("No se pudo conectar con la API, usando productos en localStorage:", error);
-    try {
-      return JSON.parse(localStorage.getItem("products")) || [];
-    } catch {
-      return [];
-    }
+    return JSON.parse(localStorage.getItem("pedidos")) || [];
+  } catch {
+    return [];
   }
 }
 
-// Procesa o valida la compra directamente con el endpoint de pedido/checkout en la API
-async function enviarPedidoAPI(datosPedido) {
-  try {
-    if (typeof API !== "undefined" && typeof API.crearPedido === "function") {
-      return await API.crearPedido(datosPedido);
-    }
-    const respuesta = await fetch("/api/pedido", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(datosPedido)
-    });
-    return await respuesta.json();
-  } catch (error) {
-    console.error("Error enviando el pedido a la API:", error);
-    throw error;
-  }
+function guardarPedido(pedido) {
+  const todos = obtenerTodosPedidos();
+  todos.push(pedido);
+  localStorage.setItem("pedidos", JSON.stringify(todos));
+}
+
+function obtenerPedidos(usuarioId) {
+  return obtenerTodosPedidos()
+    .filter((pedido) => String(pedido.usuarioId) === String(usuarioId))
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+}
+
+function generarIdPedido() {
+  const fecha = Date.now().toString(36).toUpperCase();
+  const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `PED-${fecha}-${azar}`;
+}
+
+function etiquetaMetodoPago(metodo) {
+  const etiquetas = {
+    nequi: "Nequi",
+    transferencia: "Transferencia bancaria",
+    contraentrega: "Pago contraentrega"
+  };
+  return etiquetas[metodo] || "Otro";
 }
 
 /* =========================================================
-   4. UTILIDADES Y FORMATEO
+   UTILIDADES
    ========================================================= */
 function normalizarCantidad(cantidad) {
   return Math.max(0, Number(cantidad) || 0);
@@ -119,11 +139,15 @@ function formatearPrecio(valor) {
 }
 
 function esUsuarioRegistrado() {
-  return Boolean(obtenerUsuarioActivo());
+  try {
+    return Boolean(JSON.parse(localStorage.getItem("usuarioActivo")));
+  } catch {
+    return false;
+  }
 }
 
 /* =========================================================
-   5. MANEJO DE PRODUCTOS Y STOCK
+   PRODUCTOS / STOCK
    ========================================================= */
 function normalizarProducto(producto) {
   const stockPorTallaOriginal =
@@ -149,42 +173,45 @@ function normalizarProducto(producto) {
 
   const stock = esAccesorio
     ? normalizarCantidad(producto.stock)
-    : Object.values(stockPorTalla).reduce((total, cantidad) => total + cantidad, 0);
-
-  const imagenes =
-    Array.isArray(producto.images) && producto.images.length > 0
-      ? producto.images
-      : producto.image
-        ? [producto.image]
-        : ["https://via.placeholder.com/700x900?text=Producto"];
+    : Object.values(stockPorTalla).reduce(
+        (total, cantidad) => total + cantidad,
+        0
+      );
 
   return {
     ...producto,
     id: producto.id || producto.name,
-    images: imagenes,
-    image: imagenes[0],
     stockBySize: stockPorTalla,
     stock,
     esAccesorio
   };
 }
 
-function encontrarProductoParaItem(item, productos) {
+function encontrarProductoParaItem(item, productos = obtenerProductos()) {
   return productos
     .map(normalizarProducto)
     .find((producto) => {
-      const coincideId = item.productId && String(producto.id) === String(item.productId);
-      const coincideProductoAnterior = !item.productId && producto.name === item.name;
+      const coincideId =
+        item.productId &&
+        String(producto.id) === String(item.productId);
+
+      const coincideProductoAnterior =
+        !item.productId &&
+        producto.name === item.name;
+
       return coincideId || coincideProductoAnterior;
     });
 }
 
-function obtenerStockDisponibleItem(item, productos, carrito = obtenerCarritoLocal()) {
-  const producto = encontrarProductoParaItem(item, productos);
+function obtenerStockDisponibleItem(item, carrito = obtenerCarrito()) {
+  const producto = encontrarProductoParaItem(item);
 
-  if (!producto) return 0;
+  if (!producto) {
+    return 0;
+  }
 
   const talla = item.size || "Única";
+
   const stockDeLaTalla = producto.esAccesorio
     ? producto.stock
     : normalizarCantidad(producto.stockBySize[talla]);
@@ -204,7 +231,7 @@ function obtenerStockDisponibleItem(item, productos, carrito = obtenerCarritoLoc
 }
 
 /* =========================================================
-   6. CÁLCULOS Y PRECIOS
+   PRICING: subtotal, descuento, envío, cupón, total
    ========================================================= */
 function calcularSubtotal(carrito) {
   return carrito.reduce((total, item) => {
@@ -272,35 +299,34 @@ function mensajeEnvioGratis(subtotal) {
 }
 
 /* =========================================================
-   7. GESTIÓN DE CANTIDADES
+   CANTIDAD
    ========================================================= */
-async function actualizarCantidad(clave, cambio) {
-  const carrito = obtenerCarritoLocal();
+function actualizarCantidad(clave, cambio) {
+  const carrito = obtenerCarrito();
   const item = carrito.find((producto) => producto.key === clave);
 
   if (!item) return;
 
   const nuevaCantidad = normalizarCantidad(item.quantity) + cambio;
-  await aplicarNuevaCantidad(item, carrito, nuevaCantidad);
+  aplicarNuevaCantidad(item, carrito, nuevaCantidad);
 }
 
-async function establecerCantidad(clave, cantidadDeseada) {
-  const carrito = obtenerCarritoLocal();
+function establecerCantidad(clave, cantidadDeseada) {
+  const carrito = obtenerCarrito();
   const item = carrito.find((producto) => producto.key === clave);
 
   if (!item) return;
 
-  await aplicarNuevaCantidad(item, carrito, normalizarCantidad(cantidadDeseada));
+  aplicarNuevaCantidad(item, carrito, normalizarCantidad(cantidadDeseada));
 }
 
-async function aplicarNuevaCantidad(item, carrito, nuevaCantidad) {
+function aplicarNuevaCantidad(item, carrito, nuevaCantidad) {
   if (nuevaCantidad <= 0) {
     eliminarDelCarrito(item.key);
     return;
   }
 
-  const productos = await obtenerProductosAPI();
-  const disponible = obtenerStockDisponibleItem(item, productos, carrito);
+  const disponible = obtenerStockDisponibleItem(item, carrito);
 
   if (nuevaCantidad > disponible) {
     alert(
@@ -308,24 +334,26 @@ async function aplicarNuevaCantidad(item, carrito, nuevaCantidad) {
         disponible === 1 ? "" : "s"
       } para esta talla.`
     );
-    await renderizarCarrito();
+    renderizarCarrito();
     return;
   }
 
   item.quantity = nuevaCantidad;
-  guardarCarritoLocal(carrito);
-  await renderizarCarrito();
+  guardarCarrito(carrito);
 }
 
 function eliminarDelCarrito(clave) {
-  const carrito = obtenerCarritoLocal().filter((item) => item.key !== clave);
-  guardarCarritoLocal(carrito);
-  renderizarCarrito();
+  const carrito = obtenerCarrito().filter((item) => item.key !== clave);
+  guardarCarrito(carrito);
 }
 
 function actualizarContadorCarrito() {
-  const carrito = obtenerCarritoLocal();
-  const totalItems = carrito.reduce((total, item) => total + normalizarCantidad(item.quantity), 0);
+  const carrito = obtenerCarrito();
+
+  const totalItems = carrito.reduce((total, item) => {
+    return total + normalizarCantidad(item.quantity);
+  }, 0);
+
   const cartCount = document.getElementById("cartCount");
 
   if (!cartCount) return;
@@ -335,11 +363,11 @@ function actualizarContadorCarrito() {
 }
 
 /* =========================================================
-   8. RENDERIZADO VISUAL DEL CARRITO EN EL DOM
+   RENDER: ítems del carrito
    ========================================================= */
-function crearItemCarrito(item, productos, carrito) {
-  const producto = encontrarProductoParaItem(item, productos);
-  const disponible = obtenerStockDisponibleItem(item, productos, carrito);
+function crearItemCarrito(item, carrito) {
+  const producto = encontrarProductoParaItem(item);
+  const disponible = obtenerStockDisponibleItem(item, carrito);
   const cantidad = normalizarCantidad(item.quantity);
   const subtotal = Number(item.price || 0) * cantidad;
   const talla = item.size || "Única";
@@ -351,12 +379,10 @@ function crearItemCarrito(item, productos, carrito) {
     <div class="cart-item-img">
       <img
         src="${escaparHTML(
-          (producto && producto.image) ||
-          item.image ||
-          "https://via.placeholder.com/110x110?text=Producto"
+          item.image || "https://via.placeholder.com/110x110?text=Producto"
         )}"
         alt="${escaparHTML(item.name || "Producto")}"
-      > 
+      >
     </div>
 
     <div class="cart-item-info">
@@ -440,6 +466,9 @@ function crearItemCarrito(item, productos, carrito) {
   return elemento;
 }
 
+/* =========================================================
+   RENDER: resumen de compra
+   ========================================================= */
 function renderizarResumen(carrito) {
   const subtotal = calcularSubtotal(carrito);
   const descuentoRegistro = calcularDescuentoRegistro(subtotal);
@@ -488,6 +517,7 @@ function renderizarResumen(carrito) {
 
   document.getElementById("cartTotal").textContent = formatearPrecio(total);
 
+  // Estado visual del input/botón de cupón
   const couponInput = document.getElementById("couponInput");
   const btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
   const btnApplyCoupon = document.getElementById("btnApplyCoupon");
@@ -504,8 +534,8 @@ function renderizarResumen(carrito) {
   }
 }
 
-async function renderizarCarrito() {
-  const carrito = obtenerCarritoLocal();
+function renderizarCarrito() {
+  const carrito = obtenerCarrito();
   const contenedor = document.getElementById("cartItemsContainer");
   const resumen = document.getElementById("cartSummary");
 
@@ -527,17 +557,15 @@ async function renderizarCarrito() {
 
   resumen.style.display = "block";
 
-  const productos = await obtenerProductosAPI();
-
   carrito.forEach((item) => {
-    contenedor.appendChild(crearItemCarrito(item, productos, carrito));
+    contenedor.appendChild(crearItemCarrito(item, carrito));
   });
 
   renderizarResumen(carrito);
 }
 
 /* =========================================================
-   9. VALIDACIÓN Y PROCESO DE CHECKOUT CON API
+   VALIDACIÓN Y DESCUENTO DE STOCK (COMPRA)
    ========================================================= */
 function validarCarritoAntesDeCompra(carrito, productos) {
   const errores = [];
@@ -568,8 +596,80 @@ function validarCarritoAntesDeCompra(carrito, productos) {
   return errores;
 }
 
-async function finalizarCompra() {
-  const carrito = obtenerCarritoLocal();
+function descontarStockDeCompra(carrito, productos) {
+  return productos.map((productoOriginal) => {
+    const producto = normalizarProducto(productoOriginal);
+
+    const itemRelacionado = carrito.find((item) => {
+      const coincideId =
+        item.productId && String(item.productId) === String(producto.id);
+      const coincideProductoAnterior =
+        !item.productId && item.name === producto.name;
+      return coincideId || coincideProductoAnterior;
+    });
+
+    if (!itemRelacionado) return productoOriginal;
+
+    if (producto.esAccesorio) {
+      const cantidadComprada = carrito
+        .filter((item) => {
+          return (
+            String(item.productId || "") === String(producto.id) ||
+            (!item.productId && item.name === producto.name)
+          );
+        })
+        .reduce((total, item) => total + normalizarCantidad(item.quantity), 0);
+
+      return {
+        ...productoOriginal,
+        stock: Math.max(0, producto.stock - cantidadComprada),
+        stockBySize: {},
+        sizes: []
+      };
+    }
+
+    const nuevoStockPorTalla = { ...producto.stockBySize };
+
+    carrito.forEach((item) => {
+      const coincideId =
+        item.productId && String(item.productId) === String(producto.id);
+      const coincideProductoAnterior =
+        !item.productId && item.name === producto.name;
+
+      if (!coincideId && !coincideProductoAnterior) return;
+
+      const talla = item.size || "Única";
+
+      nuevoStockPorTalla[talla] = Math.max(
+        0,
+        normalizarCantidad(nuevoStockPorTalla[talla]) -
+          normalizarCantidad(item.quantity)
+      );
+    });
+
+    const nuevoStockGeneral = Object.values(nuevoStockPorTalla).reduce(
+      (total, cantidad) => total + normalizarCantidad(cantidad),
+      0
+    );
+
+    return {
+      ...productoOriginal,
+      stockBySize: nuevoStockPorTalla,
+      sizes: Object.keys(nuevoStockPorTalla),
+      stock: nuevoStockGeneral
+    };
+  });
+}
+
+/* =========================================================
+   CHECKOUT -> PAGO
+   MODIFICADO: ya no descuenta stock ni finaliza la compra aquí.
+   Solo valida, guarda un "compraPendiente" y redirige a payment.html.
+   El stock se descuenta y el pedido se crea en pago.js, una vez
+   confirmado el método de pago.
+   ========================================================= */
+function finalizarCompra() {
+  const carrito = obtenerCarrito();
 
   if (carrito.length === 0) {
     alert("Tu carrito está vacío.");
@@ -583,15 +683,14 @@ async function finalizarCompra() {
     return;
   }
 
-  // Consulta el stock actualizado directamente de la API antes de proceder
-  const productos = await obtenerProductosAPI();
+  const productos = obtenerProductos();
   const errores = validarCarritoAntesDeCompra(carrito, productos);
 
   if (errores.length > 0) {
     alert(
       `No se puede finalizar la compra porque el stock cambió:\n\n${errores.join("\n")}`
     );
-    await renderizarCarrito();
+    renderizarCarrito();
     return;
   }
 
@@ -602,8 +701,7 @@ async function finalizarCompra() {
   const envio = calcularEnvio(subtotal);
   const total = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
 
-  const compraPendiente = {
-    usuarioId: usuarioActivo.id || usuarioActivo.email,
+  guardarCompraPendiente({
     items: carrito,
     subtotal,
     descuentoRegistro,
@@ -611,15 +709,13 @@ async function finalizarCompra() {
     descuentoCupon,
     envio,
     total
-  };
-
-  guardarCompraPendiente(compraPendiente);
+  });
 
   window.location.href = "./payment.html";
 }
 
 /* =========================================================
-   10. EVENTOS GLOBALES E INICIALIZACIÓN
+   EVENTOS GLOBALES
    ========================================================= */
 const btnCheckout = document.getElementById("btnCheckout");
 if (btnCheckout) {
@@ -632,7 +728,7 @@ const couponMessage = document.getElementById("couponMessage");
 const btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
 
 if (btnApplyCoupon && couponInput) {
-  btnApplyCoupon.addEventListener("click", async () => {
+  btnApplyCoupon.addEventListener("click", () => {
     const resultado = aplicarCupon(couponInput.value);
 
     if (couponMessage) {
@@ -641,26 +737,24 @@ if (btnApplyCoupon && couponInput) {
       couponMessage.classList.toggle("coupon-message-success", resultado.valido);
     }
 
-    await renderizarCarrito();
+    renderizarCarrito();
   });
 }
 
 if (btnRemoveCoupon) {
-  btnRemoveCoupon.addEventListener("click", async () => {
+  btnRemoveCoupon.addEventListener("click", () => {
     quitarCupon();
     if (couponMessage) {
       couponMessage.textContent = "";
       couponMessage.classList.remove("coupon-message-error", "coupon-message-success");
     }
-    await renderizarCarrito();
+    renderizarCarrito();
   });
 }
 
-// Inicialización
 renderizarCarrito();
 actualizarContadorCarrito();
 
-// Funciones globales para invocación externa
 window.updateQuantity = actualizarCantidad;
 window.setQuantity = establecerCantidad;
 window.removeFromCart = eliminarDelCarrito;

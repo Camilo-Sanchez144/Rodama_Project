@@ -1,67 +1,406 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RODAMA</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="./css/acerca-de-nosotros.css" />
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-<body>
-  <header>
+    <link rel="stylesheet" href="css/acerca-de-nosotros.css" />
+    <link rel="stylesheet" href="css/user-menu.css" />
+    <link rel="stylesheet" href="css/explora.css" />
+    <link rel="stylesheet" href="css/footer-fixes.css" />
+  </head>
 
-    <nav class="custom-navbar">
-    <div class="nav-container">
-      <img src="../img/RODAMA_LOGO.png" alt="RODAMA" class="logo-img" />
+  <body id="top">
+    <header>
+      <nav class="custom-navbar">
+        <div class="nav-container">
+          <img
+            src="img/RODAMA_LOGO.png"
+            alt="RODAMA"
+            class="logo-img"
+          />
 
-      <ul class="nav-links">
-        <li><a href="../index.html">Tienda</a></li>
-        <li><a href="../html/productos.html">Colecciones</a></li>
-        <li>
-          <a href="../html/acerca-de-nosotros.html">Acerca de nosotros</a>
-        </li>
-        <li><a href="../html/contacto.html">Contacto</a></li>
-      </ul>
+          <ul class="nav-links">
+            <li><a href="index.html">Explora</a></li>
+            <li><a href="html/productos.html">Colecciones</a></li>
+            <li>
+              <a href="html/acerca-de-nosotros.html">
+                Acerca de nosotros
+              </a>
+            </li>
+            <li><a href="html/contacto.html">Contacto</a></li>
+          </ul>
 
-      <div class="nav-icons">
-        <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos..." />
-        <a href="#" id="searchToggle" title="Buscar"><i class="bi bi-search"></i></a>
-        <a href="/html/login-admin.html" id="adminAccess">
-          <i class="bi bi-person-fill"></i>
-        </a>
-         <a href="./cart.html" class="cart-icon" title="Carrito">
-          <i class="bi bi-bag"></i>
-          <span id="cartCount" class="cart-count">0</span>
-        </a>
+          <div class="nav-icons">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="Buscar productos..."
+            />
 
-        <button class="hamburger" id="hamburger" aria-label="Abrir menú">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+            <a href="#" id="searchToggle" title="Buscar">
+              <i class="bi bi-search"></i>
+            </a>
+
+            <a href="html/login.html" id="userAccess" title="Mi cuenta">
+              <i class="bi bi-person-fill"></i>
+            </a>
+
+            <a href="html/cart.html" class="cart-icon" title="Carrito">
+              <i class="bi bi-bag"></i>
+              <span id="cartCount" class="cart-count">0</span>
+            </a>
+
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Tienda</a></li>
+            <li><a href="html/productos.html">Colecciones</a></li>
+            <li>
+              <a href="html/acerca-de-nosotros.html">
+                Acerca de nosotros
+              </a>
+            </li>
+            <li><a href="html/contacto.html">Contacto</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main id="explora" class="mt-navbar">
+      <!-- HERO SLIDER -->
+      <section class="explora-hero">
+        <div id="exploraCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#exploraCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#exploraCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#exploraCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#exploraCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+          </div>
+
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="img/hero-01-nueva-coleccion.jpg" class="d-block w-100 hero-img hero-01" alt="Nueva colección" />
+              <div class="carousel-caption d-md-block hero-caption" role="group" aria-label="Nueva colección">
+                <div class="eyebrow">NUEVA</div>
+                <h1 class="hero-title">COLECCIÓN</h1>
+                <div class="divider" aria-hidden="true"></div>
+                <p class="lead hero-lead">Elegancia y estilo para cada momento.</p>
+                <a href="html/productos.html" class="btn btn-outline-hero" aria-label="Explorar Colección">
+                  <span class="btn-outline-label">EXPLORAR COLECCIÓN</span>
+                  <span class="btn-outline-arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="img/hero-02-accesorios-exclusivos.jpg" class="d-block w-100 hero-img hero-02" alt="Accesorios exclusivos" />
+              <div class="carousel-caption d-md-block hero-caption" role="group" aria-label="Accesorios exclusivos">
+                <div class="eyebrow">ACCESORIOS</div>
+                <h1 class="hero-title">EXCLUSIVOS</h1>
+                <div class="divider" aria-hidden="true"></div>
+                <p class="lead hero-lead">Complementa cada look con piezas únicas y sofisticadas.</p>
+                <a href="html/productos.html" class="btn btn-outline-hero" aria-label="Descubrir Accesorios">
+                  <span class="btn-outline-label">DESCUBRIR ACCESORIOS</span>
+                  <span class="btn-outline-arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="img/hero-03-envio-gratis.jpg" class="d-block w-100 hero-img hero-03" alt="Envío gratis" />
+              <div class="carousel-caption d-md-block hero-caption" role="group" aria-label="Envío gratis">
+                <div class="eyebrow">ENVÍO</div>
+                <h1 class="hero-title">GRATIS A TODO COLOMBIA</h1>
+                <div class="divider" aria-hidden="true"></div>
+                <p class="lead hero-lead">En compras superiores a $200.000 COP.</p>
+                <a href="html/productos.html" class="btn btn-outline-hero" aria-label="Comprar Ahora">
+                  <span class="btn-outline-label">COMPRAR AHORA</span>
+                  <span class="btn-outline-arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <img src="img/hero-04-conoce-rodama.jpg" class="d-block w-100 hero-img hero-04" alt="Conoce RODAMA" />
+              <div class="carousel-caption d-md-block hero-caption" role="group" aria-label="Conoce RODAMA">
+                <div class="eyebrow">CONOCE</div>
+                <h1 class="hero-title">RODAMA</h1>
+                <div class="divider" aria-hidden="true"></div>
+                <p class="lead hero-lead">Descubre nuestra historia y el compromiso con la moda femenina.</p>
+                <a href="html/acerca-de-nosotros.html" class="btn btn-outline-hero" aria-label="Conócenos">
+                  <span class="btn-outline-label">CONÓCENOS</span>
+                  <span class="btn-outline-arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#exploraCarousel" data-bs-slide="prev" aria-label="Anterior">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#exploraCarousel" data-bs-slide="next" aria-label="Siguiente">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- PROMESA -->
+      <section class="container py-5">
+        <div class="row g-4 promise-cards">
+          <div class="col-6 col-md-3">
+            <div class="card promise-card h-100">
+              <div class="card-body text-center">
+                <div class="icon-wrap mb-3">
+                  <i class="bi bi-truck" aria-hidden="true"></i>
+                </div>
+                <h5 class="card-title">Envíos Nacionales</h5>
+                <p class="card-text small">Recibe tus pedidos en cualquier lugar de Colombia.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="card promise-card h-100">
+              <div class="card-body text-center">
+                <div class="icon-wrap mb-3 icon-premium">
+                  <i class="bi bi-award-fill" aria-hidden="true"></i>
+                </div>
+                <h5 class="card-title">Calidad Premium</h5>
+                <p class="card-text small">Prendas confeccionadas con materiales cuidadosamente seleccionados.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="card promise-card h-100">
+              <div class="card-body text-center">
+                <div class="icon-wrap mb-3">
+                  <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                </div>
+                <h5 class="card-title">Cambios Fáciles</h5>
+                <p class="card-text small">Realiza cambios de forma simple y sin complicaciones.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="card promise-card h-100">
+              <div class="card-body text-center">
+                <div class="icon-wrap mb-3">
+                  <i class="bi bi-chat-dots" aria-hidden="true"></i>
+                </div>
+                <h5 class="card-title">Atención Personalizada</h5>
+                <p class="card-text small">Te acompañamos antes, durante y después de tu compra.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATEGORÍAS -->
+      <section class="py-5 bg-white">
+        <div class="container">
+          <h2 class="section-title text-center mb-4">Nuestras categorías</h2>
+
+          <div class="categories-list">
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-blusas.jpg" alt="Blusas" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Blusas</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-camisas.jpg" alt="Camisas" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Camisas</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-vestidos.jpg" alt="Vestidos" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Vestidos</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-faldas.jpg" alt="Faldas" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Faldas</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-pantalones.jpg" alt="Pantalones" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Pantalones</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center">
+              <img src="img/categoria-sets.jpg" alt="Sets" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Sets</div>
+            </a>
+
+            <a href="html/productos.html" class="category-item text-center category-accessories">
+              <img src="img/categoria-accesorios.jpg" alt="Accesorios" class="img-fluid rounded-circle category-img" />
+              <div class="category-name mt-2">Accesorios</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIOS -->
+      <section class="py-5">
+        <div class="container">
+          <h2 class="section-title text-center mb-4">Lo que opinan nuestras clientas</h2>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="testimonial-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <img src="img/testimonio-01.jpg" alt="María Fernanda" class="rounded-circle testimonial-photo" />
+                  <div>
+                    <strong>María Fernanda</strong>
+                    <div class="text-stars">
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="small m-0">"Las prendas superaron mis expectativas. La calidad y el diseño son increíbles."</p>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="testimonial-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <img src="img/testimonio-02.jpg" alt="Valentina Gómez" class="rounded-circle testimonial-photo" />
+                  <div>
+                    <strong>Valentina Gómez</strong>
+                    <div class="text-stars">
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="small m-0">"Comprar fue muy fácil y el envío llegó rápidamente. Sin duda volvería a elegir RODAMA."</p>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="testimonial-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <img src="img/testimonio-03.jpg" alt="Laura Sánchez" class="rounded-circle testimonial-photo" />
+                  <div>
+                    <strong>Laura Sánchez</strong>
+                    <div class="text-stars">
+                      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="small m-0">"Una experiencia de compra excelente. Los diseños son elegantes y muy cómodos."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REDES -->
+      <section class="py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title text-center mb-4">Síguenos en nuestras redes</h2>
+          <div class="row justify-content-center">
+            <div class="col-10">
+              <img src="img/redes-sociales-banner.jpg" alt="Redes sociales" class="img-fluid redes-banner" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <a href="https://wa.me/573243690995" target="_blank" id="whatsappButton" class="whatsapp-float" data-bs-toggle="tooltip" data-bs-placement="left" title="¿Necesitas ayuda? Escríbenos.">
+      <i class="bi bi-whatsapp"></i>
+    </a>
+
+    <footer class="footer">
+      <div class="footer-container">
+
+        <div class="footer-brand">
+          <img src="img/RODAMA_LOGO.png" alt="Fleur" class="footer-logo">
+
+          <p class="footer-text">
+            Si puedes soñarlo, puedes hacerlo
+          </p>
+
+          <form class="subscribe-form">
+            <input
+              type="email"
+              placeholder="Email Address"
+            />
+
+            <button type="submit">
+              SUBSCRIBIR
+            </button>
+          </form>
+        </div>
+
+        <div class="footer-contact">
+          <p>+57 323 2233251</p>
+          <p>rodama@gmail.com</p>
+        </div>
+
+        <div class="footer-links">
+          <a href="./html/contacto.html">CONTACTANOS</a>
+          <a href="./html/productos.html">HACER UN PEDIDO</a>
+          <a href="#">ENVÍO</a>
+          <a href="#">DEVOLUCIONES</a>
+          <a href="#">FAQ</a>
+          <a href="#">VER GUIA</a>
+        </div>
+
+        <div class="footer-links">
+          <a href="./html/acerca-de-nosotros.html">ACERCA DE NOSOTROS</a>
+          <a href="#">TRABAJA CON NOSOTROS</a>
+          <a href="#">POLITICA DE PRIVACIDAD</a>
+          <a href="#">TERMINOS Y CONDICIONES</a>
+          <a href="#">CONSULTAS DE PRENSA</a>
+        </div>
+
       </div>
-    </div>
+      <div class="back-to-top">
+        <a href="#top">
+          <i class="bi bi-arrow-up"></i>
+          Volver arriba
+        </a>
+      </div>
+      <div class="footer-bottom">
+        <span>© Rodama 2026</span>
+        <div class="social-icons">
+          <a href="https://www.instagram.com/"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.x.com/"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://www.facebook.com/"><i class="bi bi-facebook"></i></a>
+        </div>
+      </div>
 
-    <div class="mobile-menu" id="mobileMenu">
-      <ul>
-        <li><a href="../index.html">Tienda</a></li>
-        <li><a href="../html/productos.html">Colecciones</a></li>
-        <li>
-          <a href="../html/acerca-de-nosotros.html">Acerca de nosotros</a>
-        </li>
-        <li><a href="../html/contacto.html">Contacto</a></li>
-      </ul>
-    </div>
-  </nav>
-  </header>
-  <script src="/js/script.js"></script>
-</body>
-
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+  </body>
 </html>
