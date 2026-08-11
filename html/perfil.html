@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Mi perfil | RODAMA</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -158,11 +159,6 @@
         <aside class="profile-card profile-actions">
           <h2>Tu cuenta</h2>
 
-          <a href="#historial" id="historyLink">
-            <i class="bi bi-clock-history"></i>
-            Historial de pedidos
-          </a>
-
           <a href="#favoritos" id="favoritesLink">
             <i class="bi bi-heart"></i>
             Favoritos
@@ -232,16 +228,6 @@
         </form>
       </section>
 
-      <section id="historial" class="profile-card empty-section client-section">
-        <h2>Historial de pedidos</h2>
-
-        <i class="bi bi-bag-heart"></i>
-
-        <p>
-          Aún no tienes pedidos. Cuando realices una compra, aparecerá aquí.
-        </p>
-      </section>
-
       <section id="favoritos" class="profile-card client-section">
         <div class="section-heading">
           <div>
@@ -276,6 +262,16 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Infraestructura -->
+    <script src="../js/config/api.config.js"></script>
+    <script src="../js/utils/ui.utils.js"></script>
+    <script src="../js/utils/cart.store.js"></script>
+    <script src="../js/services/api.service.js"></script>
+    <script src="../js/services/usuario.service.js"></script>
+    <script src="../js/services/producto.service.js"></script>
+    <script src="../js/services/pedido.service.js"></script>
+    <script src="../js/services/auth.service.js"></script>
+    <!-- Página -->
     <script src="../js/script.js"></script>
     <script src="../js/perfil.js"></script>
   </body>

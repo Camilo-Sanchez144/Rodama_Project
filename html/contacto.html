@@ -11,11 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="../css/contacto.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
   <link rel="stylesheet" href="../css/user-menu.css">
-  <title>Document</title>
+
+  <title>Contacto | RODAMA</title>
 </head>
 
-<body>
+<body id="top">
 
   <nav class="custom-navbar">
     <div class="nav-container">
@@ -40,7 +42,7 @@
           <i class="bi bi-bag"></i>
           <span id="cartCount" class="cart-count">0</span>
         </a>
-        
+
         <button class="hamburger" id="hamburger" aria-label="Abrir menú">
           <span></span>
           <span></span>
@@ -60,50 +62,148 @@
       </ul>
     </div>
   </nav>
-  <main>
-    <section class="hero-contacto">
-      <div class="overlay"></div>
 
-      <div class="contenido-hero">
-        <h2>Estamos para ayudarte</h2>
-        <p>
-          Si tienes preguntas sobre nuestros productos, pedidos o cualquier
-          aspecto de la tienda, déjanos tu mensaje. Nuestro equipo te
-          responderá a la mayor brevedad posible.
-        </p>
+  <section class="hero-contacto">
+  <img src="../img/contacto.jpg" alt="Contacto RODAMA" class="hero-contacto-img" />
+  <div class="hero-contacto-overlay">
+    <h1>Tu estilo, nuestra inspiración</h1>
+    <p>Descubre una atención pensada para acompañarte en cada elección.</p>
+  </div>
+</section>
+
+  <main class="main-contacto">
+
+    <section class="topbar-contacto">
+      <div class="topbar-item">
+        <i class="bi bi-telephone"></i>
+        <span>+57 323 223 3251</span>
+      </div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-item">
+        <i class="bi bi-envelope"></i>
+        <span>contacto@rodama.com</span>
+      </div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-item">
+        <i class="bi bi-clock"></i>
+        <span>Lun - Vie, 8am - 6pm</span>
       </div>
     </section>
-    <section class="container my-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="card shadow border-1 p-4">
-            <h2 class="text-center mb-4">Contáctanos</h2>
+
+    <section class="container promesas-contacto">
+      <div class="row text-center g-4">
+        <div class="col-6 col-md-4">
+          <div class="promesa-item">
+            <i class="bi bi-clock"></i>
+            <h5>Respuesta rápida</h5>
+            <p>Respondemos en menos de 24 horas.</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="promesa-item">
+            <i class="bi bi-shield-check"></i>
+            <h5>Información segura</h5>
+            <p>Tus datos están protegidos.</p>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="promesa-item">
+            <i class="bi bi-chat-dots"></i>
+            <h5>Atención personalizada</h5>
+            <p>Te ayudamos en todo el proceso.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container contacto-main">
+      <div class="row g-5 align-items-start">
+
+        <div class="col-12 col-lg-5">
+          <h2 class="mb-3">Contáctanos</h2>
+          <p class="lead mb-4">
+            Estamos aquí para ayudarte. Escríbenos y resolveremos tus 
+            dudas sobre productos, pedidos o cualquier otra consulta.
+          </p>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+              <h6>Correo electrónico</h6>
+              <p>contacto@rodama.com</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="bi bi-telephone"></i>
+            </div>
+            <div>
+              <h6>Teléfono</h6>
+              <p>+57 300 000 0000</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div>
+              <h6>Dirección</h6>
+              <p>Barranquilla, Atlántico, Colombia</p>
+            </div>
+          </div>
+
+          <div class="social-follow">
+            <span>Síguenos:</span>
+            <a href="https://www.facebook.com/" class="social-link" aria-label="Facebook"><i
+                class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com/" class="social-link" aria-label="Instagram"><i
+                class="bi bi-instagram"></i></a>
+            <a href="https://x.com/" class="social-link" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+            <a href="https://www.linkedin.com/" class="social-link" aria-label="LinkedIn"><i
+                class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+          <div class="card form-card">
+            <h4 class="mb-4">Envíanos un mensaje</h4>
 
             <form action="https://formspree.io/f/xlgkybjj" method="POST" id="formContacto">
-              <div class="mb-3">
-                <input type="hidden" name="_subject" value="Información de contacto del usuario" />
-                <label for="nombre" class="form-label">Nombre Completo</label>
-                <input name="name" type="text" class="form-control" id="nombre" placeholder="Ingresa tu nombre" />
-              </div>
-              <div class="mb-3">
-                <label for="correo" class="form-label">Correo Electrónico</label>
-                <input name="email" type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com" />
+              <input type="hidden" name="_subject" value="Información de contacto del usuario" />
+
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label for="nombre" class="form-label">Nombre completo</label>
+                  <input name="name" type="text" class="form-control" id="nombre" placeholder="Ingresa tu nombre" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="correo" class="form-label">Correo electrónico</label>
+                  <input name="email" type="email" class="form-control" id="correo"
+                    placeholder="ejemplo@correo.com" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="telefono" class="form-label">Teléfono</label>
+                  <input name="phone" type="number" class="form-control" id="telefono" placeholder="3001234567" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label for="asunto" class="form-label">Asunto</label>
+                  <input name="subject" type="text" class="form-control" id="asunto"
+                    placeholder="¿Sobre qué es tu mensaje?" />
+                </div>
+                <div class="col-12">
+                  <label for="mensaje" class="form-label">Mensaje</label>
+                  <textarea name="message" class="form-control" id="mensaje" rows="5"
+                    placeholder="Escribe tu mensaje aquí..."></textarea>
+                </div>
               </div>
 
-              <div class="mb-3">
-                <label for="telefono" class="form-label">Teléfono</label>
-                <input name="phone" type="number" class="form-control" id="telefono" placeholder="3001234567" />
-              </div>
-
-              <div class="mb-4">
-                <label for="mensaje" class="form-label">Mensaje</label>
-                <textarea name="message" class="form-control" id="mensaje" rows="5"
-                  placeholder="Escribe tu mensaje aquí..."></textarea>
-              </div>
-
-              <div class="text-center">
+              <div class="mt-4 text-center text-md-start">
                 <button type="submit" class="btn btn-contacto">
-                  Enviar Mensaje
+                  Enviar mensaje <i class="bi bi-send ms-2"></i>
                 </button>
               </div>
             </form>
@@ -111,71 +211,87 @@
         </div>
       </div>
     </section>
+
+    <section class="mapa-contacto">
+      <iframe title="Ubicación RODAMA"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31351.0!2d-74.7813!3d10.9878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDU5JzE2LjEiTiA3NMKwNDYnNTIuNyJX!5e0!3m2!1ses!2sco!4v0000000000000"
+        width="100%" height="380" style="border:0" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </section>
   </main>
-    <footer class="footer">
-      <div class="footer-container">
 
-        <div class="footer-brand">
-          <img src="/img/RODAMA_LOGO.png" alt="Fleur" class="footer-logo">
+  <footer class="footer">
+    <div class="footer-container">
 
-          <p class="footer-text">
-            Si puedes soñarlo, puedes hacerlo
-          </p>
+      <div class="footer-brand">
+        <img src="../img/RODAMA_LOGO.png" alt="Fleur" class="footer-logo">
 
-          <form class="subscribe-form">
-            <input
-              type="email"
-              placeholder="Email Address"
-            />
+        <p class="footer-text">
+          Si puedes soñarlo, puedes hacerlo
+        </p>
 
-            <button type="submit">
-              SUBSCRIBIR
-            </button>
-          </form>
-        </div>
+        <form class="subscribe-form">
+          <input
+            type="email"
+            placeholder="Email Address"
+          />
 
-        <div class="footer-contact">
-          <p>+57 323 2233251</p>
-          <p>rodama@gmail.com</p>
-        </div>
-
-        <div class="footer-links">
-          <a href="./html/contacto.html">CONTACTANOS</a>
-          <a href="./html/productos.html">HACER UN PEDIDO</a>
-          <a href="#">ENVÍO</a>
-          <a href="#">DEVOLUCIONES</a>
-          <a href="#">FAQ</a>
-          <a href="#">VER GUIA</a>
-        </div>
-
-        <div class="footer-links">
-          <a href="./html/acerca-de-nosotros.html">ACERCA DE NOSOTROS</a>
-          <a href="#">TRABAJA CON NOSOTROS</a>
-          <a href="#">POLITICA DE PRIVACIDAD</a>
-          <a href="#">TERMINOS Y CONDICIONES</a>
-          <a href="#">CONSULTAS DE PRENSA</a>
-        </div>
-
-      </div>
-      <div class="back-to-top">
-        <a href="#top">
-          <i class="bi bi-arrow-up"></i>
-          Volver arriba
-        </a>
-      </div>
-      <div class="footer-bottom">
-        <span>© Rodama 2026</span>
-        <div class="social-icons">
-          <a href="https://www.instagram.com/"><i class="bi bi-instagram"></i></a>
-          <a href="https://www.x.com/"><i class="bi bi-twitter-x"></i></a>
-          <a href="https://www.facebook.com/"><i class="bi bi-facebook"></i></a>
-        </div>
+          <button type="submit">
+            SUBSCRIBIR
+          </button>
+        </form>
       </div>
 
-    </footer>
+      <div class="footer-contact">
+        <p>+57 323 2233251</p>
+        <p>rodama@gmail.com</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="contacto.html">CONTACTANOS</a>
+        <a href="productos.html">HACER UN PEDIDO</a>
+        <a href="#">ENVÍO</a>
+        <a href="#">DEVOLUCIONES</a>
+        <a href="#">FAQ</a>
+        <a href="#">VER GUIA</a>
+      </div>
+
+      <div class="footer-links">
+        <a href="acerca-de-nosotros.html">ACERCA DE NOSOTROS</a>
+        <a href="#">TRABAJA CON NOSOTROS</a>
+        <a href="#">POLITICA DE PRIVACIDAD</a>
+        <a href="#">TERMINOS Y CONDICIONES</a>
+        <a href="#">CONSULTAS DE PRENSA</a>
+      </div>
+
+    </div>
+    <div class="back-to-top">
+      <a href="#top">
+        <i class="bi bi-arrow-up"></i>
+        Volver arriba
+      </a>
+    </div>
+    <div class="footer-bottom">
+      <span>© Rodama 2026</span>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/"><i class="bi bi-instagram"></i></a>
+        <a href="https://www.x.com/"><i class="bi bi-twitter-x"></i></a>
+        <a href="https://www.facebook.com/"><i class="bi bi-facebook"></i></a>
+      </div>
+    </div>
+
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Infraestructura -->
+  <script src="../js/config/api.config.js"></script>
+  <script src="../js/utils/ui.utils.js"></script>
+  <script src="../js/utils/cart.store.js"></script>
+  <script src="../js/services/api.service.js"></script>
+  <script src="../js/services/auth.service.js"></script>
+  <!-- Página -->
   <script src="../js/script.js"></script>
-
   <script src="../js/contacto.js"></script>
 </body>
 

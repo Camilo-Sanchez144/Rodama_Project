@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.style.boxShadow = "";
     });
   });
-
-  // Animación de conteo para la sección de indicadores
+// Animación de conteo para la sección de indicadores
   const statNumbers = document.querySelectorAll(".stat-number");
 
   const animateCount = (el) => {
