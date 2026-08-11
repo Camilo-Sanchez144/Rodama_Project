@@ -1,207 +1,115 @@
-function obtenerUsuarioActivo() {
-  try {
-    return JSON.parse(localStorage.getItem("usuarioActivo"));
-  } catch {
-    return null;
-  }
-}
+/* =========================================================
+   SCRIPT.JS — Navbar global, menú de usuario, carrito, newsletter
+   Depende de: api.config.js, api.service.js, auth.service.js,
+               ui.utils.js, cart.store.js
+   ========================================================= */
 
-function obtenerRuta(nombreArchivo) {
-  const rutaActual = window.location.pathname.toLowerCase();
-  const estaEnRaiz =
-    rutaActual.endsWith("/index.html") ||
-    !rutaActual.includes("/html/");
-
-  return estaEnRaiz ? `html/${nombreArchivo}` : nombreArchivo;
-}
-
-function escaparHTML(texto) {
-  return String(texto || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function obtenerCarrito() {
-  try {
-    return JSON.parse(localStorage.getItem("cart")) || [];
-  } catch {
-    return [];
-  }
-}
-
-function actualizarContadorCarrito() {
-  const carrito = obtenerCarrito();
-
-  const total = carrito.reduce((suma, producto) => {
-    return suma + Number(producto.quantity || 0);
-  }, 0);
-
-  const contador = document.getElementById("cartCount");
-
-  if (!contador) {
-    return;
-  }
-
-  contador.textContent = total;
-  contador.style.display = total > 0 ? "flex" : "none";
-}
-
-function obtenerAvatarUsuario(usuario) {
-  return (
-    usuario?.avatar ||
-    usuario?.foto ||
-    usuario?.imagen ||
-    usuario?.image ||
-    ""
-  );
-}
-
-function crearIconoUsuario(usuario) {
-  const avatar = obtenerAvatarUsuario(usuario);
-
-  if (!avatar) {
-    return `<i class="bi bi-person-circle user-trigger-icon"></i>`;
-  }
-
-  return `
-    <img
-      class="user-avatar"
-      src="${escaparHTML(avatar)}"
-      alt="Foto de perfil de ${escaparHTML(usuario.nombre || "usuario")}"
-    >
-  `;
-}
-
+/* ---- Menú de usuario dinámico ---- */
 function crearMenuUsuario() {
-  const accesoUsuario =
+  const ancla =
     document.getElementById("userAccess") ||
     document.getElementById("adminAccess");
 
-  if (!accesoUsuario) {
-    return;
-  }
+  if (!ancla) return;
 
-  const usuario = obtenerUsuarioActivo();
-
+  const usuario = AuthService.getUsuarioActivo();
   const contenedor = document.createElement("div");
   contenedor.classList.add("user-menu");
 
+  /* Usuario NO autenticado */
   if (!usuario) {
     contenedor.innerHTML = `
-      <a class="user-trigger" href="${obtenerRuta("login.html")}">
+      <a class="user-trigger" href="${UiUtils.resolverRuta("login.html")}">
         <i class="bi bi-person"></i>
       </a>
     `;
-
-    accesoUsuario.replaceWith(contenedor);
+    ancla.replaceWith(contenedor);
     return;
   }
 
-  const esAdmin = usuario.rol === "ADMIN";
-  const avatarHTML = crearIconoUsuario(usuario);
+  /* Usuario autenticado */
+  const esAdmin = AuthService.esAdmin();
+  const avatar  = usuario.avatar || usuario.foto || usuario.imagen || usuario.image || "";
 
-  const opcionesCliente = esAdmin
-    ? ""
-    : `
-      <a href="${obtenerRuta("perfil.html")}#historial">
-        <i class="bi bi-clock-history"></i>
-        Historial
-      </a>
+  const avatarHTML = avatar
+    ? `<img class="user-avatar" src="${UiUtils.escaparHTML(avatar)}" alt="Foto de ${UiUtils.escaparHTML(usuario.nombre || "usuario")}">`
+    : `<i class="bi bi-person-circle user-trigger-icon"></i>`;
 
-      <a href="${obtenerRuta("perfil.html")}#favoritos">
-        <i class="bi bi-heart"></i>
-        Favoritos
-      </a>
-    `;
-
-  const opcionPanelAdmin = esAdmin
+  const opcionesPerfil = !esAdmin
     ? `
-      <a href="${obtenerRuta("dashboard-admin.html")}">
-        <i class="bi bi-grid"></i>
-        Panel administrativo
+      <a href="${UiUtils.resolverRuta("perfil.html")}">
+        <i class="bi bi-person-vcard"></i> Mi perfil
+      </a>
+      <a href="${UiUtils.resolverRuta("perfil.html")}#configuracion">
+        <i class="bi bi-gear"></i> Configuración
+      </a>
+      <a href="${UiUtils.resolverRuta("perfil.html")}#historial">
+        <i class="bi bi-clock-history"></i> Historial
+      </a>
+      <a href="${UiUtils.resolverRuta("perfil.html")}#favoritos">
+        <i class="bi bi-heart"></i> Favoritos
       </a>
     `
     : "";
-  const opcionesPerfil = esAdmin
-    ? ""
-    : `
-        <a href="${obtenerRuta("perfil.html")}">
-            <i class="bi bi-person-vcard"></i>
-            Mi perfil
-        </a>
 
-        <a href="${obtenerRuta("perfil.html")}#configuracion">
-            <i class="bi bi-gear"></i>
-            Configuración
-        </a>
-    `;
+  const opcionAdmin = esAdmin
+    ? `
+      <a href="${UiUtils.resolverRuta("dashboard-admin.html")}">
+        <i class="bi bi-grid"></i> Panel administrativo
+      </a>
+    `
+    : "";
 
   contenedor.innerHTML = `
-    <button
-      class="user-trigger"
-      type="button"
-      id="userMenuButton"
-      aria-expanded="false"
-      aria-label="Abrir menú de usuario"
-    >
+    <button class="user-trigger" type="button" id="userMenuButton"
+      aria-expanded="false" aria-label="Abrir menú de usuario">
       ${avatarHTML}
-      <span>${escaparHTML(usuario.nombre || "Usuario")}</span>
+      <span>${UiUtils.escaparHTML(usuario.nombre || "Usuario")}</span>
       <i class="bi bi-chevron-down small"></i>
     </button>
-
     <div class="user-dropdown">
-    ${opcionesPerfil}
-    ${opcionesCliente}
-    ${opcionPanelAdmin}
-
-    <button type="button" id="logoutButton">
-        <i class="bi bi-box-arrow-right"></i>
-        Cerrar sesión
-    </button>
+      ${opcionesPerfil}
+      ${opcionAdmin}
+      <button type="button" id="logoutButton">
+        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+      </button>
     </div>
   `;
 
-  const botonMenu = contenedor.querySelector("#userMenuButton");
-  const botonCerrarSesion = contenedor.querySelector("#logoutButton");
-
-  botonMenu.addEventListener("click", (event) => {
-    event.stopPropagation();
-
-    const estaAbierto = contenedor.classList.toggle("open");
-
-    botonMenu.setAttribute("aria-expanded", String(estaAbierto));
+  contenedor.querySelector("#userMenuButton").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const abierto = contenedor.classList.toggle("open");
+    contenedor
+      .querySelector("#userMenuButton")
+      .setAttribute("aria-expanded", String(abierto));
   });
 
-  botonCerrarSesion.addEventListener("click", () => {
-    localStorage.removeItem("usuarioActivo");
-    window.location.href = obtenerRuta("login.html");
+  contenedor.querySelector("#logoutButton").addEventListener("click", () => {
+    AuthService.logout(UiUtils.resolverRuta("login.html"));
   });
 
-  accesoUsuario.replaceWith(contenedor);
+  ancla.replaceWith(contenedor);
 }
 
+/* ---- Inicialización del navbar ---- */
 document.addEventListener("DOMContentLoaded", () => {
-  const navbar = document.querySelector(".custom-navbar");
-  const hamburger =
+  const navbar       = document.querySelector(".custom-navbar");
+  const hamburger    =
     document.getElementById("siteHamburger") ||
     document.getElementById("hamburger");
-  const mobileMenu = document.getElementById("mobileMenu");
+  const mobileMenu   = document.getElementById("mobileMenu");
   const searchToggle = document.getElementById("searchToggle");
-  const searchInput = document.querySelector(".nav-icons #searchInput");
+  const searchInput  = document.querySelector(".nav-icons #searchInput");
 
   crearMenuUsuario();
-  actualizarContadorCarrito();
+  CartStore.actualizarContador();
 
+  /* Scroll effect en el navbar */
   window.addEventListener("scroll", () => {
-    if (navbar) {
-      navbar.classList.toggle("scrolled", window.scrollY > 50);
-    }
+    if (navbar) navbar.classList.toggle("scrolled", window.scrollY > 50);
   });
 
-  /* hamburguesa: toggle + aria + cerrar al click fuera */
+  /* Hamburguesa del menú móvil */
   if (hamburger && mobileMenu) {
     hamburger.setAttribute("aria-expanded", "false");
 
@@ -212,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.stopPropagation();
     });
 
-    // cerrar mobile menu si se hace click fuera
     document.addEventListener("click", (e) => {
       if (!mobileMenu.classList.contains("open")) return;
       if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
@@ -223,78 +130,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /* Toggle buscador */
   if (searchToggle && searchInput) {
-    searchToggle.addEventListener("click", (event) => {
-      event.preventDefault();
-
+    searchToggle.addEventListener("click", (e) => {
+      e.preventDefault();
       searchInput.classList.toggle("active");
-
-      if (searchInput.classList.contains("active")) {
-        searchInput.focus();
-      }
+      if (searchInput.classList.contains("active")) searchInput.focus();
     });
   }
 
-  document.addEventListener("click", (event) => {
+  /* Cerrar el dropdown de usuario al click fuera */
+  document.addEventListener("click", (e) => {
     const menuUsuario = document.querySelector(".user-menu");
-
-    if (menuUsuario && !menuUsuario.contains(event.target)) {
+    if (menuUsuario && !menuUsuario.contains(e.target)) {
       menuUsuario.classList.remove("open");
-
-      const botonMenu = menuUsuario.querySelector("#userMenuButton");
-
-      if (botonMenu) {
-        botonMenu.setAttribute("aria-expanded", "false");
-      }
+      const btn = menuUsuario.querySelector("#userMenuButton");
+      if (btn) btn.setAttribute("aria-expanded", "false");
     }
 
     if (
       searchInput &&
-      !searchInput.contains(event.target) &&
-      !searchToggle?.contains(event.target)
+      !searchInput.contains(e.target) &&
+      !searchToggle?.contains(e.target)
     ) {
       searchInput.classList.remove("active");
     }
   });
 });
 
-window.updateCartCount = actualizarContadorCarrito;
-
-/* utilidades añadidas al final */
+/* ---- Newsletter ---- */
 (function () {
-  function mostrarMensaje(elemento, texto, tipo) {
-    if (!elemento) return;
-    elemento.innerHTML = `<span class="msg ${tipo}">${texto}</span>`;
-  }
-
   function initNewsletter() {
-    const form = document.getElementById("newsletterForm");
-    const emailInput = document.getElementById("newsletterEmail");
-    const messageWrap = document.getElementById("newsletterMessage");
+    const formNL    = document.getElementById("newsletterForm");
+    const emailInNL = document.getElementById("newsletterEmail");
+    const msgWrap   = document.getElementById("newsletterMessage");
 
-    if (!form || !emailInput || !messageWrap) return;
+    if (!formNL || !emailInNL || !msgWrap) return;
 
-    form.addEventListener("submit", function (e) {
+    formNL.addEventListener("submit", (e) => {
       e.preventDefault();
-      const email = String(emailInput.value || "").trim();
+      const email = emailInNL.value.trim();
 
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!re.test(email)) {
-        mostrarMensaje(messageWrap, "Por favor ingresa un correo válido.", "error");
-        emailInput.focus();
+      if (!UiUtils.esCorreoValido(email)) {
+        msgWrap.innerHTML = `<span class="msg error">Por favor ingresa un correo válido.</span>`;
+        emailInNL.focus();
         return;
       }
 
+      // Por ahora se guarda localmente; integrar con endpoint backend si se agrega
       try {
         const suscritos = JSON.parse(localStorage.getItem("rodama_newsletter") || "[]");
         if (!suscritos.includes(email)) {
           suscritos.push(email);
           localStorage.setItem("rodama_newsletter", JSON.stringify(suscritos));
         }
-        mostrarMensaje(messageWrap, "Gracias por suscribirte. Revisa tu correo para confirmar.", "success");
-        form.reset();
-      } catch (err) {
-        mostrarMensaje(messageWrap, "Error al procesar la suscripción. Intenta nuevamente.", "error");
+        msgWrap.innerHTML = `<span class="msg success">Gracias por suscribirte. ¡Revisa tu correo!</span>`;
+        formNL.reset();
+      } catch {
+        msgWrap.innerHTML = `<span class="msg error">Error al procesar. Inténtalo de nuevo.</span>`;
       }
     });
   }
@@ -302,21 +195,16 @@ window.updateCartCount = actualizarContadorCarrito;
   function initWhatsAppFloat() {
     const wa = document.getElementById("whatsappButton");
     if (!wa) return;
-
-    try {
-      const tooltip = bootstrap.Tooltip.getOrCreateInstance(wa);
-    } catch (err) {}
-
     wa.style.transform = "translateY(8px)";
-    wa.style.opacity = "0";
+    wa.style.opacity   = "0";
     setTimeout(() => {
       wa.style.transition = "transform 0.35s ease, opacity 0.35s ease";
-      wa.style.transform = "translateY(0)";
-      wa.style.opacity = "1";
+      wa.style.transform  = "translateY(0)";
+      wa.style.opacity    = "1";
     }, 300);
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", () => {
     initNewsletter();
     initWhatsAppFloat();
   });

@@ -1,81 +1,115 @@
-const registerForm = document.getElementById("registerForm");
+/* =========================================================
+   REGISTER.JS — Registro de nuevo usuario en el backend
+   Depende de: api.config.js, api.service.js,
+               usuario.service.js, ui.utils.js
+   ========================================================= */
 
-registerForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("registerForm");
+  if (!form) return;
 
-  const nombre = document.getElementById("nombre").value.trim();
-  const apellido = document.getElementById("apellido").value.trim();
-  const telefono = document.getElementById("telefono").value.trim();
-  const direccion = document.getElementById("direccion").value.trim();
-  const correo = document.getElementById("correo").value.trim().toLowerCase();
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-
-  if (
-    nombre === "" ||
-    apellido === "" ||
-    telefono === "" ||
-    direccion === "" ||
-    correo === "" ||
-    password === "" ||
-    confirmPassword === ""
-  ) {
-    alert("Completa todos los campos para crear tu cuenta.");
-    return;
-  }
-
-  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const telefonoValido = /^\+?[0-9\s-]{7,15}$/;
-
-  if (!correoValido.test(correo)) {
-    alert("Ingresa un correo electrónico válido.");
-    return;
-  }
-
-  if (!telefonoValido.test(telefono)) {
-    alert("Ingresa un teléfono válido.");
-    return;
-  }
-
-  if (password.length < 8) {
-    alert("La contraseña debe tener al menos 8 caracteres.");
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    alert("Las contraseñas no coinciden.");
-    return;
-  }
-
-  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-  const correoRepetido = usuarios.some((usuario) => {
-    return (usuario.correo || "").toLowerCase() === correo;
+  /* ---- Toggle contraseña ---- */
+  document.querySelectorAll("[data-toggle-password]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.togglePassword;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      const visible = input.type === "text";
+      input.type = visible ? "password" : "text";
+      btn.classList.toggle("bi-eye", visible);
+      btn.classList.toggle("bi-eye-slash", !visible);
+    });
   });
 
-  if (correoRepetido) {
-    alert("Ya existe una cuenta con este correo.");
-    return;
+  /* ---- Error box ---- */
+  const errorBox = document.getElementById("registerError");
+
+  function mostrarError(msg) {
+    if (errorBox) {
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+    } else {
+      alert(msg);
+    }
   }
 
-  const nuevoUsuario = {
-    id: `cliente-${Date.now()}`,
-    nombre: nombre,
-    apellido: apellido,
-    telefono: telefono,
-    direccion: direccion,
-    correo: correo,
-    password: password,
-    rol: "CLIENTE"
-  };
+  function ocultarError() {
+    if (errorBox) errorBox.style.display = "none";
+  }
 
-  usuarios.push(nuevoUsuario);
+  /* ---- Envío del formulario ---- */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    ocultarError();
 
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    const nombre          = document.getElementById("nombre").value.trim();
+    const apellido        = document.getElementById("apellido").value.trim();
+    const telefono        = document.getElementById("telefono").value.trim();
+    const direccion       = document.getElementById("direccion")?.value.trim() || "";
+    const correo          = document.getElementById("correo").value.trim().toLowerCase();
+    const password        = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-  alert("Cuenta creada correctamente. Ahora puedes iniciar sesión.");
+    // Validaciones de cliente
+    if (!nombre || !apellido || !telefono || !correo || !password || !confirmPassword) {
+      mostrarError("Completa todos los campos para crear tu cuenta.");
+      return;
+    }
 
-  registerForm.reset();
+    if (!UiUtils.esCorreoValido(correo)) {
+      mostrarError("Ingresa un correo electrónico válido.");
+      return;
+    }
 
-  window.location.href = "login.html";
+    if (!UiUtils.esTelefonoValido(telefono)) {
+      mostrarError("Ingresa un teléfono válido (solo dígitos, 7–15 caracteres).");
+      return;
+    }
+
+    if (password.length < 8) {
+      mostrarError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      mostrarError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    UiUtils.setBtnLoading(submitBtn, true, "Crear cuenta");
+
+    const nuevoUsuario = {
+      nombre,
+      apellido,
+      telefono,
+      direccion,
+      correo,
+      password,
+      // El backend asignará ROLE_USER por defecto.
+      // Si tu API requiere el rol explícito, descomenta la siguiente línea:
+      // rol: "ROLE_USER",
+    };
+
+    try {
+      await UsuarioService.crear(nuevoUsuario);
+
+      UiUtils.mostrarToast(
+        "¡Cuenta creada!",
+        "Tu cuenta se registró correctamente. Ahora inicia sesión.",
+        "success"
+      );
+
+      form.reset();
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1800);
+    } catch (error) {
+      mostrarError(
+        error.message || "Hubo un error al crear la cuenta. Inténtalo de nuevo."
+      );
+      UiUtils.setBtnLoading(submitBtn, false, "Crear cuenta");
+    }
+  });
 });

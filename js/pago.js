@@ -1,262 +1,222 @@
-document.addEventListener('DOMContentLoaded', function () {
+/* =========================================================
+   PAGO.JS — Página de checkout / pago
+   Depende de: api.config.js, api.service.js, auth.service.js,
+               pedido.service.js, pago.service.js,
+               producto.service.js, ui.utils.js, cart.store.js,
+               shop-core.js  (calcularTotal, validarCarritoAntesDeCompra,
+                               descontarStockDeCompra, etiquetaMetodoPago)
+   ========================================================= */
 
-  // Esta página depende de que shop-core.js esté cargado ANTES que pago.js
-  // en payment.html (usa obtenerCompraPendiente, obtenerProductos,
-  // validarCarritoAntesDeCompra, descontarStockDeCompra, guardarProductos,
-  // obtenerUsuarioActivo, guardarPedido, generarIdPedido, etiquetaMetodoPago,
-  // eliminarCompraPendiente, quitarCupon, actualizarContadorCarrito, formatearPrecio).
+document.addEventListener("DOMContentLoaded", async () => {
+  // Guard de sesión
+  if (!AuthService.requiereAutenticacion("login.html")) return;
 
-  const form = document.getElementById('formPago');
-  const metodoInputs = document.querySelectorAll('input[name="metodoPago"]');
-  const paneles = {
-    nequi: document.getElementById('panel-nequi'),
-    transferencia: document.getElementById('panel-transferencia'),
-    contraentrega: document.getElementById('panel-contraentrega')
+  const usuario = AuthService.getUsuarioActivo();
+
+  /* ---- Referencias DOM ---- */
+  const form      = document.getElementById("formPago");
+  const errorBox  = document.getElementById("pagoError");
+  const toast     = document.getElementById("toastPago");
+  const toastTit  = document.getElementById("toastTitulo");
+  const toastMsg  = document.getElementById("toastMensaje");
+  const paneles   = {
+    nequi:         document.getElementById("panel-nequi"),
+    transferencia: document.getElementById("panel-transferencia"),
+    contraentrega: document.getElementById("panel-contraentrega"),
   };
-  const errorBox = document.getElementById('pagoError');
-  const toast = document.getElementById('toastPago');
-  const toastTitulo = document.getElementById('toastTitulo');
-  const toastMensaje = document.getElementById('toastMensaje');
 
-  // Si alguien llega directo a payment.html sin pasar por el carrito,
-  // no hay nada que cobrar: lo mandamos de vuelta.
-  const compraPendiente = obtenerCompraPendiente();
-  if (!compraPendiente || !compraPendiente.items || compraPendiente.items.length === 0) {
-    window.location.href = './cart.html';
+  /* ---- Validar que venga del carrito ---- */
+  const compraPendiente = CartStore.getCompraPendiente();
+  if (!compraPendiente || !compraPendiente.items?.length) {
+    window.location.href = "./cart.html";
     return;
   }
 
-  // Pinta el resumen del pedido (ítems + totales) a partir de compraPendiente
+  /* ---- Renderizar resumen del pedido ---- */
   renderizarResumenPago(compraPendiente);
 
+  /* ---- Toggle paneles de método de pago ---- */
+  document.querySelectorAll("input[name='metodoPago']").forEach((input) => {
+    input.addEventListener("change", () => {
+      Object.values(paneles).forEach((p) => p?.classList.remove("activo"));
+      if (errorBox) errorBox.textContent = "";
+      if (paneles[input.value]) paneles[input.value].classList.add("activo");
+    });
+  });
+
+  /* ---- Envío del formulario ---- */
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const validacion = validarFormulario();
+      if (!validacion) return;
+
+      const btn = form.querySelector("button[type='submit']");
+      UiUtils.setBtnLoading(btn, true, "Confirmar pago");
+
+      try {
+        await procesarPago(validacion.metodo, validacion.referencia);
+      } catch (err) {
+        if (errorBox) errorBox.textContent = err.message || "Error al procesar el pago.";
+        UiUtils.setBtnLoading(btn, false, `Confirmar pago <i class="bi bi-arrow-right ms-2"></i>`);
+      }
+    });
+  }
+
+  /* ==============================================================
+     RENDERIZAR RESUMEN
+  ============================================================== */
   function renderizarResumenPago(compra) {
-    const contenedorItems = document.getElementById('resumenItemsContainer');
-    if (contenedorItems) {
-      contenedorItems.innerHTML = compra.items.map(function (item) {
-        const talla = item.size && item.size !== 'Única' ? `Talla ${item.size} · ` : '';
-        const cantidad = Number(item.quantity || 0);
-        const subtotalItem = Number(item.price || 0) * cantidad;
-
-        return `
-          <div class="resumen-item">
-            <img src="${escaparHTML(item.image || 'https://via.placeholder.com/80x80?text=Producto')}"
-                 alt="${escaparHTML(item.name || 'Producto')}" class="resumen-img" />
-            <div class="resumen-info">
-              <p class="resumen-nombre">${escaparHTML(item.name || 'Producto sin nombre')}</p>
-              <span class="resumen-detalle">${talla}Cant. ${cantidad}</span>
+    const cont = document.getElementById("resumenItemsContainer");
+    if (cont) {
+      cont.innerHTML = compra.items
+        .map((item) => {
+          const talla    = item.size && item.size !== "Única" ? `Talla ${item.size} · ` : "";
+          const cantidad = Number(item.quantity || 0);
+          const subtot   = Number(item.price || 0) * cantidad;
+          return `
+            <div class="resumen-item">
+              <img src="${UiUtils.escaparHTML(item.image || "https://via.placeholder.com/80x80?text=Producto")}"
+                   alt="${UiUtils.escaparHTML(item.name || "Producto")}" class="resumen-img">
+              <div class="resumen-info">
+                <p class="resumen-nombre">${UiUtils.escaparHTML(item.name || "Producto sin nombre")}</p>
+                <span class="resumen-detalle">${talla}Cant. ${cantidad}</span>
+              </div>
+              <span class="resumen-precio">${UiUtils.formatearPrecio(subtot)}</span>
             </div>
-            <span class="resumen-precio">${formatearPrecio(subtotalItem)}</span>
-          </div>
-        `;
-      }).join('');
+          `;
+        })
+        .join("");
     }
 
-    const subtotalEl = document.getElementById('resumenSubtotal');
-    if (subtotalEl) subtotalEl.textContent = formatearPrecio(compra.subtotal);
+    _setTexto("resumenSubtotal", UiUtils.formatearPrecio(compra.subtotal));
+    _setTexto("resumenEnvio", compra.envio === 0 ? "Gratis" : UiUtils.formatearPrecio(compra.envio));
+    _setTexto("montoTotal", UiUtils.formatearPrecio(compra.total));
 
-    const filaDescuento = document.getElementById('resumenDescuentoRegistroRow');
-    const valorDescuento = document.getElementById('resumenDescuentoRegistro');
-    if (filaDescuento) {
-      filaDescuento.style.display = compra.descuentoRegistro > 0 ? 'flex' : 'none';
-    }
-    if (valorDescuento) {
-      valorDescuento.textContent = `-${formatearPrecio(compra.descuentoRegistro)}`;
-    }
+    const filaDesc = document.getElementById("resumenDescuentoRegistroRow");
+    const valDesc  = document.getElementById("resumenDescuentoRegistro");
+    if (filaDesc) filaDesc.style.display = compra.descuentoRegistro > 0 ? "flex" : "none";
+    if (valDesc)  valDesc.textContent = `-${UiUtils.formatearPrecio(compra.descuentoRegistro)}`;
 
-    const filaCupon = document.getElementById('resumenCuponRow');
-    const labelCupon = document.getElementById('resumenCuponLabel');
-    const valorCupon = document.getElementById('resumenCuponValor');
-    if (filaCupon) {
-      filaCupon.style.display = compra.descuentoCupon > 0 ? 'flex' : 'none';
-    }
-    if (labelCupon) {
-      labelCupon.textContent = `Cupón (${compra.cupon ? compra.cupon.codigo : ''})`;
-    }
-    if (valorCupon) {
-      valorCupon.textContent = `-${formatearPrecio(compra.descuentoCupon)}`;
-    }
-
-    const envioEl = document.getElementById('resumenEnvio');
-    if (envioEl) {
-      envioEl.textContent = compra.envio === 0 ? 'Gratis' : formatearPrecio(compra.envio);
-    }
-
-    const totalEl = document.getElementById('montoTotal');
-    if (totalEl) totalEl.textContent = formatearPrecio(compra.total);
+    const filaCup = document.getElementById("resumenCuponRow");
+    const labelCup = document.getElementById("resumenCuponLabel");
+    const valCup   = document.getElementById("resumenCuponValor");
+    if (filaCup)   filaCup.style.display = compra.descuentoCupon > 0 ? "flex" : "none";
+    if (labelCup)  labelCup.textContent  = `Cupón (${compra.cupon?.codigo || ""})`;
+    if (valCup)    valCup.textContent    = `-${UiUtils.formatearPrecio(compra.descuentoCupon)}`;
   }
 
-  function ocultarPaneles() {
-    Object.values(paneles).forEach(function (panel) {
-      if (panel) panel.classList.remove('activo');
-    });
+  function _setTexto(id, texto) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = texto;
   }
 
-  metodoInputs.forEach(function (input) {
-    input.addEventListener('change', function () {
-      ocultarPaneles();
-      errorBox.textContent = '';
-      limpiarErrores();
-      if (paneles[input.value]) {
-        paneles[input.value].classList.add('activo');
-      }
-    });
-  });
-
-  function limpiarErrores() {
-    document.querySelectorAll('.campo-error').forEach(function (el) {
-      el.classList.remove('campo-error');
-    });
-  }
-
-  function marcarError(input) {
-    if (input) input.classList.add('campo-error');
-  }
-
+  /* ==============================================================
+     VALIDACIÓN DEL FORMULARIO
+  ============================================================== */
   function validarFormulario() {
-    limpiarErrores();
-    errorBox.textContent = '';
+    if (errorBox) errorBox.textContent = "";
 
-    const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
-
-    if (!metodoSeleccionado) {
-      errorBox.textContent = 'Selecciona un método de pago para continuar.';
-      return false;
+    const metodoInput = document.querySelector("input[name='metodoPago']:checked");
+    if (!metodoInput) {
+      if (errorBox) errorBox.textContent = "Selecciona un método de pago para continuar.";
+      return null;
     }
 
-    const metodo = metodoSeleccionado.value;
+    const metodo = metodoInput.value;
+    let referencia = "";
 
-    if (metodo === 'nequi') {
-      const numero = document.getElementById('nequiNumero');
-      if (!numero.value.trim() || numero.value.trim().length < 10) {
-        marcarError(numero);
-        errorBox.textContent = 'Ingresa un número Nequi válido (10 dígitos).';
-        return false;
+    if (metodo === "nequi") {
+      const num = document.getElementById("nequiNumero");
+      if (!num?.value.trim() || num.value.trim().length < 10) {
+        if (errorBox) errorBox.textContent = "Ingresa un número Nequi válido (10 dígitos).";
+        num?.classList.add("campo-error");
+        return null;
       }
+      referencia = num.value.trim();
     }
 
-    if (metodo === 'transferencia') {
-      const referencia = document.getElementById('referenciaTransferencia');
-      if (!referencia.value.trim()) {
-        marcarError(referencia);
-        errorBox.textContent = 'Ingresa el número de comprobante de la transferencia.';
-        return false;
+    if (metodo === "transferencia") {
+      const ref = document.getElementById("referenciaTransferencia");
+      if (!ref?.value.trim()) {
+        if (errorBox) errorBox.textContent = "Ingresa el número de comprobante de la transferencia.";
+        ref?.classList.add("campo-error");
+        return null;
       }
+      referencia = ref.value.trim();
     }
 
-    if (metodo === 'contraentrega') {
-      const direccion = document.getElementById('direccionEntrega');
-      const telefono = document.getElementById('telefonoEntrega');
-      if (!direccion.value.trim()) {
-        marcarError(direccion);
-        errorBox.textContent = 'Ingresa la dirección de entrega.';
-        return false;
+    if (metodo === "contraentrega") {
+      const dir = document.getElementById("direccionEntrega");
+      const tel = document.getElementById("telefonoEntrega");
+      if (!dir?.value.trim()) {
+        if (errorBox) errorBox.textContent = "Ingresa la dirección de entrega.";
+        dir?.classList.add("campo-error");
+        return null;
       }
-      if (!telefono.value.trim() || telefono.value.trim().length < 7) {
-        marcarError(telefono);
-        errorBox.textContent = 'Ingresa un teléfono de contacto válido.';
-        return false;
+      if (!tel?.value.trim() || tel.value.trim().length < 7) {
+        if (errorBox) errorBox.textContent = "Ingresa un teléfono de contacto válido.";
+        tel?.classList.add("campo-error");
+        return null;
       }
+      referencia = `${dir.value.trim()} | ${tel.value.trim()}`;
     }
 
-    return { valido: true, metodo: metodo };
+    return { metodo, referencia };
   }
 
-  function mensajesPorMetodo(metodo) {
-    const mensajes = {
-      nequi: {
-        titulo: 'Pago con Nequi recibido',
-        mensaje: 'Estamos verificando tu pago. Redirigiendo a tu carrito...'
-      },
-      transferencia: {
-        titulo: 'Transferencia registrada',
-        mensaje: 'Validaremos tu comprobante en breve. Redirigiendo...'
-      },
-      contraentrega: {
-        titulo: 'Pedido confirmado',
-        mensaje: 'Pagarás al recibir tu pedido. Redirigiendo a tu carrito...'
-      }
-    };
-    return mensajes[metodo] || { titulo: 'Pago confirmado', mensaje: 'Redirigiendo a tu carrito...' };
-  }
+  /* ==============================================================
+     PROCESAR PAGO — Llama al backend
+  ============================================================== */
+  async function procesarPago(metodo, referencia) {
+    // 1) Crear pedido en el backend
+    const datosPedido = PedidoService.buildFromCarrito(
+      compraPendiente,
+      usuario,
+      _etiquetaMetodo(metodo)
+    );
+    const pedidoGuardado = await PedidoService.crear(datosPedido);
 
-  function mostrarToast(metodo) {
-    const contenido = mensajesPorMetodo(metodo);
-    toastTitulo.textContent = contenido.titulo;
-    toastMensaje.textContent = contenido.mensaje;
-    toast.classList.add('show');
-  }
+    // 2) Registrar pago en el backend
+    const datosPago = PagoService.buildFromPedido(
+      pedidoGuardado,
+      usuario,
+      metodo,
+      referencia
+    );
+    await PagoService.registrar(datosPago);
 
-  // ===== NUEVO: procesa el pago real usando shop-core.js =====
-  function procesarPago(metodo) {
-    // 1) El usuario debe estar logueado para poder guardar el pedido a su nombre
-    const usuarioActivo = obtenerUsuarioActivo();
-    if (!usuarioActivo) {
-      errorBox.textContent = 'Tu sesión expiró. Inicia sesión de nuevo para completar el pago.';
-      return false;
-    }
+    // 3) Limpiar carrito local
+    CartStore.limpiar();
 
-    // 2) Re-validar stock: pudo cambiar entre que se hizo click en "Finalizar compra"
-    //    y el momento de confirmar el pago.
-    const productos = obtenerProductos();
-    const erroresStock = validarCarritoAntesDeCompra(compraPendiente.items, productos);
+    // 4) Mostrar confirmación
+    _mostrarToast(metodo);
 
-    if (erroresStock.length > 0) {
-      errorBox.textContent =
-        'El stock cambió mientras completabas el pago: ' + erroresStock.join(' ');
-      return false;
-    }
-
-    // 3) Descontar stock real
-    const productosActualizados = descontarStockDeCompra(compraPendiente.items, productos);
-    guardarProductos(productosActualizados);
-
-    // 4) Crear y guardar el pedido (con la forma que espera profile.js)
-    const pedido = {
-      id: generarIdPedido(),
-      usuarioId: usuarioActivo.id,
-      fecha: new Date().toISOString(),
-      items: compraPendiente.items,
-      estado: 'confirmado',
-      metodoPago: etiquetaMetodoPago(metodo),
-      total: compraPendiente.total
-    };
-    guardarPedido(pedido);
-
-    // 5) Limpiar carrito y compra pendiente
-    localStorage.removeItem('cart');
-    eliminarCompraPendiente();
-    quitarCupon();
-    actualizarContadorCarrito();
-
-    return true;
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const resultado = validarFormulario();
-    if (!resultado || !resultado.valido) {
-      return;
-    }
-
-    const boton = form.querySelector('button[type="submit"]');
-    boton.disabled = true;
-    boton.innerHTML = 'Procesando... <i class="bi bi-hourglass-split ms-2"></i>';
-
-    const exito = procesarPago(resultado.metodo);
-
-    if (!exito) {
-      // Reactivar el botón si algo falló (sesión expiró, stock cambió, etc.)
-      boton.disabled = false;
-      boton.innerHTML = 'Confirmar pago <i class="bi bi-arrow-right ms-2"></i>';
-      return;
-    }
-
-    mostrarToast(resultado.metodo);
-
-    setTimeout(function () {
-      window.location.href = './cart.html';
+    setTimeout(() => {
+      window.location.href = "./cart.html";
     }, 2200);
-  });
+  }
 
+  function _etiquetaMetodo(metodo) {
+    const map = {
+      nequi: "Nequi",
+      transferencia: "Transferencia bancaria",
+      contraentrega: "Pago contraentrega",
+    };
+    return map[metodo] || metodo;
+  }
+
+  function _mostrarToast(metodo) {
+    const map = {
+      nequi:         { titulo: "Pago con Nequi recibido",    msg: "Estamos verificando tu pago. Redirigiendo..." },
+      transferencia: { titulo: "Transferencia registrada",   msg: "Validaremos tu comprobante en breve." },
+      contraentrega: { titulo: "Pedido confirmado",          msg: "Pagarás al recibir tu pedido." },
+    };
+    const { titulo, msg } = map[metodo] || { titulo: "Pago confirmado", msg: "Redirigiendo..." };
+
+    if (toastTit) toastTit.textContent = titulo;
+    if (toastMsg) toastMsg.textContent = msg;
+    if (toast)    toast.classList.add("show");
+  }
 });

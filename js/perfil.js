@@ -1,408 +1,300 @@
-function obtenerUsuarioActivo() {
-  try {
-    return JSON.parse(localStorage.getItem("usuarioActivo"));
-  } catch {
-    return null;
-  }
-}
+/* =========================================================
+   PERFIL.JS — Perfil del usuario: datos, contraseña, pedidos, favoritos
+   Depende de: api.config.js, api.service.js, auth.service.js,
+               usuario.service.js, pedido.service.js,
+               ui.utils.js, cart.store.js
+   ========================================================= */
 
-function obtenerUsuarios() {
-  try {
-    return JSON.parse(localStorage.getItem("usuarios")) || [];
-  } catch {
-    return [];
-  }
-}
+document.addEventListener("DOMContentLoaded", async () => {
+  // Guard: redirige a login si no hay sesión activa
+  if (!AuthService.requiereAutenticacion("login.html")) return;
 
-function guardarUsuarios(usuarios) {
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
-}
+  let usuarioActivo = AuthService.getUsuarioActivo();
 
-function obtenerFavoritos(usuario) {
-  try {
-    return (
-      JSON.parse(localStorage.getItem(`favorites_${usuario.id}`)) || []
-    );
-  } catch {
-    return [];
-  }
-}
-
-function guardarFavoritos(usuario, favoritos) {
-  localStorage.setItem(
-    `favorites_${usuario.id}`,
-    JSON.stringify(favoritos)
-  );
-}
-
-function escaparHTML(texto) {
-  return String(texto || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function mostrarMensaje(mensaje, tipo = "success") {
-  const profileMessage = document.getElementById("profileMessage");
-
-  profileMessage.textContent = mensaje;
-  profileMessage.className = `profile-message show ${tipo}`;
-}
-
-function limpiarErrores() {
-  document.querySelectorAll(".field-error").forEach((elemento) => {
-    elemento.textContent = "";
-  });
-
-  document.querySelectorAll(".input-invalid").forEach((elemento) => {
-    elemento.classList.remove("input-invalid");
-  });
-}
-
-function mostrarError(idError, input, mensaje) {
-  const error = document.getElementById(idError);
-
-  if (error) {
-    error.textContent = mensaje;
-  }
-
-  if (input) {
-    input.classList.add("input-invalid");
-  }
-}
-
-function validarDatosPersonales(datos) {
-  let esValido = true;
-  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  const telefonoValido = /^\d{7,15}$/;
-
-  if (!datos.nombre) {
-    mostrarError(
-      "nombreError",
-      document.getElementById("nombre"),
-      "El nombre es obligatorio."
-    );
-    esValido = false;
-  }
-
-  if (!datos.correo) {
-    mostrarError(
-      "correoError",
-      document.getElementById("correo"),
-      "El correo es obligatorio."
-    );
-    esValido = false;
-  } else if (!correoValido.test(datos.correo)) {
-    mostrarError(
-      "correoError",
-      document.getElementById("correo"),
-      "Ingresa un correo válido, por ejemplo nombre@dominio.com."
-    );
-    esValido = false;
-  }
-
-  if (!datos.telefono) {
-    mostrarError(
-      "telefonoError",
-      document.getElementById("telefono"),
-      "El teléfono es obligatorio."
-    );
-    esValido = false;
-  } else if (!telefonoValido.test(datos.telefono)) {
-    mostrarError(
-      "telefonoError",
-      document.getElementById("telefono"),
-      "El teléfono debe contener únicamente números y tener entre 7 y 15 dígitos."
-    );
-    esValido = false;
-  }
-
-  return esValido;
-}
-
-function renderizarFavoritos(usuario) {
-  const contenedor = document.getElementById("favoritesContainer");
-
-  if (!contenedor) {
-    return;
-  }
-
-  const favoritos = obtenerFavoritos(usuario);
-
-  if (favoritos.length === 0) {
-    contenedor.innerHTML = `
-      <div class="favorites-empty">
-        <i class="bi bi-heart"></i>
-        <p>No tienes favoritos guardados todavía.</p>
-        <a href="productos.html">Explorar productos</a>
-      </div>
-    `;
-
-    return;
-  }
-
-  contenedor.innerHTML = "";
-
-  favoritos.forEach((favorito) => {
-    const tarjeta = document.createElement("article");
-    tarjeta.className = "favorite-card";
-
-    tarjeta.innerHTML = `
-      <img
-        src="${escaparHTML(
-          favorito.image ||
-            "https://via.placeholder.com/300x360?text=Producto"
-        )}"
-        alt="${escaparHTML(favorito.name || "Producto")}"
-      >
-
-      <div class="favorite-card-body">
-        <span>${escaparHTML(favorito.category || "Producto")}</span>
-
-        <h3>${escaparHTML(favorito.name || "Producto sin nombre")}</h3>
-
-        <strong>
-          $${Number(favorito.price || 0).toLocaleString("es-CO")}
-        </strong>
-
-        <div class="favorite-card-actions">
-          <a href="productos.html">Ver producto</a>
-
-          <button type="button" class="remove-favorite">
-            Quitar
-          </button>
-        </div>
-      </div>
-    `;
-
-    tarjeta.querySelector(".remove-favorite").addEventListener("click", () => {
-      const favoritosActualizados = obtenerFavoritos(usuario).filter(
-        (item) => String(item.productId) !== String(favorito.productId)
-      );
-
-      guardarFavoritos(usuario, favoritosActualizados);
-      renderizarFavoritos(usuario);
-      mostrarMensaje("El producto se eliminó de tus favoritos.");
-    });
-
-    contenedor.appendChild(tarjeta);
-  });
-}
-
-function configurarPerfil(usuarioActivo) {
-  const nombre = document.getElementById("nombre");
-  const apellido = document.getElementById("apellido");
-  const correo = document.getElementById("correo");
-  const telefono = document.getElementById("telefono");
-  const direccion = document.getElementById("direccion");
-  const clientName = document.getElementById("clientName");
-  const profileForm = document.getElementById("profileForm");
-  const passwordForm = document.getElementById("passwordForm");
-  const logoutBtn = document.getElementById("logoutBtn");
+  /* ---- Referencias DOM ---- */
+  const clientName    = document.getElementById("clientName");
+  const profileForm   = document.getElementById("profileForm");
+  const passwordForm  = document.getElementById("passwordForm");
+  const logoutBtn     = document.getElementById("logoutBtn");
   const clientSections = document.querySelectorAll(".client-section");
-  const historyLink = document.getElementById("historyLink");
+  const historyLink   = document.getElementById("historyLink");
   const favoritesLink = document.getElementById("favoritesLink");
 
-  nombre.value = usuarioActivo.nombre || "";
-  apellido.value = usuarioActivo.apellido || "";
-  correo.value = usuarioActivo.correo || "";
-  telefono.value = usuarioActivo.telefono || "";
-  direccion.value = usuarioActivo.direccion || "";
+  /* ---- Inputs de datos personales ---- */
+  const nombreIn    = document.getElementById("nombre");
+  const apellidoIn  = document.getElementById("apellido");
+  const correoIn    = document.getElementById("correo");
+  const telefonoIn  = document.getElementById("telefono");
+  const direccionIn = document.getElementById("direccion");
 
-  clientName.textContent = usuarioActivo.nombre || "usuario";
-
-  if (usuarioActivo.rol === "ADMIN") {
-    clientSections.forEach((seccion) => {
-      seccion.classList.add("d-none");
-    });
-
-    historyLink.classList.add("d-none");
-    favoritesLink.classList.add("d-none");
-  } else {
-    renderizarFavoritos(usuarioActivo);
+  /* ---- Llenar formulario con datos actuales ---- */
+  function poblarFormulario(u) {
+    if (nombreIn)    nombreIn.value    = u.nombre    || "";
+    if (apellidoIn)  apellidoIn.value  = u.apellido  || "";
+    if (correoIn)    correoIn.value    = u.correo    || "";
+    if (telefonoIn)  telefonoIn.value  = u.telefono  || "";
+    if (direccionIn) direccionIn.value = u.direccion || "";
+    if (clientName)  clientName.textContent = u.nombre || "Usuario";
   }
 
-  profileForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    limpiarErrores();
+  poblarFormulario(usuarioActivo);
 
-    const datos = {
-      nombre: nombre.value.trim(),
-      apellido: apellido.value.trim(),
-      correo: correo.value.trim().toLowerCase(),
-      telefono: telefono.value.trim(),
-      direccion: direccion.value.trim()
-    };
+  /* ---- Ocultar secciones de cliente para ADMIN ---- */
+  if (AuthService.esAdmin()) {
+    clientSections.forEach((s) => s.classList.add("d-none"));
+    if (historyLink)   historyLink.classList.add("d-none");
+    if (favoritesLink) favoritesLink.classList.add("d-none");
+  } else {
+    await cargarHistorialPedidos();
+    renderizarFavoritos();
+  }
 
-    if (!validarDatosPersonales(datos)) {
-      mostrarMensaje(
-        "Revisa los campos marcados antes de guardar.",
-        "error"
+  /* ---- Botón de logout ---- */
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      AuthService.logout("login.html");
+    });
+  }
+
+  /* ================================================================
+     PERFIL — actualizar datos personales
+     ============================================================= */
+  if (profileForm) {
+    profileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      UiUtils.limpiarErroresCampos();
+
+      const datos = {
+        nombre:    nombreIn.value.trim(),
+        apellido:  apellidoIn?.value.trim() || "",
+        correo:    correoIn.value.trim().toLowerCase(),
+        telefono:  telefonoIn?.value.trim() || "",
+        direccion: direccionIn?.value.trim() || "",
+      };
+
+      // Validaciones de cliente
+      if (!datos.nombre) {
+        UiUtils.mostrarErrorCampo("nombreError", nombreIn, "El nombre es obligatorio.");
+        return;
+      }
+      if (!datos.correo || !UiUtils.esCorreoValido(datos.correo)) {
+        UiUtils.mostrarErrorCampo("correoError", correoIn, "Ingresa un correo válido.");
+        return;
+      }
+      if (datos.telefono && !UiUtils.esTelefonoValido(datos.telefono)) {
+        UiUtils.mostrarErrorCampo("telefonoError", telefonoIn, "Teléfono inválido (7–15 dígitos).");
+        return;
+      }
+
+      const btn = profileForm.querySelector("button[type='submit']");
+      UiUtils.setBtnLoading(btn, true, "Guardar cambios");
+
+      try {
+        const actualizado = await UsuarioService.actualizar(usuarioActivo.id, datos);
+        // Sincroniza sesión local con los datos que devuelve el backend
+        usuarioActivo = { ...usuarioActivo, ...datos, ...(actualizado || {}) };
+        localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+
+        if (clientName) clientName.textContent = usuarioActivo.nombre || "Usuario";
+        UiUtils.mostrarMensaje("profileMessage", "Tus datos se guardaron correctamente.", "success");
+      } catch (err) {
+        UiUtils.mostrarMensaje("profileMessage", err.message || "Error al guardar.", "error");
+      } finally {
+        UiUtils.setBtnLoading(btn, false, "Guardar cambios");
+      }
+    });
+  }
+
+  /* ================================================================
+     CONTRASEÑA — actualizar
+     ============================================================= */
+  if (passwordForm) {
+    passwordForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      UiUtils.limpiarErroresCampos();
+
+      const actual    = document.getElementById("currentPassword").value;
+      const nueva     = document.getElementById("newPassword").value;
+      const confirmar = document.getElementById("confirmPassword").value;
+
+      if (!actual) {
+        UiUtils.mostrarErrorCampo("currentPasswordError",
+          document.getElementById("currentPassword"),
+          "Ingresa tu contraseña actual.");
+        return;
+      }
+      if (!nueva || nueva.length < 8) {
+        UiUtils.mostrarErrorCampo("newPasswordError",
+          document.getElementById("newPassword"),
+          "La nueva contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
+      if (nueva !== confirmar) {
+        UiUtils.mostrarErrorCampo("confirmPasswordError",
+          document.getElementById("confirmPassword"),
+          "Las contraseñas no coinciden.");
+        return;
+      }
+
+      const btn = passwordForm.querySelector("button[type='submit']");
+      UiUtils.setBtnLoading(btn, true, "Actualizar contraseña");
+
+      try {
+        // El endpoint PUT /api/usuario/{id} recibe la nueva contraseña
+        await UsuarioService.actualizar(usuarioActivo.id, {
+          currentPassword: actual,
+          password: nueva,
+        });
+
+        passwordForm.reset();
+        UiUtils.mostrarMensaje("profileMessage", "Contraseña actualizada correctamente.", "success");
+      } catch (err) {
+        UiUtils.mostrarMensaje("profileMessage", err.message || "Error al actualizar la contraseña.", "error");
+      } finally {
+        UiUtils.setBtnLoading(btn, false, "Actualizar contraseña");
+      }
+    });
+  }
+
+  /* ================================================================
+     HISTORIAL DE PEDIDOS — cargar del backend
+     ============================================================= */
+  async function cargarHistorialPedidos() {
+    const contenedor = document.getElementById("orderHistoryContainer");
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `<p class="text-muted">Cargando pedidos...</p>`;
+
+    try {
+      const todosPedidos = await PedidoService.getAll();
+      // Filtrar los del usuario activo (el backend debería filtrar, pero por si acaso)
+      const pedidosUsuario = todosPedidos.filter(
+        (p) => String(p.usuarioId) === String(usuarioActivo.id)
       );
 
+      renderizarHistorial(contenedor, pedidosUsuario);
+    } catch {
+      contenedor.innerHTML = `<p class="text-muted">No se pudo cargar el historial.</p>`;
+    }
+  }
+
+  function renderizarHistorial(contenedor, pedidos) {
+    if (!pedidos || pedidos.length === 0) {
+      contenedor.innerHTML = `
+        <div class="orders-empty">
+          <i class="bi bi-bag-x"></i>
+          <p>Aún no has realizado ninguna compra.</p>
+          <a href="productos.html">Ver productos</a>
+        </div>
+      `;
       return;
     }
 
-    const usuarios = obtenerUsuarios();
-
-    const correoEnUso = usuarios.some((usuario) => {
-      return (
-        String(usuario.id) !== String(usuarioActivo.id) &&
-        (usuario.correo || "").toLowerCase() === datos.correo
-      );
-    });
-
-    if (correoEnUso) {
-      mostrarError(
-        "correoError",
-        correo,
-        "Ya existe una cuenta registrada con este correo."
-      );
-
-      mostrarMensaje(
-        "No fue posible guardar los cambios. El correo ya está en uso.",
-        "error"
-      );
-
-      return;
-    }
-
-    const usuarioActualizado = {
-      ...usuarioActivo,
-      ...datos
-    };
-
-    const posicionUsuario = usuarios.findIndex((usuario) => {
-      return String(usuario.id) === String(usuarioActivo.id);
-    });
-
-    if (posicionUsuario === -1) {
-      usuarios.push(usuarioActualizado);
-    } else {
-      usuarios[posicionUsuario] = usuarioActualizado;
-    }
-
-    guardarUsuarios(usuarios);
-    localStorage.setItem(
-      "usuarioActivo",
-      JSON.stringify(usuarioActualizado)
+    const ordenados = [...pedidos].sort(
+      (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
     );
 
-    usuarioActivo = usuarioActualizado;
-    clientName.textContent = usuarioActualizado.nombre || "usuario";
+    contenedor.innerHTML = ordenados
+      .map((pedido) => {
+        const fecha = new Date(pedido.fecha || pedido.createdAt).toLocaleDateString("es-CO", {
+          year: "numeric", month: "long", day: "numeric",
+        });
 
-    mostrarMensaje("Tus datos se guardaron correctamente.");
-  });
+        const itemsHTML = (pedido.items || [])
+          .map((item) => {
+            const talla = item.talla && item.talla !== "Única" ? ` · Talla ${UiUtils.escaparHTML(item.talla)}` : "";
+            return `
+              <li>
+                <span>${UiUtils.escaparHTML(item.nombre || item.name)}${talla} · Cant. ${item.cantidad || item.quantity}</span>
+                <span>${UiUtils.formatearPrecio((item.precio || item.price) * (item.cantidad || item.quantity))}</span>
+              </li>
+            `;
+          })
+          .join("");
 
-  passwordForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    limpiarErrores();
+        return `
+          <article class="order-card">
+            <header class="order-card-header">
+              <div>
+                <strong>Pedido ${UiUtils.escaparHTML(String(pedido.id))}</strong>
+                <span>${fecha}</span>
+              </div>
+              <span class="order-status order-status-${UiUtils.escaparHTML(String(pedido.estado || "confirmado").toLowerCase())}">
+                ${UiUtils.escaparHTML(pedido.estado || "Confirmado")}
+              </span>
+            </header>
+            <ul class="order-items">${itemsHTML}</ul>
+            <footer class="order-card-footer">
+              <span>Método: ${UiUtils.escaparHTML(pedido.metodoPago || "")}</span>
+              <strong>Total: ${UiUtils.formatearPrecio(pedido.total)}</strong>
+            </footer>
+          </article>
+        `;
+      })
+      .join("");
+  }
 
-    const currentPassword = document
-      .getElementById("currentPassword")
-      .value;
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-
-    let esValido = true;
-
-    if (!currentPassword) {
-      mostrarError(
-        "currentPasswordError",
-        document.getElementById("currentPassword"),
-        "Ingresa tu contraseña actual."
-      );
-      esValido = false;
-    } else if (currentPassword !== usuarioActivo.password) {
-      mostrarError(
-        "currentPasswordError",
-        document.getElementById("currentPassword"),
-        "La contraseña actual no es correcta."
-      );
-      esValido = false;
+  /* ================================================================
+     FAVORITOS — almacenados localmente
+     ============================================================= */
+  function obtenerFavoritos() {
+    try {
+      return JSON.parse(localStorage.getItem(`favorites_${usuarioActivo.id}`)) || [];
+    } catch {
+      return [];
     }
+  }
 
-    if (!newPassword) {
-      mostrarError(
-        "newPasswordError",
-        document.getElementById("newPassword"),
-        "Ingresa una nueva contraseña."
-      );
-      esValido = false;
-    } else if (newPassword.length < 8) {
-      mostrarError(
-        "newPasswordError",
-        document.getElementById("newPassword"),
-        "La nueva contraseña debe tener al menos 8 caracteres."
-      );
-      esValido = false;
-    }
+  function guardarFavoritos(favs) {
+    localStorage.setItem(`favorites_${usuarioActivo.id}`, JSON.stringify(favs));
+  }
 
-    if (!confirmPassword) {
-      mostrarError(
-        "confirmPasswordError",
-        document.getElementById("confirmPassword"),
-        "Confirma la nueva contraseña."
-      );
-      esValido = false;
-    } else if (newPassword !== confirmPassword) {
-      mostrarError(
-        "confirmPasswordError",
-        document.getElementById("confirmPassword"),
-        "Las nuevas contraseñas no coinciden."
-      );
-      esValido = false;
-    }
+  function renderizarFavoritos() {
+    const contenedor = document.getElementById("favoritesContainer");
+    if (!contenedor) return;
 
-    if (!esValido) {
-      mostrarMensaje(
-        "No fue posible actualizar la contraseña. Revisa los campos marcados.",
-        "error"
-      );
+    const favoritos = obtenerFavoritos();
 
+    if (favoritos.length === 0) {
+      contenedor.innerHTML = `
+        <div class="favorites-empty">
+          <i class="bi bi-heart"></i>
+          <p>No tienes favoritos guardados todavía.</p>
+          <a href="productos.html">Explorar productos</a>
+        </div>
+      `;
       return;
     }
 
-    const usuarioActualizado = {
-      ...usuarioActivo,
-      password: newPassword
-    };
+    contenedor.innerHTML = "";
 
-    const usuarios = obtenerUsuarios();
-    const posicionUsuario = usuarios.findIndex((usuario) => {
-      return String(usuario.id) === String(usuarioActivo.id);
+    favoritos.forEach((fav) => {
+      const tarjeta = document.createElement("article");
+      tarjeta.className = "favorite-card";
+      tarjeta.innerHTML = `
+        <img src="${UiUtils.escaparHTML(fav.image || "https://via.placeholder.com/300x360?text=Producto")}"
+             alt="${UiUtils.escaparHTML(fav.name || "Producto")}">
+        <div class="favorite-card-body">
+          <span>${UiUtils.escaparHTML(fav.category || "Producto")}</span>
+          <h3>${UiUtils.escaparHTML(fav.name || "Producto sin nombre")}</h3>
+          <strong>$${Number(fav.price || 0).toLocaleString("es-CO")}</strong>
+          <div class="favorite-card-actions">
+            <a href="productos.html">Ver producto</a>
+            <button type="button" class="remove-favorite">Quitar</button>
+          </div>
+        </div>
+      `;
+
+      tarjeta.querySelector(".remove-favorite").addEventListener("click", () => {
+        const actualizados = obtenerFavoritos().filter(
+          (f) => String(f.productId) !== String(fav.productId)
+        );
+        guardarFavoritos(actualizados);
+        renderizarFavoritos();
+        UiUtils.mostrarToast("Favorito eliminado", "El producto se quitó de tus favoritos.");
+      });
+
+      contenedor.appendChild(tarjeta);
     });
-
-    if (posicionUsuario === -1) {
-      usuarios.push(usuarioActualizado);
-    } else {
-      usuarios[posicionUsuario] = usuarioActualizado;
-    }
-
-    guardarUsuarios(usuarios);
-    localStorage.setItem(
-      "usuarioActivo",
-      JSON.stringify(usuarioActualizado)
-    );
-
-    usuarioActivo = usuarioActualizado;
-    passwordForm.reset();
-
-    mostrarMensaje("Tu contraseña se actualizó correctamente.");
-  });
-
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("usuarioActivo");
-    window.location.href = "login.html";
-  });
-}
-
-const usuarioActivo = obtenerUsuarioActivo();
-
-if (!usuarioActivo) {
-  window.location.replace("login.html");
-} else {
-  configurarPerfil(usuarioActivo);
-}
+  }
+});

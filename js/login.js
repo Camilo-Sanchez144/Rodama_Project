@@ -1,81 +1,76 @@
-const form = document.getElementById("loginForm");
-const correo = document.getElementById("correo");
-const password = document.getElementById("password");
-const eye = document.getElementById("eye");
+/* =========================================================
+   LOGIN.JS — Autenticación contra el backend
+   Depende de: api.config.js, api.service.js, auth.service.js,
+               ui.utils.js
+   ========================================================= */
 
-const adminPorDefecto = {
-  id: "admin-rodama",
-  nombre: "Administrador",
-  correo: "admin@rodama.com",
-  password: "Admin123",
-  rol: "ADMIN"
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const form     = document.getElementById("loginForm");
+  const correoIn = document.getElementById("correo");
+  const passIn   = document.getElementById("password");
+  const eyeBtn   = document.getElementById("eye");
+  const errorBox = document.getElementById("loginError");
 
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-const existeAdmin = usuarios.some((usuario) => {
-  return (
-    usuario.id === adminPorDefecto.id ||
-    usuario.correo?.toLowerCase() === adminPorDefecto.correo
-  );
-});
-
-if (!existeAdmin) {
-  usuarios.push(adminPorDefecto);
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
-}
-
-eye.addEventListener("click", () => {
-  if (password.type === "password") {
-    password.type = "text";
-    eye.classList.remove("bi-eye-slash");
-    eye.classList.add("bi-eye");
-  } else {
-    password.type = "password";
-    eye.classList.remove("bi-eye");
-    eye.classList.add("bi-eye-slash");
-  }
-});
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const correoIngresado = correo.value.trim().toLowerCase();
-  const passwordIngresado = password.value;
-
-  if (correoIngresado === "" || passwordIngresado === "") {
-    alert("Completa el correo y la contraseña.");
-    return;
+  /* ---- Toggle mostrar/ocultar contraseña ---- */
+  if (eyeBtn) {
+    eyeBtn.addEventListener("click", () => {
+      const visible = passIn.type === "text";
+      passIn.type = visible ? "password" : "text";
+      eyeBtn.classList.toggle("bi-eye", visible);
+      eyeBtn.classList.toggle("bi-eye-slash", !visible);
+    });
   }
 
-  usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  /* ---- Mostrar error inline ---- */
+  function mostrarError(mensaje) {
+    if (errorBox) {
+      errorBox.textContent = mensaje;
+      errorBox.style.display = "block";
+    } else {
+      alert(mensaje);
+    }
+  }
 
-  const usuarioEncontrado = usuarios.find((usuario) => {
-    const correoUsuario = (usuario.correo || "").toLowerCase();
-    const usuarioUsuario = (usuario.usuario || "").toLowerCase();
+  function ocultarError() {
+    if (errorBox) errorBox.style.display = "none";
+  }
 
-    return (
-      (correoUsuario === correoIngresado ||
-        usuarioUsuario === correoIngresado) &&
-      usuario.password === passwordIngresado
-    );
+  /* ---- Envío del formulario ---- */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    ocultarError();
+
+    const correo   = correoIn.value.trim().toLowerCase();
+    const password = passIn.value;
+
+    if (!correo || !password) {
+      mostrarError("Completa el correo y la contraseña.");
+      return;
+    }
+
+    if (!UiUtils.esCorreoValido(correo)) {
+      mostrarError("Ingresa un correo electrónico válido.");
+      return;
+    }
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    UiUtils.setBtnLoading(submitBtn, true, "Iniciar sesión");
+
+    try {
+      const { usuario } = await AuthService.login(correo, password);
+
+      // Redirige según el rol devuelto por el backend
+      const esAdmin = usuario.rol === "ROLE_ADMIN" || usuario.rol === "ADMIN";
+      if (esAdmin) {
+        window.location.href = "dashboard-admin.html";
+      } else {
+        window.location.href = "../index.html";
+      }
+    } catch (error) {
+      mostrarError(
+        error.message || "Correo o contraseña incorrectos. Inténtalo de nuevo."
+      );
+      UiUtils.setBtnLoading(submitBtn, false, "Iniciar sesión");
+    }
   });
-
-  if (!usuarioEncontrado) {
-    alert("Correo o contraseña incorrectos.");
-    return;
-  }
-
-  localStorage.setItem(
-    "usuarioActivo",
-    JSON.stringify(usuarioEncontrado)
-  );
-
-  alert(`Inicio de sesión exitoso. Bienvenido/a, ${usuarioEncontrado.nombre}.`);
-
-  if (usuarioEncontrado.rol === "ADMIN") {
-    window.location.href = "dashboard-admin.html";
-  } else {
-    window.location.href = "../index.html";
-  }
 });

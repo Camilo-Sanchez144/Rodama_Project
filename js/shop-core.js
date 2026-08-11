@@ -1,543 +1,306 @@
 /* =========================================================
+   SHOP-CORE.JS — Motor del carrito de compras
+   Depende de: api.config.js, api.service.js, auth.service.js,
+               producto.service.js, ui.utils.js, cart.store.js
+   Gestiona: carrito, stock, precios, descuentos, cupones,
+             renderizado de la página cart.html, checkout.
+   ========================================================= */
+
+/* =================================================================
    CONFIGURACIÓN DE PRECIOS
-   ========================================================= */
-const CONFIG_PRECIOS = {
-  DESCUENTO_REGISTRO: 0.10, // 10% para usuario registrado
-  COSTO_ENVIO: 16000,
-  ENVIO_GRATIS_DESDE: 200000,
-  CUPONES: {
-    RODAMA10: { porcentaje: 0.10, descripcion: "10% adicional" },
-    BIENVENIDO: { porcentaje: 0.05, descripcion: "5% de bienvenida" }
-  }
-};
-
-/* =========================================================
-   ALMACENAMIENTO
-   ========================================================= */
-function obtenerCarrito() {
+   (Se lee primero de configTienda en localStorage para que el admin
+    pueda ajustarla sin hacer deploy)
+================================================================= */
+function obtenerConfigPrecios() {
   try {
-    return JSON.parse(localStorage.getItem("cart")) || [];
-  } catch {
-    return [];
-  }
+    const guardada = JSON.parse(localStorage.getItem("configTienda"));
+    if (guardada) return guardada;
+  } catch { /* usa por defecto */ }
+
+  return {
+    DESCUENTO_REGISTRO: 0.10,
+    COSTO_ENVIO: 16000,
+    ENVIO_GRATIS_DESDE: 200000,
+    CUPONES: {
+      RODAMA10:   { porcentaje: 0.10, descripcion: "10% adicional" },
+      BIENVENIDO: { porcentaje: 0.05, descripcion: "5% de bienvenida" },
+    },
+  };
 }
 
-function guardarCarrito(carrito) {
-  localStorage.setItem("cart", JSON.stringify(carrito));
-  renderizarCarrito();
-  actualizarContadorCarrito();
-}
+const CONFIG_PRECIOS = obtenerConfigPrecios();
 
-function obtenerProductos() {
-  try {
-    return JSON.parse(localStorage.getItem("products")) || [];
-  } catch {
-    return [];
-  }
-}
+/* =================================================================
+   ALIASES de almacenamiento (delegados a CartStore y ProductoService)
+   Se mantienen como funciones globales para compatibilidad con pago.js
+================================================================= */
+function obtenerCarrito()         { return CartStore.getCarrito(); }
+function guardarCarrito(c)        { CartStore.setCarrito(c); }
+function obtenerProductos()       { return ProductoService.getCache(); }
+function guardarProductos(lista)  { ProductoService.setCache(lista); }
+function obtenerCuponAplicado()   { return CartStore.getCuponAplicado(); }
+function guardarCuponAplicado(c)  { CartStore.setCuponAplicado(c); }
+function obtenerUsuarioActivo()   { return AuthService.getUsuarioActivo(); }
+function obtenerCompraPendiente() { return CartStore.getCompraPendiente(); }
+function guardarCompraPendiente(c){ CartStore.setCompraPendiente(c); }
+function eliminarCompraPendiente(){ CartStore.limpiar(); }
+function actualizarContadorCarrito() { CartStore.actualizarContador(); }
+function quitarCupon()            { CartStore.setCuponAplicado(null); }
 
-function guardarProductos(productos) {
-  localStorage.setItem("products", JSON.stringify(productos));
-}
-
-function obtenerCuponAplicado() {
-  try {
-    return JSON.parse(localStorage.getItem("appliedCoupon")) || null;
-  } catch {
-    return null;
-  }
-}
-
-function guardarCuponAplicado(cupon) {
-  if (cupon) {
-    localStorage.setItem("appliedCoupon", JSON.stringify(cupon));
-  } else {
-    localStorage.removeItem("appliedCoupon");
-  }
-}
-
-/* ===== NUEVO: usuario activo (usado por profile.js y por el checkout) ===== */
-function obtenerUsuarioActivo() {
-  try {
-    return JSON.parse(localStorage.getItem("usuarioActivo")) || null;
-  } catch {
-    return null;
-  }
-}
-
-/* ===== NUEVO: puente carrito -> pago ===== */
-function obtenerCompraPendiente() {
-  try {
-    return JSON.parse(localStorage.getItem("compraPendiente")) || null;
-  } catch {
-    return null;
-  }
-}
-
-function guardarCompraPendiente(compra) {
-  localStorage.setItem("compraPendiente", JSON.stringify(compra));
-}
-
-function eliminarCompraPendiente() {
-  localStorage.removeItem("compraPendiente");
-}
-
-/* ===== NUEVO: pedidos (historial de compras) ===== */
-function obtenerTodosPedidos() {
-  try {
-    return JSON.parse(localStorage.getItem("pedidos")) || [];
-  } catch {
-    return [];
-  }
-}
-
-function guardarPedido(pedido) {
-  const todos = obtenerTodosPedidos();
-  todos.push(pedido);
-  localStorage.setItem("pedidos", JSON.stringify(todos));
-}
-
-function obtenerPedidos(usuarioId) {
-  return obtenerTodosPedidos()
-    .filter((pedido) => String(pedido.usuarioId) === String(usuarioId))
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-}
-
+/* =================================================================
+   PEDIDOS — helpers globales para pago.js (ya usa PedidoService
+   directamente, pero se conservan para compatibilidad)
+================================================================= */
 function generarIdPedido() {
   const fecha = Date.now().toString(36).toUpperCase();
-  const azar = Math.random().toString(36).slice(2, 6).toUpperCase();
+  const azar  = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `PED-${fecha}-${azar}`;
 }
 
 function etiquetaMetodoPago(metodo) {
-  const etiquetas = {
-    nequi: "Nequi",
-    transferencia: "Transferencia bancaria",
-    contraentrega: "Pago contraentrega"
-  };
-  return etiquetas[metodo] || "Otro";
+  return { nequi: "Nequi", transferencia: "Transferencia bancaria", contraentrega: "Pago contraentrega" }[metodo] || metodo;
 }
 
-/* =========================================================
-   UTILIDADES
-   ========================================================= */
-function normalizarCantidad(cantidad) {
-  return Math.max(0, Number(cantidad) || 0);
-}
-
-function escaparHTML(texto) {
-  return String(texto || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function formatearPrecio(valor) {
-  return `$${Number(valor || 0).toLocaleString("es-CO")}`;
-}
-
-function esUsuarioRegistrado() {
-  try {
-    return Boolean(JSON.parse(localStorage.getItem("usuarioActivo")));
-  } catch {
-    return false;
-  }
-}
-
-/* =========================================================
-   PRODUCTOS / STOCK
-   ========================================================= */
+/* =================================================================
+   NORMALIZACIÓN DE PRODUCTOS
+================================================================= */
 function normalizarProducto(producto) {
-  const stockPorTallaOriginal =
+  const stockPorTallaOrig =
     producto.stockBySize &&
     typeof producto.stockBySize === "object" &&
     !Array.isArray(producto.stockBySize)
       ? producto.stockBySize
       : {};
 
-  const tallas = Array.isArray(producto.sizes)
+  const sizes = Array.isArray(producto.sizes)
     ? producto.sizes.filter(Boolean)
-    : Object.keys(stockPorTallaOriginal);
+    : Object.keys(stockPorTallaOrig);
 
-  const stockPorTalla = [...new Set([
-    ...tallas,
-    ...Object.keys(stockPorTallaOriginal)
-  ])].reduce((resultado, talla) => {
-    resultado[talla] = normalizarCantidad(stockPorTallaOriginal[talla]);
-    return resultado;
-  }, {});
+  const stockPorTalla = [...new Set([...sizes, ...Object.keys(stockPorTallaOrig)])].reduce(
+    (r, t) => { r[t] = UiUtils.normalizarCantidad(stockPorTallaOrig[t]); return r; },
+    {}
+  );
 
-  const esAccesorio = producto.category === "Accesorios";
-
+  const esAccesorio = (producto.category || producto.categoria) === "ACCESORIOS";
   const stock = esAccesorio
-    ? normalizarCantidad(producto.stock)
-    : Object.values(stockPorTalla).reduce(
-        (total, cantidad) => total + cantidad,
-        0
-      );
+    ? UiUtils.normalizarCantidad(producto.stock)
+    : Object.values(stockPorTalla).reduce((t, c) => t + c, 0);
 
-  return {
-    ...producto,
-    id: producto.id || producto.name,
-    stockBySize: stockPorTalla,
-    stock,
-    esAccesorio
-  };
+  return { ...producto, id: producto.id || producto.name, stockBySize: stockPorTalla, stock, esAccesorio };
 }
 
 function encontrarProductoParaItem(item, productos = obtenerProductos()) {
-  return productos
-    .map(normalizarProducto)
-    .find((producto) => {
-      const coincideId =
-        item.productId &&
-        String(producto.id) === String(item.productId);
-
-      const coincideProductoAnterior =
-        !item.productId &&
-        producto.name === item.name;
-
-      return coincideId || coincideProductoAnterior;
-    });
+  return productos.map(normalizarProducto).find((p) => {
+    const porId   = item.productId && String(p.id) === String(item.productId);
+    const porNombre = !item.productId && p.name === item.name;
+    return porId || porNombre;
+  });
 }
 
 function obtenerStockDisponibleItem(item, carrito = obtenerCarrito()) {
   const producto = encontrarProductoParaItem(item);
-
-  if (!producto) {
-    return 0;
-  }
+  if (!producto) return 0;
 
   const talla = item.size || "Única";
-
-  const stockDeLaTalla = producto.esAccesorio
+  const stockTalla = producto.esAccesorio
     ? producto.stock
-    : normalizarCantidad(producto.stockBySize[talla]);
+    : UiUtils.normalizarCantidad(producto.stockBySize[talla]);
 
-  const cantidadDeOtrosItems = carrito
-    .filter((otroItem) => otroItem.key !== item.key)
-    .filter((otroItem) => {
-      const mismoProducto =
-        String(otroItem.productId || "") === String(producto.id) ||
-        (!otroItem.productId && otroItem.name === producto.name);
-
-      return mismoProducto && String(otroItem.size || "Única") === talla;
+  const enOtrosItems = carrito
+    .filter((oi) => oi.key !== item.key)
+    .filter((oi) => {
+      const mismo = String(oi.productId || "") === String(producto.id) ||
+                    (!oi.productId && oi.name === producto.name);
+      return mismo && String(oi.size || "Única") === talla;
     })
-    .reduce((total, otroItem) => total + normalizarCantidad(otroItem.quantity), 0);
+    .reduce((t, oi) => t + UiUtils.normalizarCantidad(oi.quantity), 0);
 
-  return Math.max(0, stockDeLaTalla - cantidadDeOtrosItems);
+  return Math.max(0, stockTalla - enOtrosItems);
 }
 
-/* =========================================================
-   PRICING: subtotal, descuento, envío, cupón, total
-   ========================================================= */
+/* =================================================================
+   PRICING
+================================================================= */
 function calcularSubtotal(carrito) {
-  return carrito.reduce((total, item) => {
-    return total + Number(item.price || 0) * normalizarCantidad(item.quantity);
-  }, 0);
+  return carrito.reduce((t, item) => t + Number(item.price || 0) * UiUtils.normalizarCantidad(item.quantity), 0);
+}
+
+function esUsuarioRegistrado() {
+  return AuthService.estaAutenticado();
 }
 
 function calcularDescuentoRegistro(subtotal) {
-  return esUsuarioRegistrado()
-    ? Math.round(subtotal * CONFIG_PRECIOS.DESCUENTO_REGISTRO)
-    : 0;
+  return esUsuarioRegistrado() ? Math.round(subtotal * CONFIG_PRECIOS.DESCUENTO_REGISTRO) : 0;
 }
 
 function calcularEnvio(subtotal) {
   if (subtotal === 0) return 0;
-  return subtotal >= CONFIG_PRECIOS.ENVIO_GRATIS_DESDE
-    ? 0
-    : CONFIG_PRECIOS.COSTO_ENVIO;
+  return subtotal >= CONFIG_PRECIOS.ENVIO_GRATIS_DESDE ? 0 : CONFIG_PRECIOS.COSTO_ENVIO;
+}
+
+function calcularDescuentoCupon(subtotal, cupon) {
+  return cupon ? Math.round(subtotal * cupon.porcentaje) : 0;
+}
+
+function calcularTotal(subtotal, descReg, descCup, envio) {
+  return Math.max(0, subtotal - descReg - descCup) + envio;
+}
+
+function mensajeEnvioGratis(subtotal) {
+  if (subtotal >= CONFIG_PRECIOS.ENVIO_GRATIS_DESDE) return "¡Tu pedido tiene envío gratis!";
+  return `Te faltan ${UiUtils.formatearPrecio(CONFIG_PRECIOS.ENVIO_GRATIS_DESDE - subtotal)} para envío gratis.`;
 }
 
 function aplicarCupon(codigoIngresado) {
   const codigo = String(codigoIngresado || "").trim().toUpperCase();
+  if (!codigo) return { valido: false, mensaje: "Ingresa un código de cupón." };
 
-  if (!codigo) {
-    return { valido: false, mensaje: "Ingresa un código de cupón." };
-  }
+  const cupon = CONFIG_PRECIOS.CUPONES[codigo];
+  if (!cupon) return { valido: false, mensaje: "Ese cupón no existe o ya expiró." };
 
-  const cuponEncontrado = CONFIG_PRECIOS.CUPONES[codigo];
-
-  if (!cuponEncontrado) {
-    return { valido: false, mensaje: "Ese cupón no existe o ya expiró." };
-  }
-
-  const cupon = { codigo, ...cuponEncontrado };
-  guardarCuponAplicado(cupon);
-
-  return {
-    valido: true,
-    mensaje: `Cupón "${codigo}" aplicado: ${cuponEncontrado.descripcion}.`,
-    cupon
-  };
+  CartStore.setCuponAplicado({ codigo, ...cupon });
+  return { valido: true, mensaje: `Cupón "${codigo}" aplicado: ${cupon.descripcion}.`, cupon: { codigo, ...cupon } };
 }
 
-function quitarCupon() {
-  guardarCuponAplicado(null);
-}
-
-function calcularDescuentoCupon(subtotal, cupon) {
-  if (!cupon) return 0;
-  return Math.round(subtotal * cupon.porcentaje);
-}
-
-function calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio) {
-  const baseConDescuentos = Math.max(0, subtotal - descuentoRegistro - descuentoCupon);
-  return baseConDescuentos + envio;
-}
-
-function mensajeEnvioGratis(subtotal) {
-  if (subtotal >= CONFIG_PRECIOS.ENVIO_GRATIS_DESDE) {
-    return "¡Tu pedido tiene envío gratis!";
-  }
-
-  const faltante = CONFIG_PRECIOS.ENVIO_GRATIS_DESDE - subtotal;
-  return `Te faltan ${formatearPrecio(faltante)} para envío gratis.`;
-}
-
-/* =========================================================
-   CANTIDAD
-   ========================================================= */
+/* =================================================================
+   OPERACIONES DEL CARRITO
+================================================================= */
 function actualizarCantidad(clave, cambio) {
   const carrito = obtenerCarrito();
-  const item = carrito.find((producto) => producto.key === clave);
-
+  const item    = carrito.find((i) => i.key === clave);
   if (!item) return;
-
-  const nuevaCantidad = normalizarCantidad(item.quantity) + cambio;
-  aplicarNuevaCantidad(item, carrito, nuevaCantidad);
+  aplicarNuevaCantidad(item, carrito, UiUtils.normalizarCantidad(item.quantity) + cambio);
 }
 
-function establecerCantidad(clave, cantidadDeseada) {
+function establecerCantidad(clave, deseada) {
   const carrito = obtenerCarrito();
-  const item = carrito.find((producto) => producto.key === clave);
-
+  const item    = carrito.find((i) => i.key === clave);
   if (!item) return;
-
-  aplicarNuevaCantidad(item, carrito, normalizarCantidad(cantidadDeseada));
+  aplicarNuevaCantidad(item, carrito, UiUtils.normalizarCantidad(deseada));
 }
 
 function aplicarNuevaCantidad(item, carrito, nuevaCantidad) {
-  if (nuevaCantidad <= 0) {
-    eliminarDelCarrito(item.key);
-    return;
-  }
-
-  const disponible = obtenerStockDisponibleItem(item, carrito);
-
-  if (nuevaCantidad > disponible) {
-    alert(
-      `No puedes agregar más unidades. Solo hay ${disponible} disponible${
-        disponible === 1 ? "" : "s"
-      } para esta talla.`
-    );
+  if (nuevaCantidad <= 0) { eliminarDelCarrito(item.key); return; }
+  const disp = obtenerStockDisponibleItem(item, carrito);
+  if (nuevaCantidad > disp) {
+    alert(`Solo hay ${disp} disponible${disp === 1 ? "" : "s"} para esta talla.`);
     renderizarCarrito();
     return;
   }
-
   item.quantity = nuevaCantidad;
   guardarCarrito(carrito);
 }
 
 function eliminarDelCarrito(clave) {
-  const carrito = obtenerCarrito().filter((item) => item.key !== clave);
-  guardarCarrito(carrito);
+  guardarCarrito(obtenerCarrito().filter((i) => i.key !== clave));
 }
 
-function actualizarContadorCarrito() {
-  const carrito = obtenerCarrito();
-
-  const totalItems = carrito.reduce((total, item) => {
-    return total + normalizarCantidad(item.quantity);
-  }, 0);
-
-  const cartCount = document.getElementById("cartCount");
-
-  if (!cartCount) return;
-
-  cartCount.textContent = totalItems;
-  cartCount.style.display = totalItems > 0 ? "flex" : "none";
-}
-
-/* =========================================================
-   RENDER: ítems del carrito
-   ========================================================= */
+/* =================================================================
+   RENDERIZADO DEL CARRITO
+================================================================= */
 function crearItemCarrito(item, carrito) {
-  const producto = encontrarProductoParaItem(item);
+  const producto  = encontrarProductoParaItem(item);
   const disponible = obtenerStockDisponibleItem(item, carrito);
-  const cantidad = normalizarCantidad(item.quantity);
-  const subtotal = Number(item.price || 0) * cantidad;
-  const talla = item.size || "Única";
+  const cantidad  = UiUtils.normalizarCantidad(item.quantity);
+  const subtotal  = Number(item.price || 0) * cantidad;
+  const talla     = item.size || "Única";
 
-  const elemento = document.createElement("div");
-  elemento.className = "cart-item";
-
-  elemento.innerHTML = `
+  const el = document.createElement("div");
+  el.className = "cart-item";
+  el.innerHTML = `
     <div class="cart-item-img">
-      <img
-        src="${escaparHTML(
-          item.image || "https://via.placeholder.com/110x110?text=Producto"
-        )}"
-        alt="${escaparHTML(item.name || "Producto")}"
-      >
+      <img src="${UiUtils.escaparHTML(item.image || "https://via.placeholder.com/110x110?text=Producto")}"
+           alt="${UiUtils.escaparHTML(item.name || "Producto")}">
     </div>
-
     <div class="cart-item-info">
-      <span class="cart-item-name">
-        ${escaparHTML(item.name || "Producto sin nombre")}
-      </span>
-
-      ${
-        talla !== "Única"
-          ? `<span class="cart-item-size">Talla ${escaparHTML(talla)}</span>`
-          : ""
-      }
-
-      <span class="cart-item-price">
-        ${formatearPrecio(item.price)} c/u
-      </span>
-
-      ${
-        !producto
-          ? `<span class="cart-stock-warning">Este producto ya no está disponible.</span>`
-          : cantidad > disponible
-            ? `
-              <span class="cart-stock-warning">
-                Solo hay ${disponible} disponible${
-                  disponible === 1 ? "" : "s"
-                } para esta selección.
-              </span>
-            `
-            : ""
-      }
+      <span class="cart-item-name">${UiUtils.escaparHTML(item.name || "Producto sin nombre")}</span>
+      ${talla !== "Única" ? `<span class="cart-item-size">Talla ${UiUtils.escaparHTML(talla)}</span>` : ""}
+      <span class="cart-item-price">${UiUtils.formatearPrecio(item.price)} c/u</span>
+      ${!producto
+        ? `<span class="cart-stock-warning">Este producto ya no está disponible.</span>`
+        : cantidad > disponible
+          ? `<span class="cart-stock-warning">Solo hay ${disponible} disponible${disponible === 1 ? "" : "s"} para esta selección.</span>`
+          : ""}
     </div>
-
     <div class="cart-item-actions">
-      <span class="cart-item-subtotal">
-        ${formatearPrecio(subtotal)}
-      </span>
-
+      <span class="cart-item-subtotal">${UiUtils.formatearPrecio(subtotal)}</span>
       <div class="qty-control">
         <button type="button" class="btn-decrease" aria-label="Disminuir cantidad">−</button>
-
-        <input
-          type="number"
-          class="qty-input"
-          value="${cantidad}"
-          min="1"
-          max="${Math.max(disponible, cantidad)}"
-          aria-label="Cantidad"
-          ${!producto ? "disabled" : ""}
-        >
-
-        <button
-          type="button"
-          class="btn-increase"
-          aria-label="Aumentar cantidad"
-          ${!producto || cantidad >= disponible ? "disabled" : ""}
-        >
-          +
-        </button>
+        <input type="number" class="qty-input" value="${cantidad}" min="1"
+               max="${Math.max(disponible, cantidad)}" aria-label="Cantidad"
+               ${!producto ? "disabled" : ""}>
+        <button type="button" class="btn-increase" aria-label="Aumentar cantidad"
+                ${!producto || cantidad >= disponible ? "disabled" : ""}>+</button>
       </div>
-
       <button type="button" class="btn-remove">Eliminar</button>
     </div>
   `;
 
-  elemento.querySelector(".btn-decrease").addEventListener("click", () => {
-    actualizarCantidad(item.key, -1);
-  });
+  el.querySelector(".btn-decrease").addEventListener("click", () => actualizarCantidad(item.key, -1));
+  el.querySelector(".btn-increase").addEventListener("click", () => actualizarCantidad(item.key, 1));
+  el.querySelector(".qty-input").addEventListener("change", (e) => establecerCantidad(item.key, e.target.value));
+  el.querySelector(".btn-remove").addEventListener("click", () => eliminarDelCarrito(item.key));
 
-  elemento.querySelector(".btn-increase").addEventListener("click", () => {
-    actualizarCantidad(item.key, 1);
-  });
-
-  elemento.querySelector(".qty-input").addEventListener("change", (evento) => {
-    establecerCantidad(item.key, evento.target.value);
-  });
-
-  elemento.querySelector(".btn-remove").addEventListener("click", () => {
-    eliminarDelCarrito(item.key);
-  });
-
-  return elemento;
+  return el;
 }
 
-/* =========================================================
-   RENDER: resumen de compra
-   ========================================================= */
 function renderizarResumen(carrito) {
-  const subtotal = calcularSubtotal(carrito);
+  const subtotal          = calcularSubtotal(carrito);
   const descuentoRegistro = calcularDescuentoRegistro(subtotal);
-  const cupon = obtenerCuponAplicado();
-  const descuentoCupon = calcularDescuentoCupon(subtotal, cupon);
-  const envio = calcularEnvio(subtotal);
-  const total = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
+  const cupon             = obtenerCuponAplicado();
+  const descuentoCupon    = calcularDescuentoCupon(subtotal, cupon);
+  const envio             = calcularEnvio(subtotal);
+  const total             = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
 
-  document.getElementById("cartSubtotal").textContent = formatearPrecio(subtotal);
+  function _set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-  const filaDescuentoRegistro = document.getElementById("cartDiscountRow");
-  if (filaDescuentoRegistro) {
-    filaDescuentoRegistro.style.display = descuentoRegistro > 0 ? "flex" : "none";
-    document.getElementById("cartDiscountValue").textContent =
-      `-${formatearPrecio(descuentoRegistro)}`;
+  _set("cartSubtotal", UiUtils.formatearPrecio(subtotal));
+  _set("cartTotal",    UiUtils.formatearPrecio(total));
+
+  const filaDesc = document.getElementById("cartDiscountRow");
+  if (filaDesc) {
+    filaDesc.style.display = descuentoRegistro > 0 ? "flex" : "none";
+    _set("cartDiscountValue", `-${UiUtils.formatearPrecio(descuentoRegistro)}`);
   }
 
-  const filaCupon = document.getElementById("cartCouponRow");
-  if (filaCupon) {
-    filaCupon.style.display = descuentoCupon > 0 ? "flex" : "none";
-    document.getElementById("cartCouponLabel").textContent =
-      `Cupón (${cupon ? cupon.codigo : ""})`;
-    document.getElementById("cartCouponValue").textContent =
-      `-${formatearPrecio(descuentoCupon)}`;
+  const filaCup = document.getElementById("cartCouponRow");
+  if (filaCup) {
+    filaCup.style.display = descuentoCupon > 0 ? "flex" : "none";
+    _set("cartCouponLabel", `Cupón (${cupon ? cupon.codigo : ""})`);
+    _set("cartCouponValue", `-${UiUtils.formatearPrecio(descuentoCupon)}`);
   }
 
-  const cartShipping = document.getElementById("cartShipping");
-  if (cartShipping) {
-    cartShipping.textContent = envio === 0 ? "Gratis" : formatearPrecio(envio);
-  }
+  const cartShip = document.getElementById("cartShipping");
+  if (cartShip) cartShip.textContent = envio === 0 ? "Gratis" : UiUtils.formatearPrecio(envio);
 
-  const mensajeEnvio = document.getElementById("freeShippingMsg");
-  if (mensajeEnvio) {
-    mensajeEnvio.textContent = mensajeEnvioGratis(subtotal);
-    mensajeEnvio.classList.toggle("free-shipping-reached", envio === 0);
+  const msgEnvio = document.getElementById("freeShippingMsg");
+  if (msgEnvio) {
+    msgEnvio.textContent = mensajeEnvioGratis(subtotal);
+    msgEnvio.classList.toggle("free-shipping-reached", envio === 0);
   }
 
   const barra = document.getElementById("freeShippingBarFill");
-  if (barra) {
-    const porcentaje = Math.min(
-      100,
-      (subtotal / CONFIG_PRECIOS.ENVIO_GRATIS_DESDE) * 100
-    );
-    barra.style.width = `${porcentaje}%`;
-  }
+  if (barra) barra.style.width = `${Math.min(100, (subtotal / CONFIG_PRECIOS.ENVIO_GRATIS_DESDE) * 100)}%`;
 
-  document.getElementById("cartTotal").textContent = formatearPrecio(total);
-
-  // Estado visual del input/botón de cupón
-  const couponInput = document.getElementById("couponInput");
-  const btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
-  const btnApplyCoupon = document.getElementById("btnApplyCoupon");
+  const couponInput    = document.getElementById("couponInput");
+  const btnApply       = document.getElementById("btnApplyCoupon");
+  const btnRemove      = document.getElementById("btnRemoveCoupon");
 
   if (cupon) {
-    if (couponInput) couponInput.value = cupon.codigo;
-    if (couponInput) couponInput.disabled = true;
-    if (btnApplyCoupon) btnApplyCoupon.style.display = "none";
-    if (btnRemoveCoupon) btnRemoveCoupon.style.display = "inline-flex";
+    if (couponInput)  { couponInput.value = cupon.codigo; couponInput.disabled = true; }
+    if (btnApply)    btnApply.style.display  = "none";
+    if (btnRemove)   btnRemove.style.display = "inline-flex";
   } else {
-    if (couponInput) couponInput.disabled = false;
-    if (btnApplyCoupon) btnApplyCoupon.style.display = "inline-flex";
-    if (btnRemoveCoupon) btnRemoveCoupon.style.display = "none";
+    if (couponInput)  couponInput.disabled   = false;
+    if (btnApply)    btnApply.style.display  = "inline-flex";
+    if (btnRemove)   btnRemove.style.display = "none";
   }
 }
 
 function renderizarCarrito() {
-  const carrito = obtenerCarrito();
+  const carrito    = obtenerCarrito();
   const contenedor = document.getElementById("cartItemsContainer");
-  const resumen = document.getElementById("cartSummary");
+  const resumen    = document.getElementById("cartSummary");
 
   if (!contenedor || !resumen) return;
 
@@ -550,212 +313,138 @@ function renderizarCarrito() {
         <p>Explora el catálogo y añade tus productos favoritos.</p>
       </div>
     `;
-
     resumen.style.display = "none";
     return;
   }
 
   resumen.style.display = "block";
-
-  carrito.forEach((item) => {
-    contenedor.appendChild(crearItemCarrito(item, carrito));
-  });
-
+  carrito.forEach((item) => contenedor.appendChild(crearItemCarrito(item, carrito)));
   renderizarResumen(carrito);
 }
 
-/* =========================================================
-   VALIDACIÓN Y DESCUENTO DE STOCK (COMPRA)
-   ========================================================= */
+/* =================================================================
+   VALIDACIÓN Y DESCUENTO DE STOCK (para checkout)
+================================================================= */
 function validarCarritoAntesDeCompra(carrito, productos) {
   const errores = [];
-
   carrito.forEach((item) => {
-    const producto = encontrarProductoParaItem(item, productos);
+    const p     = encontrarProductoParaItem(item, productos);
     const talla = item.size || "Única";
-
-    if (!producto) {
-      errores.push(`${item.name}: el producto ya no se encuentra disponible.`);
-      return;
-    }
-
-    const cantidadSolicitada = normalizarCantidad(item.quantity);
-    const stockDisponible = producto.esAccesorio
-      ? producto.stock
-      : normalizarCantidad(producto.stockBySize[talla]);
-
-    if (cantidadSolicitada > stockDisponible) {
-      errores.push(
-        `${item.name}${
-          talla !== "Única" ? `, talla ${talla}` : ""
-        }: hay ${stockDisponible} disponible${stockDisponible === 1 ? "" : "s"}.`
-      );
+    if (!p) { errores.push(`${item.name}: ya no está disponible.`); return; }
+    const cant = UiUtils.normalizarCantidad(item.quantity);
+    const stock = p.esAccesorio ? p.stock : UiUtils.normalizarCantidad(p.stockBySize[talla]);
+    if (cant > stock) {
+      errores.push(`${item.name}${talla !== "Única" ? `, talla ${talla}` : ""}: hay ${stock} disponible${stock === 1 ? "" : "s"}.`);
     }
   });
-
   return errores;
 }
 
 function descontarStockDeCompra(carrito, productos) {
-  return productos.map((productoOriginal) => {
-    const producto = normalizarProducto(productoOriginal);
+  return productos.map((orig) => {
+    const p   = normalizarProducto(orig);
+    const rel = carrito.find((item) =>
+      (item.productId && String(item.productId) === String(p.id)) ||
+      (!item.productId && item.name === p.name)
+    );
+    if (!rel) return orig;
 
-    const itemRelacionado = carrito.find((item) => {
-      const coincideId =
-        item.productId && String(item.productId) === String(producto.id);
-      const coincideProductoAnterior =
-        !item.productId && item.name === producto.name;
-      return coincideId || coincideProductoAnterior;
-    });
-
-    if (!itemRelacionado) return productoOriginal;
-
-    if (producto.esAccesorio) {
-      const cantidadComprada = carrito
-        .filter((item) => {
-          return (
-            String(item.productId || "") === String(producto.id) ||
-            (!item.productId && item.name === producto.name)
-          );
-        })
-        .reduce((total, item) => total + normalizarCantidad(item.quantity), 0);
-
-      return {
-        ...productoOriginal,
-        stock: Math.max(0, producto.stock - cantidadComprada),
-        stockBySize: {},
-        sizes: []
-      };
+    if (p.esAccesorio) {
+      const total = carrito
+        .filter((item) => String(item.productId || "") === String(p.id) || (!item.productId && item.name === p.name))
+        .reduce((t, item) => t + UiUtils.normalizarCantidad(item.quantity), 0);
+      return { ...orig, stock: Math.max(0, p.stock - total), stockBySize: {}, sizes: [] };
     }
 
-    const nuevoStockPorTalla = { ...producto.stockBySize };
-
+    const nSBT = { ...p.stockBySize };
     carrito.forEach((item) => {
-      const coincideId =
-        item.productId && String(item.productId) === String(producto.id);
-      const coincideProductoAnterior =
-        !item.productId && item.name === producto.name;
-
-      if (!coincideId && !coincideProductoAnterior) return;
-
-      const talla = item.size || "Única";
-
-      nuevoStockPorTalla[talla] = Math.max(
-        0,
-        normalizarCantidad(nuevoStockPorTalla[talla]) -
-          normalizarCantidad(item.quantity)
-      );
+      const match = (item.productId && String(item.productId) === String(p.id)) || (!item.productId && item.name === p.name);
+      if (!match) return;
+      const t = item.size || "Única";
+      nSBT[t] = Math.max(0, UiUtils.normalizarCantidad(nSBT[t]) - UiUtils.normalizarCantidad(item.quantity));
     });
-
-    const nuevoStockGeneral = Object.values(nuevoStockPorTalla).reduce(
-      (total, cantidad) => total + normalizarCantidad(cantidad),
-      0
-    );
-
-    return {
-      ...productoOriginal,
-      stockBySize: nuevoStockPorTalla,
-      sizes: Object.keys(nuevoStockPorTalla),
-      stock: nuevoStockGeneral
-    };
+    const nStock = Object.values(nSBT).reduce((t, c) => t + UiUtils.normalizarCantidad(c), 0);
+    return { ...orig, stockBySize: nSBT, sizes: Object.keys(nSBT), stock: nStock };
   });
 }
 
-/* =========================================================
-   CHECKOUT -> PAGO
-   MODIFICADO: ya no descuenta stock ni finaliza la compra aquí.
-   Solo valida, guarda un "compraPendiente" y redirige a payment.html.
-   El stock se descuenta y el pedido se crea en pago.js, una vez
-   confirmado el método de pago.
-   ========================================================= */
+/* =================================================================
+   CHECKOUT → PAYMENT
+================================================================= */
 function finalizarCompra() {
   const carrito = obtenerCarrito();
 
-  if (carrito.length === 0) {
-    alert("Tu carrito está vacío.");
-    return;
-  }
+  if (carrito.length === 0) { alert("Tu carrito está vacío."); return; }
 
-  const usuarioActivo = obtenerUsuarioActivo();
-  if (!usuarioActivo) {
+  const usuario = AuthService.getUsuarioActivo();
+  if (!usuario) {
     alert("Debes iniciar sesión para finalizar la compra.");
     window.location.href = "login.html";
     return;
   }
 
   const productos = obtenerProductos();
-  const errores = validarCarritoAntesDeCompra(carrito, productos);
-
+  const errores   = validarCarritoAntesDeCompra(carrito, productos);
   if (errores.length > 0) {
-    alert(
-      `No se puede finalizar la compra porque el stock cambió:\n\n${errores.join("\n")}`
-    );
+    alert(`No se puede finalizar la compra:\n\n${errores.join("\n")}`);
     renderizarCarrito();
     return;
   }
 
-  const subtotal = calcularSubtotal(carrito);
+  const subtotal          = calcularSubtotal(carrito);
   const descuentoRegistro = calcularDescuentoRegistro(subtotal);
-  const cupon = obtenerCuponAplicado();
-  const descuentoCupon = calcularDescuentoCupon(subtotal, cupon);
-  const envio = calcularEnvio(subtotal);
-  const total = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
+  const cupon             = obtenerCuponAplicado();
+  const descuentoCupon    = calcularDescuentoCupon(subtotal, cupon);
+  const envio             = calcularEnvio(subtotal);
+  const total             = calcularTotal(subtotal, descuentoRegistro, descuentoCupon, envio);
 
-  guardarCompraPendiente({
-    items: carrito,
-    subtotal,
-    descuentoRegistro,
-    cupon,
-    descuentoCupon,
-    envio,
-    total
-  });
-
+  CartStore.setCompraPendiente({ items: carrito, subtotal, descuentoRegistro, cupon, descuentoCupon, envio, total });
   window.location.href = "./payment.html";
 }
 
-/* =========================================================
+/* =================================================================
    EVENTOS GLOBALES
-   ========================================================= */
-const btnCheckout = document.getElementById("btnCheckout");
-if (btnCheckout) {
-  btnCheckout.addEventListener("click", finalizarCompra);
-}
+================================================================= */
+document.addEventListener("DOMContentLoaded", async () => {
+  // Carga productos frescos del backend al abrir el carrito
+  try {
+    await ProductoService.cargarYCachear();
+  } catch { /* usa caché */ }
 
-const btnApplyCoupon = document.getElementById("btnApplyCoupon");
-const couponInput = document.getElementById("couponInput");
-const couponMessage = document.getElementById("couponMessage");
-const btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
+  renderizarCarrito();
+  CartStore.actualizarContador();
 
-if (btnApplyCoupon && couponInput) {
-  btnApplyCoupon.addEventListener("click", () => {
-    const resultado = aplicarCupon(couponInput.value);
+  const btnCheckout = document.getElementById("btnCheckout");
+  if (btnCheckout) btnCheckout.addEventListener("click", finalizarCompra);
 
-    if (couponMessage) {
-      couponMessage.textContent = resultado.mensaje;
-      couponMessage.classList.toggle("coupon-message-error", !resultado.valido);
-      couponMessage.classList.toggle("coupon-message-success", resultado.valido);
-    }
+  const btnApply    = document.getElementById("btnApplyCoupon");
+  const couponInput = document.getElementById("couponInput");
+  const couponMsg   = document.getElementById("couponMessage");
+  const btnRemove   = document.getElementById("btnRemoveCoupon");
 
-    renderizarCarrito();
-  });
-}
+  if (btnApply && couponInput) {
+    btnApply.addEventListener("click", () => {
+      const res = aplicarCupon(couponInput.value);
+      if (couponMsg) {
+        couponMsg.textContent = res.mensaje;
+        couponMsg.classList.toggle("coupon-message-error",   !res.valido);
+        couponMsg.classList.toggle("coupon-message-success", res.valido);
+      }
+      renderizarCarrito();
+    });
+  }
 
-if (btnRemoveCoupon) {
-  btnRemoveCoupon.addEventListener("click", () => {
-    quitarCupon();
-    if (couponMessage) {
-      couponMessage.textContent = "";
-      couponMessage.classList.remove("coupon-message-error", "coupon-message-success");
-    }
-    renderizarCarrito();
-  });
-}
+  if (btnRemove) {
+    btnRemove.addEventListener("click", () => {
+      quitarCupon();
+      if (couponMsg) couponMsg.textContent = "";
+      renderizarCarrito();
+    });
+  }
+});
 
-renderizarCarrito();
-actualizarContadorCarrito();
-
-window.updateQuantity = actualizarCantidad;
-window.setQuantity = establecerCantidad;
-window.removeFromCart = eliminarDelCarrito;
-window.updateCartCount = actualizarContadorCarrito;
+/* Alias globales */
+window.updateCartCount  = CartStore.actualizarContador;
+window.updateQuantity   = actualizarCantidad;
+window.setQuantity      = establecerCantidad;
+window.removeFromCart   = eliminarDelCarrito;
